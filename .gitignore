@@ -1,0 +1,12 @@
+build-*/
+cmake-build-*/
+.idea/
+.qtcreator/
+.qtc_clangd/
+
+*.user
+*.o
+*.obj
+*.exe
+*.dll
+*.pdb

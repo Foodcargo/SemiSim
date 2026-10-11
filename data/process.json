@@ -1,0 +1,36 @@
+{
+  "processes": [
+    {
+      "id": "oxidation",
+      "name": "Oxidation",
+      "defaultMode": "dry",
+      "defaultTemperatureC": 1000,
+      "defaultTimeMin": 30,
+      "defaultThicknessNm": 100,
+      "autoThicknessHint": "Set thickness to 0 to estimate it from mode, temperature, and time."
+    },
+    {
+      "id": "photo",
+      "name": "Photo Lithography",
+      "defaultThicknessNm": 1200
+    },
+    {
+      "id": "etching",
+      "name": "Etching"
+    },
+    {
+      "id": "deposition",
+      "name": "Deposition",
+      "defaultThicknessNm": 300
+    },
+    {
+      "id": "implantation",
+      "name": "Ion Implantation",
+      "defaultDose": 1000000000000000
+    },
+    {
+      "id": "cmp",
+      "name": "Chemical Mechanical Planarization"
+    }
+  ]
+}
