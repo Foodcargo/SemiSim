@@ -15,6 +15,7 @@
 #include <QColor>
 #include <QDockWidget>
 #include <QString>
+#include <QStringList>
 
 namespace {
 QColor materialColor(const QString &material)
@@ -26,6 +27,53 @@ QColor materialColor(const QString &material)
         return QColor("#f59e0b");
     }
     return QColor("#2563eb");
+}
+
+void checkRange(QStringList &failures, const QVariantMap &parameters, const QString &key, const QString &label, double minimum, double maximum, const QString &unit)
+{
+    const double value = parameters.value(key).toDouble();
+    if (value < minimum || value > maximum) {
+        failures.append(QString("%1 %2 %3: allowed %4-%5 %6")
+                            .arg(label)
+                            .arg(value, 0, 'g', 4)
+                            .arg(unit)
+                            .arg(minimum, 0, 'g', 4)
+                            .arg(maximum, 0, 'g', 4)
+                            .arg(unit));
+    }
+}
+
+void collectProcessFailures(int step, const QVariantMap &parameters, QStringList &failures)
+{
+    switch (step) {
+    case 0:
+        checkRange(failures, parameters, "substrateThicknessUm", "Wafer thickness", 500.0, 800.0, "um");
+        break;
+    case 1:
+        checkRange(failures, parameters, "wellDose", "Well implant dose", 1.0e12, 5.0e13, "ions/cm2");
+        break;
+    case 2:
+        checkRange(failures, parameters, "photoThicknessNm", "Photoresist thickness", 500.0, 2000.0, "nm");
+        break;
+    case 3:
+        checkRange(failures, parameters, "gateTemperatureC", "Gate oxidation temperature", 850.0, 1100.0, "C");
+        checkRange(failures, parameters, "gateTimeMin", "Gate oxidation time", 10.0, 120.0, "min");
+        checkRange(failures, parameters, "gateOxideNm", "Gate oxide thickness", 5.0, 120.0, "nm");
+        checkRange(failures, parameters, "polyThicknessNm", "Polysilicon thickness", 150.0, 500.0, "nm");
+        break;
+    case 4:
+        checkRange(failures, parameters, "sourceDrainDose", "Source/drain implant dose", 5.0e14, 5.0e15, "ions/cm2");
+        break;
+    case 5:
+        checkRange(failures, parameters, "contactEtchDepthNm", "Contact etch depth", 100.0, 500.0, "nm");
+        checkRange(failures, parameters, "contactFillThicknessNm", "Contact fill thickness", 200.0, 1000.0, "nm");
+        break;
+    case 6:
+        checkRange(failures, parameters, "metalThicknessNm", "Metal thickness", 300.0, 1200.0, "nm");
+        break;
+    default:
+        break;
+    }
 }
 }
 
@@ -59,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *toolbar = new Toolbar(this);
     addToolBar(toolbar);
-    connect(toolbar, &Toolbar::resetRequested, m_wafer, &Wafer::clear);
+    connect(toolbar, &Toolbar::resetRequested, this, &MainWindow::resetProcess);
 
     auto *processDock = new QDockWidget("Design Browser", this);
     processDock->setWidget(m_processPanel);
@@ -77,11 +125,18 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::wireProcessActions()
 {
     connect(m_processPanel, &ProcessPanel::processSubmitted, this, &MainWindow::applySubmittedProcess);
-    connect(m_processPanel, &ProcessPanel::resetRequested, m_wafer, &Wafer::clear);
+    connect(m_processPanel, &ProcessPanel::resetRequested, this, &MainWindow::resetProcess);
     connect(m_wafer, &Wafer::changed, this, [this]() {
         m_processPanel->setCurrentStep(m_wafer->processStep());
     });
     m_processPanel->setCurrentStep(m_wafer->processStep());
+}
+
+void MainWindow::resetProcess()
+{
+    m_processFailures.clear();
+    m_wafer->clear();
+    m_processPanel->showMessage("Process flow has been reset.");
 }
 
 void MainWindow::applySubmittedProcess(int step, const QVariantMap &parameters)
@@ -90,6 +145,8 @@ void MainWindow::applySubmittedProcess(int step, const QVariantMap &parameters)
         m_processPanel->showMessage("Current process step changed. Please submit the visible step again.");
         return;
     }
+
+    collectProcessFailures(step, parameters, m_processFailures);
 
     switch (step) {
     case 0:
@@ -171,5 +228,17 @@ void MainWindow::applySubmittedProcess(int step, const QVariantMap &parameters)
     }
 
     m_wafer->advanceProcess();
+    if (m_wafer->processStep() >= 7) {
+        if (m_processFailures.isEmpty()) {
+            m_wafer->recordProcess("Final result: Process completed successfully.");
+            m_processPanel->showMessage("Process complete: all parameters are within the allowed process limits.");
+        } else {
+            const QString failureText = m_processFailures.join("; ");
+            m_wafer->recordProcess("Final result: Process failed. " + failureText);
+            m_processPanel->showMessage("Process complete: process failed because these parameters exceeded the limits. " + failureText);
+        }
+        return;
+    }
+
     m_processPanel->showMessage("Applied values and advanced to the next process step.");
 }
