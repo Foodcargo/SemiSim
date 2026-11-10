@@ -1,0 +1,139 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Simulation.Initialization;
+using SemiconductorEdu.Simulation.Processes;
+
+namespace SemiconductorEdu.UnitTests;
+
+public sealed class ImplantAnnealModelsTests
+{
+    private static readonly DateTimeOffset Now = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+    [Theory]
+    [InlineData(DopantSpecies.Boron, 50, 7)]
+    [InlineData(DopantSpecies.Phosphorus, 50, 7)]
+    [InlineData(DopantSpecies.Arsenic, 50, 7)]
+    public void ImplantationNormalizesDoseAndInitialActivation(DopantSpecies species, double energy, double tilt)
+    {
+        var before = CreateWafer();
+        var dose = ArealDose.FromIonsPerSquareCentimeter(1e13);
+        var output = new ImplantAnnealModels().ApplyImplantation(before,
+            new IonImplantationParameters(species, Energy.FromKiloElectronVolts(energy), dose, tilt), Guid.NewGuid(), Now.AddSeconds(1));
+
+        Assert.True(output.Validation.IsValid, string.Join(", ", output.Validation.Errors.Select(issue => issue.Code)));
+        var profile = Assert.Single(output.CandidateState!.ImplantProfiles);
+        var integratedDose = Integrate(profile.TotalConcentrationByDepth, profile.DepthGrid) / 1e4;
+        Assert.InRange(Math.Abs(integratedDose / dose.IonsPerSquareCentimeter - 1), 0, 1e-6);
+        Assert.InRange(Math.Abs(Integrate(profile.ActiveConcentrationByDepth, profile.DepthGrid) / Integrate(profile.TotalConcentrationByDepth, profile.DepthGrid) - 0.1), 0, 1e-10);
+        Assert.Equal(before.Revision + 1, output.CandidateState.Revision);
+    }
+
+    [Fact]
+    public void ImplantationRejectsOxideSurfaceWithoutChangingState()
+    {
+        var parameters = WaferInitializationParameters.EducationalDefaults() with
+        {
+            StartSurface = WaferStartSurface.UniformSiO2,
+            InitialOxideThickness = Length.FromNanometers(100)
+        };
+        var before = new WaferStateFactory().Create(parameters, Guid.NewGuid(), Now, 33);
+        var output = new ImplantAnnealModels().ApplyImplantation(before,
+            new IonImplantationParameters(DopantSpecies.Boron, Energy.FromKiloElectronVolts(10), ArealDose.FromIonsPerSquareCentimeter(1e13), 7),
+            Guid.NewGuid(), Now.AddSeconds(1));
+
+        Assert.False(output.Validation.IsValid);
+        Assert.Null(output.CandidateState);
+        Assert.Equal(0, before.Revision);
+        Assert.Contains(output.Validation.Errors, issue => issue.Code == "IMPLANT_PRECONDITION_SURFACE");
+    }
+
+    [Fact]
+    public void RepeatedSameSpeciesImplantsAtDifferentEnergiesAccumulateDoseOnSharedGrid()
+    {
+        var model = new ImplantAnnealModels();
+        var initial = CreateWafer();
+        var first = model.ApplyImplantation(initial,
+            new IonImplantationParameters(DopantSpecies.Boron, Energy.FromKiloElectronVolts(10), ArealDose.FromIonsPerSquareCentimeter(1e13), 7),
+            Guid.NewGuid(), Now.AddSeconds(1)).CandidateState!;
+        var previousProfile = Assert.Single(first.ImplantProfiles);
+        var secondResult = model.ApplyImplantation(first,
+            new IonImplantationParameters(DopantSpecies.Boron, Energy.FromKiloElectronVolts(20), ArealDose.FromIonsPerSquareCentimeter(2e13), 7),
+            Guid.NewGuid(), Now.AddSeconds(2));
+
+        Assert.True(secondResult.Validation.IsValid, string.Join(", ", secondResult.Validation.Errors.Select(issue => issue.Code)));
+        var combined = Assert.Single(secondResult.CandidateState!.ImplantProfiles);
+        Assert.Equal(previousProfile.ProfileId, combined.ProfileId);
+        Assert.InRange(Math.Abs(Integrate(combined.TotalConcentrationByDepth, combined.DepthGrid) / 1e4 / 3e13 - 1), 0, 1e-5);
+        Assert.Equal(2, secondResult.CandidateState.ImplantProfiles.Count);
+    }
+
+    [Fact]
+    public void AnnealPreservesDoseAndKeepsActiveBelowTotal()
+    {
+        var model = new ImplantAnnealModels();
+        var before = model.ApplyImplantation(CreateWafer(),
+            new IonImplantationParameters(DopantSpecies.Boron, Energy.FromKiloElectronVolts(10), ArealDose.FromIonsPerSquareCentimeter(1e13), 7),
+            Guid.NewGuid(), Now.AddSeconds(1)).CandidateState!;
+        var beforeProfile = Assert.Single(before.ImplantProfiles);
+        var output = model.ApplyAnneal(before,
+            new AnnealParameters(AnnealMethod.Rta, Temperature.FromCelsius(1000), Duration.FromSeconds(30), "N2"),
+            Guid.NewGuid(), Now.AddSeconds(31));
+
+        Assert.True(output.Validation.IsValid, string.Join(", ", output.Validation.Errors.Select(issue => issue.Code)));
+        var after = Assert.Single(output.CandidateState!.ImplantProfiles);
+        var doseBefore = Integrate(beforeProfile.TotalConcentrationByDepth, beforeProfile.DepthGrid);
+        var doseAfter = Integrate(after.TotalConcentrationByDepth, after.DepthGrid);
+        Assert.InRange(Math.Abs(doseAfter / doseBefore - 1), 0, 1e-6);
+        Assert.All(after.TotalConcentrationByDepth.Zip(after.ActiveConcentrationByDepth), pair =>
+        {
+            Assert.True(pair.First.PerCubicMeter >= 0);
+            Assert.InRange(pair.Second.PerCubicMeter, 0, pair.First.PerCubicMeter);
+        });
+        var activation = Integrate(after.ActiveConcentrationByDepth, after.DepthGrid) / doseAfter;
+        Assert.True(activation > 0.1);
+    }
+
+    [Fact]
+    public void AnnealExtendsShallowProfileDomainAndPreservesDose()
+    {
+        var model = new ImplantAnnealModels();
+        var before = model.ApplyImplantation(CreateWafer(),
+            new IonImplantationParameters(DopantSpecies.Boron, Energy.FromKiloElectronVolts(10), ArealDose.FromIonsPerSquareCentimeter(1e13), 7),
+            Guid.NewGuid(), Now.AddSeconds(1)).CandidateState!;
+        var beforeProfile = Assert.Single(before.ImplantProfiles);
+        var output = model.ApplyAnneal(before,
+            new AnnealParameters(AnnealMethod.Furnace, Temperature.FromCelsius(1000), Duration.FromSeconds(7200), "N2"),
+            Guid.NewGuid(), Now.AddSeconds(7201));
+
+        Assert.True(output.Validation.IsValid, string.Join(", ", output.Validation.Errors.Select(issue => issue.Code)));
+        var after = Assert.Single(output.CandidateState!.ImplantProfiles);
+        Assert.True(after.DepthGrid.Count > beforeProfile.DepthGrid.Count);
+        Assert.InRange(Math.Abs(Integrate(after.TotalConcentrationByDepth, after.DepthGrid) / Integrate(beforeProfile.TotalConcentrationByDepth, beforeProfile.DepthGrid) - 1), 0, 1e-5);
+        Assert.All(after.TotalConcentrationByDepth.Zip(after.ActiveConcentrationByDepth), pair =>
+            Assert.InRange(pair.Second.PerCubicMeter, 0, pair.First.PerCubicMeter));
+    }
+
+    [Fact]
+    public void AnnealWithoutImplantationIsRejected()
+    {
+        var output = new ImplantAnnealModels().ApplyAnneal(CreateWafer(),
+            new AnnealParameters(AnnealMethod.Rta, Temperature.FromCelsius(1000), Duration.FromSeconds(30), "N2"),
+            Guid.NewGuid(), Now.AddSeconds(1));
+
+        Assert.False(output.Validation.IsValid);
+        Assert.Null(output.CandidateState);
+        Assert.Contains(output.Validation.Errors, issue => issue.Code == "ANNEAL_IMPLANT_REQUIRED");
+    }
+
+    private static WaferState CreateWafer() => new WaferStateFactory().Create(
+        WaferInitializationParameters.EducationalDefaults(), Guid.NewGuid(), Now, resolution: 33);
+
+    private static double Integrate(IReadOnlyList<Concentration> profile, IReadOnlyList<Length> depth)
+    {
+        var sum = 0.0;
+        for (var index = 1; index < profile.Count; index++)
+            sum += (profile[index - 1].PerCubicMeter + profile[index].PerCubicMeter) * 0.5 * (depth[index].Meters - depth[index - 1].Meters);
+        return sum;
+    }
+}

@@ -1,0 +1,16 @@
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\bin\Debug\net10.0\SemiconductorEdu.Simulation.deps.json
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\bin\Debug\net10.0\SemiconductorEdu.Simulation.dll
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\bin\Debug\net10.0\SemiconductorEdu.Simulation.pdb
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\bin\Debug\net10.0\SemiconductorEdu.Domain.dll
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\bin\Debug\net10.0\SemiconductorEdu.Domain.pdb
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.csproj.AssemblyReference.cache
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.GeneratedMSBuildEditorConfig.editorconfig
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.AssemblyInfoInputs.cache
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.AssemblyInfo.cs
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.csproj.CoreCompileInputs.cache
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.sourcelink.json
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\Semicond.0072ECD0.Up2Date
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.dll
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\refint\SemiconductorEdu.Simulation.dll
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\SemiconductorEdu.Simulation.pdb
+D:\Program_Files\SemiPlay\SemiSim\src\SemiconductorEdu.Simulation\obj\Debug\net10.0\ref\SemiconductorEdu.Simulation.dll

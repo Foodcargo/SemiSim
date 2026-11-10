@@ -1,0 +1,67 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Simulation.Initialization;
+using SemiconductorEdu.Simulation.Processes;
+
+namespace SemiconductorEdu.UnitTests;
+
+public sealed class InspectionModelsTests
+{
+    private static readonly DateTimeOffset Now = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void ThicknessInspectionUsesCurrentLayerAndDoesNotChangePhysicalStack()
+    {
+        var before = CreateOxideWafer();
+        var layer = Assert.Single(before.Layers.Where(item => item.Material == WaferMaterial.SiliconDioxide));
+        var output = new InspectionModels().Inspect(before,
+            new InspectionParameters(InspectionMode.Thickness, layer.LayerId,
+                new QualityTarget("thickness", 100, 0, null, null, null, "nm", true)),
+            Guid.NewGuid(), Now.AddSeconds(1));
+
+        Assert.Equal(QualityStatus.Pass, output.QualityStatus);
+        Assert.NotNull(output.Output.CandidateState);
+        Assert.Equal(before.CrossSection, output.Output.CandidateState!.CrossSection);
+        Assert.Equal(before.Layers, output.Output.CandidateState.Layers);
+        Assert.Single(output.Output.CandidateState.Inspections!);
+        Assert.Equal(before.Revision + 1, output.Output.CandidateState.Revision);
+    }
+
+    [Fact]
+    public void InspectionQualityFailureStillProducesInspectionRecord()
+    {
+        var before = CreateOxideWafer();
+        var oxide = Assert.Single(before.Layers.Where(item => item.Material == WaferMaterial.SiliconDioxide));
+        var output = new InspectionModels().Inspect(before,
+            new InspectionParameters(InspectionMode.Thickness, oxide.LayerId,
+                new QualityTarget("thickness", 200, 10, null, null, null, "nm", true)),
+            Guid.NewGuid(), Now.AddSeconds(1));
+
+        Assert.Equal(QualityStatus.Fail, output.QualityStatus);
+        Assert.NotNull(output.Output.CandidateState);
+        Assert.Single(output.Output.CandidateState!.Inspections!);
+    }
+
+    [Fact]
+    public void InspectionRejectsTargetFromAnotherState()
+    {
+        var before = CreateOxideWafer();
+        var output = new InspectionModels().Inspect(before,
+            new InspectionParameters(InspectionMode.Thickness, Guid.NewGuid(),
+                new QualityTarget("thickness", 100, 10, null, null, null, "nm", true)),
+            Guid.NewGuid(), Now.AddSeconds(1));
+
+        Assert.False(output.Output.Validation.IsValid);
+        Assert.Null(output.Output.CandidateState);
+        Assert.Equal(QualityStatus.NotEvaluated, output.QualityStatus);
+        Assert.Contains(output.Output.Validation.Errors, issue => issue.Code == "INSPECTION_TARGET_NOT_FOUND");
+    }
+
+    private static WaferState CreateOxideWafer() => new WaferStateFactory().Create(
+        WaferInitializationParameters.EducationalDefaults() with
+        {
+            StartSurface = WaferStartSurface.UniformSiO2,
+            InitialOxideThickness = Length.FromNanometers(100)
+        }, Guid.NewGuid(), Now, resolution: 17);
+}

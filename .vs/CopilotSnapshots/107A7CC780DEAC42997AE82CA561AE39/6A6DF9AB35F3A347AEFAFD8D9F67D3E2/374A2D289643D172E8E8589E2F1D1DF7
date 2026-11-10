@@ -1,0 +1,23 @@
+﻿using SemiconductorEdu.Domain.Equipment;
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.Validation;
+using SemiconductorEdu.Simulation.Oxidation;
+
+namespace SemiconductorEdu.Infrastructure.Configuration;
+
+public sealed record SimulationConfiguration(
+    int SchemaVersion,
+    string ConfigurationVersion,
+    string DefinitionVersion,
+    string ModelVersion,
+    OxidationCoefficients Oxidation,
+    EquipmentProfile Equipment,
+    QualityProfile Quality,
+    IReadOnlyList<string> EnabledProcesses);
+
+public sealed record ConfigurationLoadResult(
+    SimulationConfiguration? Configuration,
+    IReadOnlyList<ValidationIssue> Errors)
+{
+    public bool IsValid => Configuration is not null && Errors.Count == 0;
+}

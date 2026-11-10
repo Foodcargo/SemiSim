@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "vGz9SiMm6BI=",
+  "success": true,
+  "projectFilePath": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\KMG\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512",
+    "C:\\Users\\KMG\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.0\\microsoft.extensions.dependencyinjection.10.0.0.nupkg.sha512",
+    "C:\\Users\\KMG\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.0\\microsoft.extensions.dependencyinjection.abstractions.10.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

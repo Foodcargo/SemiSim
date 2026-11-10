@@ -1,0 +1,84 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Simulation.Initialization;
+using SemiconductorEdu.Simulation.Processes;
+
+namespace SemiconductorEdu.UnitTests;
+
+public sealed class DepositionAndCmpModelsTests
+{
+    private static readonly DateTimeOffset Now = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+    [Theory]
+    [InlineData(DepositionMethod.Cvd)]
+    [InlineData(DepositionMethod.Pvd)]
+    [InlineData(DepositionMethod.Ald)]
+    public void DepositionAddsUniformLayerAcrossCrossSection(DepositionMethod method)
+    {
+        var before = CreateWafer();
+        var output = new DepositionAndCmpModels().ApplyDeposition(
+            before,
+            new DepositionParameters(method, WaferMaterial.SiliconDioxide, Length.FromNanometers(100)),
+            Guid.NewGuid(), Now.AddMinutes(1));
+
+        Assert.True(output.Validation.IsValid);
+        Assert.NotNull(output.CandidateState);
+        Assert.All(output.CandidateState!.CrossSection.Columns, column =>
+            Assert.Equal(100, column.SegmentsBottomToTop.Last().Thickness.Nanometers, 8));
+        Assert.Equal(before.Revision + 1, output.CandidateState.Revision);
+    }
+
+    [Fact]
+    public void DepositionRejectsPatternedWaferWithoutCandidate()
+    {
+        var before = CreateWafer() with
+        {
+            ResistPattern = new ResistPatternState(Guid.NewGuid(), Array.Empty<LengthInterval>(), Array.Empty<Length>())
+        };
+        var output = new DepositionAndCmpModels().ApplyDeposition(
+            before,
+            new DepositionParameters(DepositionMethod.Cvd, WaferMaterial.SiliconDioxide, Length.FromNanometers(100)),
+            Guid.NewGuid(), Now.AddMinutes(1));
+
+        Assert.False(output.Validation.IsValid);
+        Assert.Null(output.CandidateState);
+        Assert.Contains(output.Validation.Errors, issue => issue.Code == "DEPOSITION_PATTERN_UNSUPPORTED");
+    }
+
+    [Fact]
+    public void CmpRemovesTopLayerToTargetHeightAndPreservesSilicon()
+    {
+        var before = new DepositionAndCmpModels().ApplyDeposition(
+            CreateWafer(),
+            new DepositionParameters(DepositionMethod.Cvd, WaferMaterial.SiliconDioxide, Length.FromNanometers(200)),
+            Guid.NewGuid(), Now.AddMinutes(1)).CandidateState!;
+        var output = new DepositionAndCmpModels().ApplyCmp(
+            before,
+            new CmpParameters(Length.FromNanometers(100), Length.FromNanometers(100), Duration.FromMinutes(1)),
+            Guid.NewGuid(), Now.AddMinutes(2));
+
+        Assert.True(output.Validation.IsValid);
+        Assert.NotNull(output.CandidateState);
+        var after = output.CandidateState!.CrossSection.Columns[0];
+        Assert.Equal(before.CrossSection.Columns[0].SurfaceHeight.Nanometers - 100, after.SurfaceHeight.Nanometers, 8);
+        Assert.Contains(after.SegmentsBottomToTop, segment => segment.Material == WaferMaterial.Silicon);
+        Assert.Equal(100, after.SegmentsBottomToTop.Where(segment => segment.Material == WaferMaterial.SiliconDioxide).Sum(segment => segment.Thickness.Nanometers), 8);
+    }
+
+    [Fact]
+    public void CmpRejectsRemovalThatWouldConsumeSubstrate()
+    {
+        var output = new DepositionAndCmpModels().ApplyCmp(
+            CreateWafer(),
+            new CmpParameters(Length.FromNanometers(0), Length.FromNanometers(100000), Duration.FromMinutes(240)),
+            Guid.NewGuid(), Now.AddMinutes(1));
+
+        Assert.False(output.Validation.IsValid);
+        Assert.Null(output.CandidateState);
+        Assert.Contains(output.Validation.Errors, issue => issue.Code == "CMP_SILICON_BREAKTHROUGH");
+    }
+
+    private static WaferState CreateWafer() => new WaferStateFactory().Create(
+        WaferInitializationParameters.EducationalDefaults(), Guid.NewGuid(), Now, resolution: 9);
+}

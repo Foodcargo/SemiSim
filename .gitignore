@@ -10,3 +10,6 @@ cmake-build-*/
 *.exe
 *.dll
 *.pdb
+
+# Local-only project notes
+/docs/remaining-requirements.private.md

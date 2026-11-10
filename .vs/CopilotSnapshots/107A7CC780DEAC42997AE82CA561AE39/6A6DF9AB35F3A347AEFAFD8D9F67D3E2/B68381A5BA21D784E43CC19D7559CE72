@@ -1,0 +1,68 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+
+namespace SemiconductorEdu.Simulation.Initialization;
+
+public sealed class WaferStateFactory
+{
+    public const int DefaultResolution = 512;
+
+    public WaferState Create(
+        WaferInitializationParameters parameters,
+        Guid initializationProcessId,
+        DateTimeOffset createdAtUtc,
+        int resolution = DefaultResolution)
+    {
+        var siliconLayerId = Guid.NewGuid();
+        var oxideThickness = parameters.StartSurface == WaferStartSurface.UniformSiO2
+            ? parameters.InitialOxideThickness
+            : Length.FromMeters(0);
+        var oxideLayerId = oxideThickness.Meters > 0 ? Guid.NewGuid() : Guid.Empty;
+        var layers = new List<LayerReference>
+        {
+            new(siliconLayerId, WaferMaterial.Silicon, initializationProcessId)
+        };
+        if (oxideThickness.Meters > 0)
+            layers.Add(new LayerReference(oxideLayerId, WaferMaterial.SiliconDioxide, initializationProcessId));
+
+        var columns = new CrossSectionColumn[resolution];
+        for (var index = 0; index < resolution; index++)
+        {
+            var x = parameters.DomainWidth.Meters * index / (resolution - 1);
+            var segments = new List<MaterialSegment>
+            {
+                new(siliconLayerId, WaferMaterial.Silicon, parameters.SubstrateThickness, initializationProcessId)
+            };
+            if (oxideThickness.Meters > 0)
+                segments.Add(new MaterialSegment(oxideLayerId, WaferMaterial.SiliconDioxide, oxideThickness, initializationProcessId));
+
+            columns[index] = new CrossSectionColumn(
+                Length.FromMeters(x),
+                Array.AsReadOnly(segments.ToArray()),
+                Length.FromMeters(parameters.SubstrateThickness.Meters + oxideThickness.Meters));
+        }
+
+        return new WaferState(
+            Guid.NewGuid(),
+            null,
+            0,
+            createdAtUtc,
+            new SubstrateState(
+                parameters.Material,
+                parameters.DiameterMm,
+                parameters.SubstrateThickness,
+                parameters.Orientation,
+                parameters.DopingType,
+                parameters.BackgroundDoping,
+                parameters.StartSurface),
+            new CrossSectionState(parameters.DomainWidth, Length.FromMicrometers(20), resolution, Array.AsReadOnly(columns)),
+            Array.AsReadOnly(layers.ToArray()),
+            null,
+            Array.Empty<ImplantProfileState>(),
+            Array.Empty<WireState>(),
+            parameters.ContaminationIndex,
+            Array.Empty<QualityFlag>(),
+            Array.AsReadOnly(new[] { initializationProcessId }));
+    }
+}

@@ -1,0 +1,137 @@
+﻿#include "Scene/WaferRenderer.h"
+
+#include "Model/Wafer.h"
+
+#include <QColor>
+#include <QPainter>
+#include <QPen>
+#include <QPointF>
+#include <QPolygonF>
+#include <QRectF>
+#include <QString>
+#include <QVector>
+#include <QtMath>
+
+namespace {
+struct LayoutBox {
+	QColor color;
+	int step = 0;
+	QRectF footprint;
+	double bottom = 0.0;
+	double height = 0.1;
+	double opacity = 0.7;
+};
+
+QVector<LayoutBox> demoLayout(const QString &maskPattern)
+{
+	QVector<LayoutBox> boxes = {
+		{QColor("#64748b"), 0, QRectF(-2.6, -1.65, 5.2, 3.3), -0.34, 0.20, 0.34},
+		{QColor("#8b5cf6"), 1, QRectF(-2.1, -1.18, 4.2, 2.36), -0.12, 0.14, 0.34},
+		{QColor("#22c55e"), 2, QRectF(-1.48, -0.43, 2.96, 0.86), 0.02, 0.14, 0.72},
+		{QColor("#ef4444"), 3, QRectF(-0.85, -0.30, 1.56, 0.26), 0.26, 0.26, 0.88},
+		{QColor("#14b8a6"), 4, QRectF(-1.33, -0.38, 0.90, 0.76), 0.16, 0.09, 0.58},
+		{QColor("#14b8a6"), 4, QRectF(0.43, -0.38, 0.90, 0.76), 0.16, 0.09, 0.58},
+	};
+
+	if (maskPattern == "Two finger gate") {
+		boxes[3].footprint = QRectF(-0.46, -0.78, 0.20, 1.56);
+		boxes.insert(4, {QColor("#ef4444"), 3, QRectF(0.26, -0.78, 0.20, 1.56), 0.26, 0.26, 0.88});
+		boxes.append({QColor("#2563eb"), 6, QRectF(-0.55, 0.88, 1.10, 0.28), 0.74, 0.20, 0.80});
+	} else if (maskPattern == "Contact array") {
+		for (int x = -1; x <= 1; ++x) {
+			for (int y = -1; y <= 1; ++y) {
+				boxes.append({QColor("#f97316"), 5, QRectF(x * 0.42 - 0.10, y * 0.36 - 0.10, 0.20, 0.20), 0.54, 0.20, 0.86});
+			}
+		}
+	} else if (maskPattern == "Guard ring") {
+		boxes.append({QColor("#22c55e"), 2, QRectF(-2.05, -1.05, 4.10, 0.18), 0.05, 0.10, 0.72});
+		boxes.append({QColor("#22c55e"), 2, QRectF(-2.05, 0.87, 4.10, 0.18), 0.05, 0.10, 0.72});
+		boxes.append({QColor("#22c55e"), 2, QRectF(-2.05, -0.87, 0.18, 1.74), 0.05, 0.10, 0.72});
+		boxes.append({QColor("#22c55e"), 2, QRectF(1.87, -0.87, 0.18, 1.74), 0.05, 0.10, 0.72});
+	}
+
+	return boxes;
+}
+
+QPointF isoProject(double x, double y, double z, double scale, const QPointF &origin, double yawDegrees)
+{
+	const double yaw = qDegreesToRadians(yawDegrees);
+	const double rx = x * qCos(yaw) - y * qSin(yaw);
+	const double ry = x * qSin(yaw) + y * qCos(yaw);
+	return QPointF(origin.x() + (rx - ry) * scale, origin.y() + (rx + ry) * scale * 0.46 - z * scale * 1.35);
+}
+
+QPolygonF face(const QVector<QPointF> &points)
+{
+	QPolygonF polygon;
+	for (const QPointF &point : points) {
+		polygon << point;
+	}
+	return polygon;
+}
+
+void drawBox(QPainter &painter, const LayoutBox &box, double scale, const QPointF &origin, double yawDegrees)
+{
+	const QRectF r = box.footprint;
+	const double left = r.left();
+	const double right = r.right();
+	const double front = r.top();
+	const double back = r.bottom();
+	const double bottom = box.bottom;
+	const double top = box.bottom + box.height;
+
+	const QPointF lfb = isoProject(left, front, bottom, scale, origin, yawDegrees);
+	const QPointF rfb = isoProject(right, front, bottom, scale, origin, yawDegrees);
+	const QPointF rbb = isoProject(right, back, bottom, scale, origin, yawDegrees);
+	const QPointF lft = isoProject(left, front, top, scale, origin, yawDegrees);
+	const QPointF rft = isoProject(right, front, top, scale, origin, yawDegrees);
+	const QPointF rbt = isoProject(right, back, top, scale, origin, yawDegrees);
+	const QPointF lbt = isoProject(left, back, top, scale, origin, yawDegrees);
+
+	QColor side = box.color.darker(122);
+	QColor rightSide = box.color.darker(145);
+	QColor topColor = box.color.lighter(118);
+	side.setAlphaF(box.opacity);
+	rightSide.setAlphaF(box.opacity);
+	topColor.setAlphaF(box.opacity);
+
+	painter.setPen(QPen(box.color.lighter(135), 1.1));
+	painter.setBrush(side);
+	painter.drawPolygon(face({lfb, rfb, rft, lft}));
+	painter.setBrush(rightSide);
+	painter.drawPolygon(face({rfb, rbb, rbt, rft}));
+	painter.setBrush(topColor);
+	painter.drawPolygon(face({lft, rft, rbt, lbt}));
+}
+}
+
+QImage renderWaferFrame(const Wafer &wafer, int width, int height, double yawDegrees, double zoom)
+{
+	if (width <= 0 || height <= 0) {
+		return {};
+	}
+
+	QImage image(width, height, QImage::Format_RGBA8888);
+	image.fill(QColor("#090d12"));
+	QPainter painter(&image);
+	painter.setRenderHint(QPainter::Antialiasing);
+
+	const double scale = qMin(width / 8.2, height / 5.6) * qBound(0.65, zoom, 1.8);
+	const QPointF origin(width * 0.50, height * 0.64);
+	painter.setPen(QPen(QColor(120, 139, 166, 54), 1.0));
+	for (int i = -12; i <= 12; ++i) {
+		const double v = i * 0.35;
+		painter.drawLine(isoProject(-4.4, v, -0.36, scale, origin, yawDegrees), isoProject(4.4, v, -0.36, scale, origin, yawDegrees));
+		painter.drawLine(isoProject(v, -3.4, -0.36, scale, origin, yawDegrees), isoProject(v, 3.4, -0.36, scale, origin, yawDegrees));
+	}
+
+	const int processStep = wafer.processStep();
+	const QString maskPattern = wafer.maskPattern();
+	for (const LayoutBox &box : demoLayout(maskPattern)) {
+		if (box.step <= processStep) {
+			drawBox(painter, box, scale, origin, yawDegrees);
+		}
+	}
+
+	return image;
+}

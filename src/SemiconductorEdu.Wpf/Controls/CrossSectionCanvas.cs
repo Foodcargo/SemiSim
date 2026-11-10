@@ -1,0 +1,105 @@
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Windows;
+using System.Windows.Media;
+using SemiconductorEdu.Wpf.ViewModels;
+
+namespace SemiconductorEdu.Wpf.Controls;
+
+public sealed class CrossSectionCanvas : FrameworkElement
+{
+    public static readonly DependencyProperty ColumnsProperty = DependencyProperty.Register(
+        nameof(Columns),
+        typeof(ObservableCollection<CrossSectionColumnViewModel>),
+        typeof(CrossSectionCanvas),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnColumnsChanged));
+
+    private static readonly Brush SiliconBrush = new SolidColorBrush(Color.FromRgb(148, 163, 184));
+    private static readonly Brush OxideBrush = new SolidColorBrush(Color.FromRgb(56, 189, 248));
+    private static readonly Brush BackgroundBrush = new SolidColorBrush(Color.FromRgb(9, 18, 28));
+    private static readonly Pen GridPen = new(new SolidColorBrush(Color.FromArgb(70, 148, 163, 184)), 1);
+
+    static CrossSectionCanvas()
+    {
+        SiliconBrush.Freeze();
+        OxideBrush.Freeze();
+        BackgroundBrush.Freeze();
+        GridPen.Freeze();
+    }
+
+    public ObservableCollection<CrossSectionColumnViewModel>? Columns
+    {
+        get => (ObservableCollection<CrossSectionColumnViewModel>?)GetValue(ColumnsProperty);
+        set => SetValue(ColumnsProperty, value);
+    }
+
+    protected override void OnRender(DrawingContext drawingContext)
+    {
+        base.OnRender(drawingContext);
+        drawingContext.DrawRectangle(BackgroundBrush, null, new Rect(RenderSize));
+        if (Columns is not { Count: > 0 } columns || RenderSize.Width <= 0 || RenderSize.Height <= 0) return;
+
+        const double left = 44;
+        const double right = 18;
+        const double top = 24;
+        const double bottom = 34;
+        var width = Math.Max(1, RenderSize.Width - left - right);
+        var height = Math.Max(1, RenderSize.Height - top - bottom);
+        var maxSurface = Math.Max(1, columns.Max(column => column.SurfaceNanometers));
+        var substrateDepth = Math.Max(1, columns.Max(column => column.SiliconNanometers));
+        var verticalScale = height * 0.72 / maxSurface;
+        var siliconHeight = Math.Min(height * 0.68, substrateDepth * verticalScale);
+        var oxideMax = Math.Max(1, columns.Max(column => column.OxideNanometers));
+        var oxideVisualHeight = Math.Clamp(height * 0.12, 4, 18);
+        var cellWidth = width / columns.Count;
+        var surfaceY = top + height - siliconHeight;
+
+        for (var grid = 0; grid <= 4; grid++)
+        {
+            var y = top + height * grid / 4;
+            drawingContext.DrawLine(GridPen, new Point(left, y), new Point(left + width, y));
+        }
+
+        for (var index = 0; index < columns.Count; index++)
+        {
+            var column = columns[index];
+            var x = left + index * cellWidth;
+            drawingContext.DrawRectangle(SiliconBrush, null, new Rect(x, surfaceY, Math.Ceiling(cellWidth + 0.5), siliconHeight));
+            if (column.OxideNanometers > 0)
+            {
+                var oxideHeight = Math.Max(2, oxideVisualHeight);
+                drawingContext.DrawRectangle(OxideBrush, null, new Rect(x, surfaceY - oxideHeight, Math.Ceiling(cellWidth + 0.5), oxideHeight));
+            }
+        }
+
+        DrawLabel(drawingContext, "기판 단면(대표 표시) · 실제 두께는 속성에 표시", new Point(left, top - 18));
+        DrawLabel(drawingContext, "Si", new Point(left + 8, surfaceY + Math.Max(4, siliconHeight / 2 - 8)));
+        DrawLabel(drawingContext, $"SiO₂ {oxideMax:F1} nm", new Point(left + 8, Math.Max(2, surfaceY - oxideVisualHeight - 22)));
+        DrawLabel(drawingContext, "단면 폭", new Point(left + width / 2 - 24, top + height + 8));
+    }
+
+    private static void DrawLabel(DrawingContext context, string text, Point point)
+    {
+        var formatted = new FormattedText(
+            text,
+            System.Globalization.CultureInfo.CurrentUICulture,
+            FlowDirection.LeftToRight,
+            new Typeface("Segoe UI"),
+            12,
+            Brushes.White,
+            1.0);
+        context.DrawText(formatted, point);
+    }
+
+    private static void OnColumnsChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+    {
+        var control = (CrossSectionCanvas)dependencyObject;
+        if (args.OldValue is ObservableCollection<CrossSectionColumnViewModel> oldColumns)
+            oldColumns.CollectionChanged -= control.OnCollectionChanged;
+        if (args.NewValue is ObservableCollection<CrossSectionColumnViewModel> newColumns)
+            newColumns.CollectionChanged += control.OnCollectionChanged;
+        control.InvalidateVisual();
+    }
+
+    private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => InvalidateVisual();
+}

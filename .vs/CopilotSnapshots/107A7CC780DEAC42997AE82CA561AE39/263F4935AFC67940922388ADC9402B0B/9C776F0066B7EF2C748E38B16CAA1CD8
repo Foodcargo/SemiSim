@@ -1,0 +1,217 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Domain.Validation;
+
+namespace SemiconductorEdu.Simulation.Processes;
+
+public sealed class ImplantAnnealModels
+{
+    private const int MaximumCells = 8192;
+    private const double MaximumDepthNanometers = 10000;
+    private const double InitialActivationFraction = 0.10;
+
+    public ProcessModelOutput ApplyImplantation(WaferState before, IonImplantationParameters parameters, Guid runId, DateTimeOffset nowUtc)
+    {
+        var errors = new List<ValidationIssue>();
+        if (!Enum.IsDefined(parameters.Species))
+            errors.Add(Issue("IMPLANT_SPECIES_INVALID", "species", "B, P or As", "Select a supported dopant species."));
+        if (!double.IsFinite(parameters.Energy.KiloElectronVolts) || parameters.Energy.KiloElectronVolts is < 1 or > 500)
+            errors.Add(Issue("IMPLANT_ENERGY_RANGE", "energy", "1–500 keV", "Enter an energy within the educational model range."));
+        if (!double.IsFinite(parameters.Dose.IonsPerSquareCentimeter) || parameters.Dose.IonsPerSquareCentimeter is < 1e11 or > 1e16)
+            errors.Add(Issue("IMPLANT_DOSE_RANGE", "dose", "1e11–1e16 ions/cm²", "Enter a dose within the educational model range."));
+        if (!double.IsFinite(parameters.TiltDegrees) || parameters.TiltDegrees is < 0 or > 45)
+            errors.Add(Issue("IMPLANT_TILT_RANGE", "tilt", "0–45°", "Enter a tilt within the educational model range."));
+        if (!IsBareSilicon(before))
+            errors.Add(Issue("IMPLANT_PRECONDITION_SURFACE", null, "planar bare Si without PR, oxide, metal or prior profiles", "Use a supported bare-silicon wafer." , ExecutionStage.Preconditions));
+        if (errors.Count > 0) return Failure(errors);
+
+        var coefficient = parameters.Species switch
+        {
+            DopantSpecies.Boron => 3.0,
+            DopantSpecies.Phosphorus => 2.0,
+            DopantSpecies.Arsenic => 1.0,
+            _ => throw new InvalidOperationException()
+        };
+        var projectedRange = coefficient * parameters.Energy.KiloElectronVolts * Math.Cos(parameters.TiltDegrees * Math.PI / 180.0);
+        var sigma = Math.Max(1.0, 0.30 * projectedRange);
+        var maximumDepth = Math.Max(2000.0, projectedRange + 8.0 * sigma);
+        if (!double.IsFinite(maximumDepth) || maximumDepth > MaximumDepthNanometers)
+            return Failure(new[] { Issue("IMPLANT_PROFILE_DEPTH_LIMIT", "energy", "profile depth <= 10000 nm", "Reduce energy or use a supported dose/energy combination.", ExecutionStage.ModelDomain) });
+
+        var step = sigma / 8.0;
+        var cellCount = (int)Math.Ceiling(maximumDepth / step) + 1;
+        if (cellCount > MaximumCells)
+            return Failure(new[] { Issue("IMPLANT_PROFILE_RESOLUTION_LIMIT", "energy", "profile cells <= 8192", "Use a lower energy so the profile fits the supported grid.", ExecutionStage.ModelDomain) });
+
+        var depthMeters = new Length[cellCount];
+        var shape = new double[cellCount];
+        var sum = 0.0;
+        for (var index = 0; index < cellCount; index++)
+        {
+            var depthNm = Math.Min(index * step, maximumDepth);
+            depthMeters[index] = Length.FromNanometers(depthNm);
+            shape[index] = Math.Exp(-Math.Pow(depthNm - projectedRange, 2) / (2 * sigma * sigma));
+            if (index > 0)
+                sum += (shape[index - 1] + shape[index]) * 0.5 * (depthMeters[index].Meters - depthMeters[index - 1].Meters);
+        }
+        if (!double.IsFinite(sum) || sum <= 0)
+            return Failure(new[] { Issue("IMPLANT_NORMALIZATION_FAILED", "dose", "finite positive profile integral", "Use finite input values within range.", ExecutionStage.Calculation) });
+
+        var dosePerSquareMeter = parameters.Dose.PerSquareMeter;
+        var total = shape.Select(value => Concentration.FromPerCubicMeter(dosePerSquareMeter * value / sum)).ToArray();
+        var active = total.Select(value => Concentration.FromPerCubicMeter(value.PerCubicMeter * InitialActivationFraction)).ToArray();
+        var existing = before.ImplantProfiles.FirstOrDefault(profile => profile.Species == parameters.Species);
+        if (existing is not null)
+        {
+            if (existing.DepthGrid.Count != cellCount || existing.DepthGrid.Where((depth, index) => Math.Abs(depth.Meters - depthMeters[index].Meters) > 1e-18).Any())
+                return Failure(new[] { Issue("IMPLANT_GRID_MISMATCH", "species", "same depth grid for accumulated species", "An existing species profile uses an incompatible educational grid.", ExecutionStage.ModelDomain) });
+            total = total.Select((value, index) => Concentration.FromPerCubicMeter(value.PerCubicMeter + existing.TotalConcentrationByDepth[index].PerCubicMeter)).ToArray();
+            active = active.Select((value, index) => Concentration.FromPerCubicMeter(value.PerCubicMeter + existing.ActiveConcentrationByDepth[index].PerCubicMeter)).ToArray();
+        }
+
+        var profile = new ImplantProfileState(parameters.Species, Array.AsReadOnly(total), Array.AsReadOnly(active), Array.AsReadOnly(depthMeters));
+        var profiles = before.ImplantProfiles.Where(item => item.Species != parameters.Species).Append(profile).ToArray();
+        var candidate = before with
+        {
+            StateId = Guid.NewGuid(), ParentStateId = before.StateId, Revision = before.Revision + 1, CreatedAtUtc = nowUtc,
+            ImplantProfiles = Array.AsReadOnly(profiles), HistoryIds = Array.AsReadOnly(before.HistoryIds.Append(runId).ToArray())
+        };
+        var integratedDose = Integrate(total, depthMeters) / 1e4;
+        return Success(candidate,
+            new ProcessMetric("projectedRange", projectedRange, "nm"),
+            new ProcessMetric("implantDose", integratedDose, "ions/cm²"));
+    }
+
+    public ProcessModelOutput ApplyAnneal(WaferState before, AnnealParameters parameters, Guid runId, DateTimeOffset nowUtc)
+    {
+        var errors = new List<ValidationIssue>();
+        if (!Enum.IsDefined(parameters.Method))
+            errors.Add(Issue("ANNEAL_METHOD_INVALID", "method", "RTA or Furnace", "Select a supported educational anneal method."));
+        if (!double.IsFinite(parameters.Temperature.Celsius) || parameters.Temperature.Celsius is < 200 or > 1200)
+            errors.Add(Issue("ANNEAL_TEMPERATURE_RANGE", "temperature", "200–1200 °C", "Enter a temperature within the educational model range."));
+        var maxTime = parameters.Method == AnnealMethod.Rta ? 300 : 7200;
+        var minTime = parameters.Method == AnnealMethod.Rta ? 1 : 60;
+        if (!double.IsFinite(parameters.Duration.Seconds) || parameters.Duration.Seconds < minTime || parameters.Duration.Seconds > maxTime)
+            errors.Add(Issue("ANNEAL_DURATION_RANGE", "duration", $"{minTime}–{maxTime} s", "Enter a duration allowed for the selected method."));
+        if (parameters.Ambient is not "N2" and not "Ar")
+            errors.Add(Issue("ANNEAL_AMBIENT_INVALID", "ambient", "N2 or Ar", "Select a supported inert educational ambient."));
+        if (before.ResistPattern is not null || before.Layers.Any(layer => layer.Material is WaferMaterial.Aluminum or WaferMaterial.Copper or WaferMaterial.Tungsten or WaferMaterial.TitaniumNitride) ||
+            before.Layers.Any(layer => layer.Material is not WaferMaterial.Silicon and not WaferMaterial.SiliconDioxide) || before.ImplantProfiles.Count > 0 && !IsPlanar(before))
+            errors.Add(Issue("ANNEAL_PRECONDITION_STACK", null, "PR-free planar Si/SiO₂ stack", "Remove unsupported materials and use a planar wafer.", ExecutionStage.Preconditions));
+        if (errors.Count > 0) return Failure(errors);
+        if (before.ImplantProfiles.Count == 0)
+            return Failure(new[] { Issue("ANNEAL_IMPLANT_REQUIRED", "species", "at least one implanted profile", "Implant a dopant species before annealing.", ExecutionStage.Preconditions) });
+
+        var d0 = new Dictionary<DopantSpecies, double>
+        {
+            [DopantSpecies.Boron] = 1.0,
+            [DopantSpecies.Phosphorus] = 0.5,
+            [DopantSpecies.Arsenic] = 0.2
+        };
+        var diffusionTimeConstant = Math.Exp((parameters.Temperature.Celsius - 1000.0) / 100.0);
+        var seconds = parameters.Duration.Seconds;
+        if (!double.IsFinite(diffusionTimeConstant) || diffusionTimeConstant <= 0)
+            return Failure(new[] { Issue("ANNEAL_NUMERICAL_RANGE", "temperature", "finite diffusion coefficient", "Use a temperature within the educational model domain.", ExecutionStage.ModelDomain) });
+
+        var updatedProfiles = new List<ImplantProfileState>();
+        foreach (var profile in before.ImplantProfiles)
+        {
+            if (profile.DepthGrid.Count < 3 || profile.TotalConcentrationByDepth.Count != profile.DepthGrid.Count || profile.ActiveConcentrationByDepth.Count != profile.DepthGrid.Count)
+                return Failure(new[] { Issue("ANNEAL_PROFILE_GRID_INVALID", "profile", "matching profile and depth grid lengths", "Repair or recreate the wafer profile.", ExecutionStage.InvariantValidation) });
+            var dx = profile.DepthGrid[1].Meters - profile.DepthGrid[0].Meters;
+            if (!(dx > 0) || profile.DepthGrid.Where((depth, index) => index > 0 && Math.Abs((depth.Meters - profile.DepthGrid[index - 1].Meters) - dx) > dx * 1e-9).Any())
+                return Failure(new[] { Issue("ANNEAL_UNIFORM_GRID_REQUIRED", "profile", "uniform depth grid", "This educational solver requires a uniform profile grid.", ExecutionStage.ModelDomain) });
+            var d = d0[profile.Species] * 1e-18 * diffusionTimeConstant;
+            var alpha = d * seconds / (dx * dx);
+            var total = Diffuse(profile.TotalConcentrationByDepth.Select(value => value.PerCubicMeter).ToArray(), alpha);
+            var activeBefore = Diffuse(profile.ActiveConcentrationByDepth.Select(value => value.PerCubicMeter).ToArray(), alpha);
+            if (total is null || activeBefore is null)
+                return Failure(new[] { Issue("ANNEAL_SOLVER_DID_NOT_CONVERGE", "profile", "stable implicit diffusion solution", "Retry with a supported profile grid.", ExecutionStage.Calculation) });
+            var tau = parameters.Method == AnnealMethod.Rta ? 10.0 : 600.0;
+            var increment = 1.0 - Math.Exp(-(seconds / tau) * diffusionTimeConstant);
+            var active = new double[total.Length];
+            for (var i = 0; i < total.Length; i++)
+            {
+                active[i] = activeBefore[i] + Math.Max(0, total[i] - activeBefore[i]) * increment;
+                if (!double.IsFinite(total[i]) || !double.IsFinite(active[i]) || total[i] < -1e-8 || active[i] < -1e-8 || active[i] > total[i] + Math.Max(1e-8, Math.Abs(total[i]) * 1e-10))
+                    return Failure(new[] { Issue("ANNEAL_CONCENTRATION_INVARIANT", "profile", "finite 0 <= active <= total", "No profile was committed because a numerical invariant failed.", ExecutionStage.InvariantValidation) });
+            }
+            updatedProfiles.Add(profile with
+            {
+                TotalConcentrationByDepth = Array.AsReadOnly(total.Select(value => Concentration.FromPerCubicMeter(Math.Max(0, value))).ToArray()),
+                ActiveConcentrationByDepth = Array.AsReadOnly(active.Select(value => Concentration.FromPerCubicMeter(Math.Min(Math.Max(0, value), Math.Max(0, total[Array.IndexOf(active, value)])))).ToArray())
+            });
+        }
+
+        var candidate = before with
+        {
+            StateId = Guid.NewGuid(), ParentStateId = before.StateId, Revision = before.Revision + 1, CreatedAtUtc = nowUtc,
+            ImplantProfiles = Array.AsReadOnly(updatedProfiles.ToArray()), HistoryIds = Array.AsReadOnly(before.HistoryIds.Append(runId).ToArray())
+        };
+        var activated = updatedProfiles.Select(profile => new ProcessMetric($"activation_{profile.Species}", AverageActivation(profile), "%"));
+        return Success(candidate, activated.ToArray());
+    }
+
+    private static double[]? Diffuse(double[] concentration, double alpha)
+    {
+        var n = concentration.Length;
+        if (n < 3 || !double.IsFinite(alpha) || alpha < 0) return null;
+        var lower = new double[n];
+        var diagonal = Enumerable.Repeat(1.0, n).ToArray();
+        var upper = new double[n];
+        var rhs = concentration.ToArray();
+        for (var i = 1; i < n - 1; i++)
+        {
+            lower[i] = -alpha;
+            diagonal[i] = 1 + 2 * alpha;
+            upper[i] = -alpha;
+        }
+        diagonal[0] = 1 + 2 * alpha;
+        upper[0] = -2 * alpha;
+        lower[n - 1] = -2 * alpha;
+        diagonal[n - 1] = 1 + 2 * alpha;
+        for (var i = 1; i < n; i++)
+        {
+            if (!double.IsFinite(diagonal[i - 1]) || diagonal[i - 1] == 0) return null;
+            var factor = lower[i] / diagonal[i - 1];
+            diagonal[i] -= factor * upper[i - 1];
+            rhs[i] -= factor * rhs[i - 1];
+        }
+        var result = new double[n];
+        result[n - 1] = rhs[n - 1] / diagonal[n - 1];
+        for (var i = n - 2; i >= 0; i--)
+            result[i] = (rhs[i] - upper[i] * result[i + 1]) / diagonal[i];
+        return result.All(double.IsFinite) ? result : null;
+    }
+
+    private static double Integrate(IReadOnlyList<Concentration> profile, IReadOnlyList<Length> depth)
+    {
+        var total = 0.0;
+        for (var i = 1; i < profile.Count; i++)
+            total += (profile[i - 1].PerCubicMeter + profile[i].PerCubicMeter) * 0.5 * (depth[i].Meters - depth[i - 1].Meters);
+        return total;
+    }
+
+    private static double AverageActivation(ImplantProfileState profile)
+    {
+        var total = Integrate(profile.TotalConcentrationByDepth, profile.DepthGrid);
+        var active = Integrate(profile.ActiveConcentrationByDepth, profile.DepthGrid);
+        return total > 0 ? 100 * active / total : 0;
+    }
+
+    private static bool IsBareSilicon(WaferState state) =>
+        state.ResistPattern is null && state.ImplantProfiles.Count == 0 && state.Layers.All(layer => layer.Material == WaferMaterial.Silicon) && IsPlanar(state);
+
+    private static bool IsPlanar(WaferState state) =>
+        state.CrossSection.Columns.Count > 1 && state.CrossSection.Columns.Select(column => column.SurfaceHeight.Meters).Max() - state.CrossSection.Columns.Min(column => column.SurfaceHeight.Meters) <= 1e-12;
+
+    private static ProcessModelOutput Success(WaferState state, params ProcessMetric[] metrics) =>
+        new(state, Array.AsReadOnly(metrics), ValidationResult.Success());
+
+    private static ProcessModelOutput Failure(IReadOnlyList<ValidationIssue> issues) =>
+        new(null, Array.Empty<ProcessMetric>(), new ValidationResult(false, issues, Array.Empty<ValidationIssue>()));
+
+    private static ValidationIssue Issue(string code, string? parameterId, string expected, string action, ExecutionStage stage = ExecutionStage.InputValidation) =>
+        new(code, stage.ToString(), parameterId, null, expected, code, action);
+}

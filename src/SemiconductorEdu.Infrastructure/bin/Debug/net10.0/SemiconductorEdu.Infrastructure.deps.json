@@ -1,0 +1,73 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "SemiconductorEdu.Infrastructure/1.0.0": {
+        "dependencies": {
+          "SemiconductorEdu.Application": "1.0.0",
+          "SemiconductorEdu.Domain": "1.0.0"
+        },
+        "runtime": {
+          "SemiconductorEdu.Infrastructure.dll": {}
+        }
+      },
+      "SemiconductorEdu.Application/1.0.0": {
+        "dependencies": {
+          "SemiconductorEdu.Domain": "1.0.0",
+          "SemiconductorEdu.Simulation": "1.0.0"
+        },
+        "runtime": {
+          "SemiconductorEdu.Application.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "SemiconductorEdu.Domain/1.0.0": {
+        "runtime": {
+          "SemiconductorEdu.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "SemiconductorEdu.Simulation/1.0.0": {
+        "dependencies": {
+          "SemiconductorEdu.Domain": "1.0.0"
+        },
+        "runtime": {
+          "SemiconductorEdu.Simulation.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SemiconductorEdu.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SemiconductorEdu.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SemiconductorEdu.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SemiconductorEdu.Simulation/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+	<ProjectReference Include="..\SemiconductorEdu.Domain\SemiconductorEdu.Domain.csproj" />
+	<ProjectReference Include="..\SemiconductorEdu.Simulation\SemiconductorEdu.Simulation.csproj" />
+	<Compile Remove="Execution\ProcessExecutorAdapters.cs" />
+  </ItemGroup>
+</Project>

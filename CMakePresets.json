@@ -2,10 +2,10 @@
   "version": 6,
   "configurePresets": [
     {
-      "name": "qt-mingw-debug",
-      "displayName": "Qt 6.11.1 MinGW Debug",
+      "name": "native-mingw-debug",
+      "displayName": "SemiSim Native DLL - Qt 6.11.1 MinGW Debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-qtcreator-debug",
+      "binaryDir": "${sourceDir}/build-native-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER": "C:/Qt/Tools/mingw1310_64/bin/gcc.exe",
@@ -17,9 +17,9 @@
   ],
   "buildPresets": [
     {
-      "name": "qt-mingw-debug",
-      "displayName": "Build Qt 6.11.1 MinGW Debug",
-      "configurePreset": "qt-mingw-debug"
+      "name": "native-mingw-debug",
+      "displayName": "Build SemiSim Native DLL",
+      "configurePreset": "native-mingw-debug"
     }
   ]
 }

@@ -1,0 +1,91 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+
+namespace SemiconductorEdu.Application.Execution;
+
+public sealed class ProcessSession
+{
+    private readonly object _gate = new();
+    private readonly Dictionary<Guid, WaferState> _states = new();
+    private readonly List<ProcessResult> _history = new();
+    private readonly Stack<WaferState> _redo = new();
+    private readonly IReadOnlyDictionary<ProcessType, IProcessExecutor> _executors;
+    private readonly Func<ProcessRecipe, string> _configurationHash;
+    private WaferState? _currentState;
+
+    public ProcessSession(
+        IReadOnlyDictionary<ProcessType, IProcessExecutor> executors,
+        Func<ProcessRecipe, string>? configurationHash = null)
+    {
+        _executors = executors;
+        _configurationHash = configurationHash ?? (_ => "unconfigured");
+    }
+
+    public WaferState? CurrentState
+    {
+        get { lock (_gate) return _currentState; }
+    }
+
+    public IReadOnlyList<ProcessResult> History
+    {
+        get { lock (_gate) return Array.AsReadOnly(_history.ToArray()); }
+    }
+
+    public void Initialize(WaferState state)
+    {
+        lock (_gate)
+        {
+            _currentState = state;
+            _states[state.StateId] = state;
+            _redo.Clear();
+        }
+    }
+
+    public ProcessExecutionResponse Execute(ProcessRecipe recipe, DateTimeOffset requestedAtUtc)
+    {
+        lock (_gate)
+        {
+            if (!_executors.TryGetValue(recipe.ProcessType, out var executor))
+                throw new NotSupportedException($"Process '{recipe.ProcessType}' has no enabled executor.");
+
+            var response = executor.Execute(new ProcessExecutionRequest(
+                recipe,
+                _currentState,
+                _configurationHash(recipe),
+                requestedAtUtc));
+            _history.Add(response.Result);
+
+            if (response.CommittedState is not null)
+            {
+                _states[response.CommittedState.StateId] = response.CommittedState;
+                _currentState = response.CommittedState;
+                _redo.Clear();
+            }
+
+            return response;
+        }
+    }
+
+    public bool Undo()
+    {
+        lock (_gate)
+        {
+            if (_currentState is null || _currentState.ParentStateId is not Guid parentId || !_states.TryGetValue(parentId, out var parent))
+                return false;
+
+            _redo.Push(_currentState);
+            _currentState = parent;
+            return true;
+        }
+    }
+
+    public bool Redo()
+    {
+        lock (_gate)
+        {
+            if (_redo.Count == 0) return false;
+            _currentState = _redo.Pop();
+            return true;
+        }
+    }
+}

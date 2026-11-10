@@ -1,0 +1,210 @@
+﻿using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace SemiSim.Wpf;
+
+public partial class MainWindow : Window
+{
+    private static readonly string[] StepNames =
+    [
+        "01 Substrate preparation", "02 Well formation", "03 Active diffusion mask",
+        "04 Gate oxide / poly gate", "05 Source-drain implant", "06 Contact etch / fill", "07 Metal interconnect", "Process complete"
+    ];
+
+    private readonly Dictionary<string, FrameworkElement> _inputs = new();
+    private readonly IntPtr _nativeInstance;
+    private int _step;
+    private double _yaw = -28;
+    private double _zoom = 1;
+    private Point _lastMousePosition;
+    private bool _dragging;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+        try
+        {
+            _nativeInstance = NativeApi.Create();
+            if (_nativeInstance == IntPtr.Zero) throw new InvalidOperationException("Native simulation could not be initialized.");
+            RefreshState();
+        }
+        catch (Exception exception)
+        {
+            MessageBox.Show(exception.Message, "SemiSim initialization error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Close();
+        }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        if (_nativeInstance != IntPtr.Zero) NativeApi.Destroy(_nativeInstance);
+        base.OnClosed(e);
+    }
+
+    private void BuildStepInputs()
+    {
+        ParameterPanel.Children.Clear();
+        _inputs.Clear();
+        ProcessStepTitle.Text = StepNames[Math.Clamp(_step, 0, 7)];
+        switch (_step)
+        {
+            case 0:
+                AddCombo("orientation", "Wafer orientation", "<100>", "<110>", "<111>");
+                AddNumber("substrateThicknessUm", "Wafer thickness (um)", 725);
+                break;
+            case 1:
+                AddCombo("wellDopant", "Well dopant", "Boron B11", "Phosphorus P31", "Arsenic As75");
+                AddNumber("wellDose", "Well implant dose (ions/cm2)", 1e13);
+                break;
+            case 2:
+                AddCombo("maskPattern", "Mask pattern", "Single gate line", "Two finger gate", "Contact array", "Guard ring");
+                AddCombo("developer", "Developer", "TMAH 2.38%", "KOH developer", "Solvent develop");
+                AddNumber("photoThicknessNm", "Photoresist thickness (nm)", 1200);
+                break;
+            case 3:
+                AddCombo("oxidationMode", "Oxidation mode", "Dry", "Wet");
+                AddNumber("gateTemperatureC", "Gate temperature (C)", 1000);
+                AddNumber("gateTimeMin", "Gate time (min)", 30);
+                AddNumber("gateOxideNm", "Gate oxide (nm)", 100);
+                AddNumber("polyThicknessNm", "Polysilicon (nm)", 300);
+                break;
+            case 4:
+                AddNumber("sourceDrainDose", "Source/drain dose (ions/cm2)", 1e15);
+                break;
+            case 5:
+                AddCombo("etchChemistry", "Etch chemistry", "CHF3 / CF4 plasma", "Buffered HF", "Cl2 / BCl3 plasma");
+                AddNumber("contactEtchDepthNm", "Contact etch depth (nm)", 250);
+                AddCombo("contactFill", "Contact fill", "Tungsten CVD", "Copper electrofill", "Aluminum sputter");
+                AddNumber("contactFillThicknessNm", "Contact fill thickness (nm)", 500);
+                break;
+            case 6:
+                AddCombo("metalMaterial", "Metal material", "Aluminum", "Copper", "Tungsten");
+                AddNumber("metalThicknessNm", "Metal thickness (nm)", 600);
+                break;
+            default:
+                ParameterPanel.Children.Add(new TextBlock { Text = "All process steps are complete." });
+                break;
+        }
+    }
+
+    private void AddCombo(string key, string label, params string[] choices)
+    {
+        ParameterPanel.Children.Add(new TextBlock { Text = label });
+        var combo = new ComboBox { ItemsSource = choices, SelectedIndex = 0, Margin = new Thickness(0, 0, 0, 7), Padding = new Thickness(5) };
+        ParameterPanel.Children.Add(combo);
+        _inputs[key] = combo;
+    }
+
+    private void AddNumber(string key, string label, double initialValue)
+    {
+        ParameterPanel.Children.Add(new TextBlock { Text = label });
+        var box = new TextBox { Text = initialValue.ToString("G", CultureInfo.InvariantCulture), Margin = new Thickness(0, 0, 0, 7), Padding = new Thickness(5) };
+        ParameterPanel.Children.Add(box);
+        _inputs[key] = box;
+    }
+
+    private Dictionary<string, object> ReadParameters()
+    {
+        var values = new Dictionary<string, object>();
+        foreach (var pair in _inputs)
+        {
+            if (pair.Value is ComboBox combo)
+                values[pair.Key] = combo.SelectedItem?.ToString() ?? string.Empty;
+            else if (pair.Value is TextBox box && double.TryParse(box.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var number))
+                values[pair.Key] = number;
+            else
+                throw new FormatException($"Enter a valid number for {pair.Key}.");
+        }
+        return values;
+    }
+
+    private void Apply_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (!NativeApi.ApplyProcess(_nativeInstance, _step, ReadParameters()))
+            {
+                StatusText.Text = "The process step could not be applied. Reset the process if the state is out of sync.";
+                return;
+            }
+            RefreshState();
+        }
+        catch (Exception exception)
+        {
+            StatusText.Text = exception.Message;
+        }
+    }
+
+    private void Reset_Click(object sender, RoutedEventArgs e)
+    {
+        NativeApi.Reset(_nativeInstance);
+        StatusText.Text = "Process flow has been reset.";
+        RefreshState();
+    }
+
+    private void RefreshState()
+    {
+        using var state = NativeApi.GetState(_nativeInstance);
+        var root = state.RootElement;
+        _step = root.GetProperty("step").GetInt32();
+        StepSummary.Text = $"Step {_step + 1} / 7";
+        BuildStepInputs();
+        var failures = root.GetProperty("failures").EnumerateArray().Select(value => value.GetString()).Where(value => value is not null).ToArray();
+        if (_step >= 7)
+            StatusText.Text = failures.Length == 0 ? "Process complete: all parameters are within the allowed process limits." : "Process complete: " + string.Join("; ", failures);
+        else if (string.IsNullOrWhiteSpace(StatusText.Text))
+            StatusText.Text = "Submit the values for the current process step.";
+
+        LayersList.ItemsSource = root.GetProperty("layers").EnumerateArray()
+            .Select(layer => $"{layer.GetProperty("name").GetString()} — {layer.GetProperty("thicknessNm").GetDouble():G4} nm").ToArray();
+        LogList.ItemsSource = root.GetProperty("log").EnumerateArray().Select(entry => entry.GetString()).ToArray();
+        RenderScene();
+    }
+
+    private void RenderScene()
+    {
+        if (_nativeInstance == IntPtr.Zero || SceneImage.ActualWidth < 1 || SceneImage.ActualHeight < 1) return;
+        var width = Math.Max(1, (int)SceneImage.ActualWidth);
+        var height = Math.Max(1, (int)SceneImage.ActualHeight);
+        var pixels = NativeApi.Render(_nativeInstance, width, height, _yaw, _zoom);
+        var frame = BitmapSource.Create(width, height, 96, 96, PixelFormats.Rgba32, null, pixels, width * 4);
+        frame.Freeze();
+        SceneImage.Source = frame;
+    }
+
+    private void Scene_SizeChanged(object sender, SizeChangedEventArgs e) => RenderScene();
+
+    private void Scene_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _dragging = true;
+        _lastMousePosition = e.GetPosition(SceneImage);
+        SceneImage.CaptureMouse();
+    }
+
+    private void Scene_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        _dragging = false;
+        SceneImage.ReleaseMouseCapture();
+    }
+
+    private void Scene_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_dragging) return;
+        var position = e.GetPosition(SceneImage);
+        _yaw += (position.X - _lastMousePosition.X) * 0.35;
+        _lastMousePosition = position;
+        RenderScene();
+    }
+
+    private void Scene_MouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        _zoom = Math.Clamp(_zoom + e.Delta / 120.0 * 0.08, 0.65, 1.8);
+        RenderScene();
+    }
+}

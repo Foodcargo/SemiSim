@@ -5,21 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOMOC_COMPILER_PREDEFINES OFF)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui)
 
-find_package(Qt6 QUIET COMPONENTS Widgets)
-
-set(PROJECT_HEADERS
-    include/Core/AppManager.h
-    include/Core/SceneManager.h
-    include/UI/MainWindow.h
-    include/UI/Toolbar.h
-    include/UI/ProcessPanel.h
-    include/UI/InfoPanel.h
-    include/Scene/WaferScene.h
-    include/Scene/CameraController.h
-    include/Scene/LightManager.h
+set(NATIVE_HEADERS
+    include/Interop/SemiSimApi.h
     include/Model/Wafer.h
     include/Model/Layer.h
     include/Model/Material.h
@@ -29,24 +18,11 @@ set(PROJECT_HEADERS
     include/Process/Deposition.h
     include/Process/Implantation.h
     include/Process/CMP.h
-    include/Animation/AnimationPlayer.h
-    include/Animation/Timeline.h
-    include/Resource/ModelLoader.h
-    include/Resource/TextureLoader.h
-    include/Utils/Config.h
+    include/Scene/WaferRenderer.h
 )
 
-set(PROJECT_SOURCES
-    main.cpp
-    src/Core/AppManager.cpp
-    src/Core/SceneManager.cpp
-    src/UI/MainWindow.cpp
-    src/UI/Toolbar.cpp
-    src/UI/ProcessPanel.cpp
-    src/UI/InfoPanel.cpp
-    src/Scene/WaferScene.cpp
-    src/Scene/CameraController.cpp
-    src/Scene/LightManager.cpp
+set(NATIVE_SOURCES
+    src/Interop/SemiSimApi.cpp
     src/Model/Wafer.cpp
     src/Model/Layer.cpp
     src/Model/Material.cpp

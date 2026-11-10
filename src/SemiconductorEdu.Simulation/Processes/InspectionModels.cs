@@ -1,0 +1,159 @@
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Domain.Validation;
+
+namespace SemiconductorEdu.Simulation.Processes;
+
+public sealed record InspectionEvaluation(
+    ProcessModelOutput Output,
+    QualityStatus QualityStatus,
+    IReadOnlyList<ProcessMetric> Metrics);
+
+public sealed class InspectionModels
+{
+    public InspectionEvaluation Inspect(WaferState before, InspectionParameters parameters, Guid runId, DateTimeOffset nowUtc)
+    {
+        if (!Enum.IsDefined(parameters.Mode))
+            return Failed("INSPECTION_MODE_INVALID", "Select a supported inspection mode.");
+        var targetValidation = ValidateTarget(parameters.Mode, parameters.Target);
+        if (targetValidation is not null)
+            return Failed(targetValidation, "The quality target metric, unit or limits do not match the selected inspection mode.");
+
+        var measured = parameters.Mode switch
+        {
+            InspectionMode.Thickness => MeasureThickness(before, parameters.TargetId),
+            InspectionMode.Cd => MeasureCd(before, parameters.TargetId),
+            InspectionMode.Contamination => MeasureContamination(before),
+            InspectionMode.Electrical => MeasureElectrical(before, parameters.TargetId),
+            InspectionMode.Profile => MeasureProfile(before, parameters.TargetId),
+            _ => null
+        };
+        if (measured is null)
+            return Failed("INSPECTION_TARGET_NOT_FOUND", "The selected target does not exist in the current wafer state.", ExecutionStage.Preconditions);
+
+        var (value, unit, metricId, related) = measured.Value;
+        if (!double.IsFinite(value))
+            return Failed("INSPECTION_VALUE_NONFINITE", "The measured value is not finite.", ExecutionStage.Calculation);
+
+        var tolerance = parameters.Target.TolerancePercent is { } percent
+            ? Math.Abs(parameters.Target.Target) * percent / 100.0
+            : 0.0;
+        var epsilon = 1e-9 * Math.Max(1.0, Math.Max(Math.Abs(value), Math.Abs(parameters.Target.Target)));
+        var pass = value >= parameters.Target.Target - tolerance - epsilon && value <= parameters.Target.Target + tolerance + epsilon;
+        if (parameters.Target.AbsoluteTolerance is { } absoluteTolerance)
+            pass &= Math.Abs(value - parameters.Target.Target) <= absoluteTolerance + epsilon;
+        if (parameters.Target.Minimum is { } minimum)
+            pass &= value >= minimum - epsilon;
+        if (parameters.Target.Maximum is { } maximum)
+            pass &= value <= maximum + epsilon;
+
+        var metrics = new List<ProcessMetric>
+        {
+            new(metricId, value, unit),
+            new("target", parameters.Target.Target, parameters.Target.Unit),
+            new("inspectionPass", pass ? 1 : 0, "1")
+        };
+        metrics.AddRange(related);
+        var inspection = new InspectionState(Guid.NewGuid(), parameters.Mode, parameters.TargetId,
+            Array.AsReadOnly(metrics.ToArray()), pass ? QualityStatus.Pass : QualityStatus.Fail, nowUtc, runId);
+        var candidate = before with
+        {
+            StateId = Guid.NewGuid(), ParentStateId = before.StateId, Revision = before.Revision + 1, CreatedAtUtc = nowUtc,
+            HistoryIds = Array.AsReadOnly(before.HistoryIds.Append(runId).ToArray()),
+            Inspections = Array.AsReadOnly((before.Inspections ?? Array.Empty<InspectionState>()).Append(inspection).ToArray())
+        };
+        return new InspectionEvaluation(
+            new ProcessModelOutput(candidate, Array.AsReadOnly(metrics.ToArray()), ValidationResult.Success()),
+            pass ? QualityStatus.Pass : QualityStatus.Fail,
+            Array.AsReadOnly(metrics.ToArray()));
+    }
+
+    private static string? ValidateTarget(InspectionMode mode, QualityTarget target)
+    {
+        var expected = mode switch
+        {
+            InspectionMode.Thickness => ("thickness", "nm"),
+            InspectionMode.Cd => ("cd", "nm"),
+            InspectionMode.Contamination => ("contamination", "point"),
+            InspectionMode.Electrical => ("resistance", "Ω"),
+            InspectionMode.Profile => ("meanImplantDepth", "nm"),
+            _ => (string.Empty, string.Empty)
+        };
+        if (!string.Equals(target.MetricId, expected.Item1, StringComparison.OrdinalIgnoreCase) || target.Unit != expected.Item2)
+            return "INSPECTION_TARGET_METRIC_MISMATCH";
+        if (!double.IsFinite(target.Target) ||
+            target.TolerancePercent is { } percent && (!double.IsFinite(percent) || percent < 0) ||
+            target.AbsoluteTolerance is { } absolute && (!double.IsFinite(absolute) || absolute < 0) ||
+            target.Minimum is { } minimum && !double.IsFinite(minimum) ||
+            target.Maximum is { } maximum && !double.IsFinite(maximum) ||
+            target.Minimum is { } lower && target.Maximum is { } upper && lower > upper)
+            return "INSPECTION_TARGET_LIMITS_INVALID";
+        return null;
+    }
+
+    private static (double Value, string Unit, string MetricId, IReadOnlyList<ProcessMetric> Related)? MeasureThickness(WaferState state, Guid? targetId)
+    {
+        if (targetId is null || !state.Layers.Any(layer => layer.LayerId == targetId.Value)) return null;
+        var thicknesses = state.CrossSection.Columns.Select(column => column.SegmentsBottomToTop
+            .Where(segment => segment.LayerId == targetId.Value).Sum(segment => segment.Thickness.Nanometers)).ToArray();
+        if (thicknesses.Length == 0) return null;
+        var mean = thicknesses.Average();
+        var nonuniformity = mean == 0 ? double.NaN : 100 * (thicknesses.Max() - thicknesses.Min()) / (2 * mean);
+        return (mean, "nm", "thickness", new[] { new ProcessMetric("nonuniformity", double.IsFinite(nonuniformity) ? nonuniformity : null, "%", mean == 0 ? "ZERO_MEAN" : null, mean == 0 ? "Mean thickness is zero, so nonuniformity is undefined." : null) });
+    }
+
+    private static (double Value, string Unit, string MetricId, IReadOnlyList<ProcessMetric> Related)? MeasureCd(WaferState state, Guid? targetId)
+    {
+        var pattern = state.ResistPattern;
+        if (pattern is null || targetId != pattern.PatternId) return null;
+        var openWidth = pattern.OpenIntervals.Sum(interval => interval.End.Nanometers - interval.Start.Nanometers);
+        var related = new[] { new ProcessMetric("patternId", null, "1", pattern.PatternId.ToString()) };
+        return (openWidth, "nm", "cd", related);
+    }
+
+    private static (double Value, string Unit, string MetricId, IReadOnlyList<ProcessMetric> Related)? MeasureContamination(WaferState state) =>
+        (state.ContaminationIndex, "point", "contamination", Array.Empty<ProcessMetric>());
+
+    private static (double Value, string Unit, string MetricId, IReadOnlyList<ProcessMetric> Related)? MeasureElectrical(WaferState state, Guid? targetId)
+    {
+        var wire = state.Wires.FirstOrDefault(item => item.WireId == targetId);
+        return wire is null ? null : (wire.ResistanceOhms, "Ω", "resistance", new[] { new ProcessMetric("wireId", null, "1", wire.WireId.ToString()) });
+    }
+
+    private static (double Value, string Unit, string MetricId, IReadOnlyList<ProcessMetric> Related)? MeasureProfile(WaferState state, Guid? targetId)
+    {
+        var profile = state.ImplantProfiles.FirstOrDefault(item => targetId == item.ProfileId);
+        if (profile is null) return null;
+        var dose = Integrate(profile.TotalConcentrationByDepth, profile.DepthGrid);
+        var active = Integrate(profile.ActiveConcentrationByDepth, profile.DepthGrid);
+        var depthMoment = 0.0;
+        for (var index = 1; index < profile.DepthGrid.Count; index++)
+        {
+            var left = profile.TotalConcentrationByDepth[index - 1].PerCubicMeter * profile.DepthGrid[index - 1].Nanometers;
+            var right = profile.TotalConcentrationByDepth[index].PerCubicMeter * profile.DepthGrid[index].Nanometers;
+            depthMoment += (left + right) * 0.5 * (profile.DepthGrid[index].Meters - profile.DepthGrid[index - 1].Meters);
+        }
+        if (dose <= 0) return null;
+        return (depthMoment / dose, "nm", "meanImplantDepth", new[]
+        {
+            new ProcessMetric("implantDose", dose / 1e4, "ions/cm²"),
+            new ProcessMetric("activation", 100 * active / dose, "%")
+        });
+    }
+
+    private static double Integrate(IReadOnlyList<Concentration> concentration, IReadOnlyList<Length> depth)
+    {
+        var sum = 0.0;
+        for (var index = 1; index < concentration.Count; index++)
+            sum += (concentration[index - 1].PerCubicMeter + concentration[index].PerCubicMeter) * 0.5 * (depth[index].Meters - depth[index - 1].Meters);
+        return sum;
+    }
+
+    private static InspectionEvaluation Failed(string code, string message, ExecutionStage stage = ExecutionStage.InputValidation)
+    {
+        var issue = new ValidationIssue(code, stage.ToString(), null, null, "valid inspection mode and current-state target", message, "Choose a target from the current wafer state and retry.");
+        var output = new ProcessModelOutput(null, Array.Empty<ProcessMetric>(), ValidationResult.Failure(issue));
+        return new InspectionEvaluation(output, QualityStatus.NotEvaluated, Array.Empty<ProcessMetric>());
+    }
+}

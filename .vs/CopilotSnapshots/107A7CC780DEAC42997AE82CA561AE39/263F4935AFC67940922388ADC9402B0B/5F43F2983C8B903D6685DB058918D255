@@ -1,0 +1,42 @@
+﻿using SemiconductorEdu.Application.Execution;
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Simulation.Initialization;
+using SemiconductorEdu.Simulation.Processes;
+
+namespace SemiconductorEdu.IntegrationTests;
+
+public sealed class ImplantAnnealSessionTests
+{
+    [Fact]
+    public void ImplantAndAnnealCommitNewStatesAndKeepBothRunsInHistory()
+    {
+        var now = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var initial = new WaferStateFactory().Create(WaferInitializationParameters.EducationalDefaults(), Guid.NewGuid(), now, 33);
+        var executor = new SemiconductorEdu.Application.Execution.ImplantAnnealProcessExecutor(new ImplantAnnealModels());
+        var session = new ProcessSession(new Dictionary<ProcessType, IProcessExecutor>
+        {
+            [ProcessType.IonImplantation] = executor,
+            [ProcessType.Anneal] = executor
+        });
+        session.Initialize(initial);
+
+        var implant = session.Execute(new ProcessRecipe(Guid.NewGuid(), ProcessType.IonImplantation,
+            new IonImplantationParameters(DopantSpecies.Boron, Energy.FromKiloElectronVolts(10), ArealDose.FromIonsPerSquareCentimeter(1e13), 7),
+            "implant-edu", "quality-not-evaluated", "1.0.0", "1.0.0"), now.AddSeconds(1));
+        var anneal = session.Execute(new ProcessRecipe(Guid.NewGuid(), ProcessType.Anneal,
+            new AnnealParameters(AnnealMethod.Rta, Temperature.FromCelsius(1000), Duration.FromSeconds(30), "N2"),
+            "anneal-edu", "quality-not-evaluated", "1.0.0", "1.0.0"), now.AddSeconds(31));
+
+        Assert.Equal(ProcessExecutionStatus.ProcessSuccess, implant.Result.ExecutionStatus);
+        Assert.Equal(ProcessExecutionStatus.ProcessSuccess, anneal.Result.ExecutionStatus);
+        Assert.Equal(2, session.History.Count);
+        Assert.Equal(2, session.CurrentState!.Revision);
+        Assert.Equal(2, session.CurrentState.HistoryIds.Count);
+        Assert.True(session.Undo());
+        Assert.Single(session.CurrentState!.ImplantProfiles);
+        Assert.True(session.Redo());
+        Assert.Contains(session.CurrentState!.HistoryIds, id => id == anneal.Result.RunId);
+    }
+}

@@ -1,0 +1,90 @@
+﻿using SemiconductorEdu.Application.Execution;
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Validation;
+
+namespace SemiconductorEdu.Simulation.Processes;
+
+public sealed class PatternProcessExecutor(PatternProcessModels models) : IProcessExecutor
+{
+    public ProcessExecutionResponse Execute(ProcessExecutionRequest request)
+    {
+        if (request.CurrentState is null)
+        {
+            var issue = Issue("PRECONDITION_WAFER_REQUIRED", ExecutionStage.Preconditions);
+            return Failed(request, Guid.NewGuid(), ProcessExecutionStatus.PreconditionFailed, new[] { issue });
+        }
+
+        var runId = Guid.NewGuid();
+        var output = request.Recipe.Parameters switch
+        {
+            PhotolithographyParameters photo when request.Recipe.ProcessType == ProcessType.Photolithography =>
+                models.ApplyPhotolithography(request.CurrentState, photo, runId, request.RequestedAtUtc),
+            EtchParameters etch when request.Recipe.ProcessType == ProcessType.Etch =>
+                models.ApplyEtch(request.CurrentState, etch, runId, request.RequestedAtUtc),
+            CleaningParameters cleaning when request.Recipe.ProcessType == ProcessType.Cleaning =>
+                models.ApplyPhotoresistStrip(request.CurrentState, cleaning, runId, request.RequestedAtUtc),
+            _ => null
+        };
+        if (output is null)
+        {
+            var issue = Issue("PROCESS_TYPE_OR_PARAMETERS_UNSUPPORTED", ExecutionStage.InputValidation);
+            return Failed(request, runId, ProcessExecutionStatus.InvalidInput, new[] { issue });
+        }
+        if (!output.Validation.IsValid || output.CandidateState is null)
+        {
+            var failureStatus = output.Validation.Errors.Any(error => error.Stage == ExecutionStage.ModelDomain.ToString())
+                ? ProcessExecutionStatus.ModelOutOfDomain
+                : output.Validation.Errors.Any(error => error.Stage == ExecutionStage.Preconditions.ToString())
+                    ? ProcessExecutionStatus.PreconditionFailed
+                    : ProcessExecutionStatus.InvalidInput;
+            return Failed(request, runId, failureStatus, output.Validation.Errors);
+        }
+
+        var result = new ProcessResult(
+            runId,
+            request.CurrentState.HistoryIds.Count > 0 ? request.CurrentState.HistoryIds[^1] : null,
+            request.Recipe.ProcessType,
+            ProcessExecutionStatus.ProcessSuccess,
+            QualityStatus.NotEvaluated,
+            request.CurrentState.StateId,
+            output.CandidateState.StateId,
+            output.Metrics,
+            Array.Empty<ValidationIssue>(),
+            output.Validation.Warnings,
+            request.ConfigurationHash,
+            "1.0.0",
+            request.RequestedAtUtc,
+            request.RequestedAtUtc,
+            EducationalModelNotice.SourceNote);
+        return new ProcessExecutionResponse(result, output.CandidateState);
+    }
+
+    private static ProcessExecutionResponse Failed(
+        ProcessExecutionRequest request,
+        Guid runId,
+        ProcessExecutionStatus status,
+        IReadOnlyList<ValidationIssue> errors)
+    {
+        var result = new ProcessResult(
+            runId,
+            request.CurrentState is { HistoryIds.Count: > 0 } state ? state.HistoryIds[^1] : null,
+            request.Recipe.ProcessType,
+            status,
+            QualityStatus.NotEvaluated,
+            request.CurrentState?.StateId ?? Guid.Empty,
+            null,
+            Array.Empty<ProcessMetric>(),
+            errors,
+            Array.Empty<ValidationIssue>(),
+            request.ConfigurationHash,
+            "1.0.0",
+            request.RequestedAtUtc,
+            request.RequestedAtUtc,
+            EducationalModelNotice.SourceNote);
+        return new ProcessExecutionResponse(result, null);
+    }
+
+    private static ValidationIssue Issue(string code, ExecutionStage stage) =>
+        new(code, stage.ToString(), null, null, "valid supported recipe and wafer", code, "입력과 공정 순서를 확인하세요.");
+}

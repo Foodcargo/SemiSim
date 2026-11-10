@@ -1,0 +1,7 @@
+﻿#pragma once
+
+#include <QImage>
+
+class Wafer;
+
+QImage renderWaferFrame(const Wafer &wafer, int width, int height, double yawDegrees, double zoom);

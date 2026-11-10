@@ -1,0 +1,1547 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Program_Files\\SemiPlay\\SemiSim\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\KMG\\.copilot\\plans\\plan-untitled.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\KMG\\.copilot\\plans\\plan-3d.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\KMG\\.copilot\\plans\\plan-c-ui-c.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownSecurePreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\docs\\remaining-requirements.private.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownPreview",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:docs\\remaining-requirements.private.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}|MarkdownPreview"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\docs\\remaining-requirements.private.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:docs\\remaining-requirements.private.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\GlobalUsings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.IntegrationTests\\GlobalUsings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\PatternProcessModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\PatternProcessModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\StageOneViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\ViewModels\\StageOneViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\InspectionParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\InspectionParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\MetallizationModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\MetallizationModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\ConfigurationAndSessionStoreTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.IntegrationTests\\ConfigurationAndSessionStoreTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\ImplantAnnealSessionTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.IntegrationTests\\ImplantAnnealSessionTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\MetallizationParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\MetallizationParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\State\\InspectionState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\State\\InspectionState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\State\\WaferState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\State\\WaferState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\App.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\App.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessExecutors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Application\\Execution\\ProcessExecutors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\MainViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\ViewModels\\MainViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\MetallizationInspectionSessionTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.IntegrationTests\\MetallizationInspectionSessionTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\MainWindow.xaml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\MainWindow.xaml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Interop\\SemiSimApi.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Interop\\SemiSimApi.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\NativeApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ui\\SemiSim.Wpf\\NativeApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\SemiconductorEdu.Domain.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\SemiconductorEdu.Domain.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\SemiconductorEdu.Application.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Application\\SemiconductorEdu.Application.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\SemiconductorEdu.Simulation.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\SemiconductorEdu.Simulation.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\Controls\\CrossSectionCanvas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\Controls\\CrossSectionCanvas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\CMakePresets.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:CMakePresets.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\Directory.Build.props||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Directory.Build.props||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\global.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:global.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\main.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:main.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\UI\\MainWindow.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\UI\\MainWindow.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\MetallizationModels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Processes\\MetallizationModels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ImplantAnnealModels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Processes\\ImplantAnnealModels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\DepositionAndCmpModels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Processes\\DepositionAndCmpModels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Equipment\\EquipmentSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Equipment\\EquipmentSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Parameters\\ParameterDefinition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Parameters\\ParameterDefinition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\WaferInitializationParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\WaferInitializationParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ProcessType.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\ProcessType.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ProcessContracts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\ProcessContracts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\PatternProcessParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\PatternProcessParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\OxidationParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\OxidationParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ImplantAnnealParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\ImplantAnnealParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\DepositionAndCmpParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Processes\\DepositionAndCmpParameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\obj\\project.nuget.cache||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\obj\\project.nuget.cache||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationMapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationMapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\GlobalUsings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\GlobalUsings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\InspectionModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\InspectionModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\ImplantAnnealModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\ImplantAnnealModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutorAdapters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutorAdapters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessExecutorAdapters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Application\\Execution\\ProcessExecutorAdapters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\DepositionAndCmpModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\DepositionAndCmpModelsTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\.github\\copilot-instructions.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.github\\copilot-instructions.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\CMakeLists.txt||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:CMakeLists.txt||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\MainStageOneViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\ViewModels\\MainStageOneViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessSession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Application\\Execution\\ProcessSession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\CrossSectionColumnViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\ViewModels\\CrossSectionColumnViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\StageTwoViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\ViewModels\\StageTwoViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationLoader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ui\\SemiSim.Wpf\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\App.xaml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Wpf\\App.xaml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\SessionStore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\Storage\\SessionStore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\QuantityJsonConverters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\Storage\\QuantityJsonConverters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\SessionDocument.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\Storage\\SessionDocument.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\include\\Interop\\SemiSimApi.h||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:include\\Interop\\SemiSimApi.h||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\OxidationProcessExecutor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Application\\Execution\\OxidationProcessExecutor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Scene\\WaferRenderer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Scene\\WaferRenderer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\IProcessExecutor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Application\\Execution\\IProcessExecutor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\include\\Scene\\WaferRenderer.h||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:include\\Scene\\WaferRenderer.h||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Initialization\\WaferStateFactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Initialization\\WaferStateFactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\MainWindow.xaml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ui\\SemiSim.Wpf\\MainWindow.xaml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Validation\\ValidationResult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Validation\\ValidationResult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Units\\UnitQuantities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Domain\\Units\\UnitQuantities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\SemiconductorEdu.sln||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SemiconductorEdu.sln||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\SemiconductorEdu.UnitTests.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\SemiconductorEdu.UnitTests.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\SemiconductorEdu.Infrastructure.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Infrastructure\\SemiconductorEdu.Infrastructure.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\ProcessSessionTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\ProcessSessionTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\OxidationModelTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.UnitTests\\OxidationModelTests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\SemiconductorEdu.IntegrationTests.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tests\\SemiconductorEdu.IntegrationTests\\SemiconductorEdu.IntegrationTests.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Wafer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Model\\Wafer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Core\\AppManager.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Core\\AppManager.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Animation\\Timeline.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Animation\\Timeline.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Animation\\AnimationPlayer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Animation\\AnimationPlayer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\App.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ui\\SemiSim.Wpf\\App.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\App.xaml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ui\\SemiSim.Wpf\\App.xaml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\SemiSim.Wpf.csproj||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ui\\SemiSim.Wpf\\SemiSim.Wpf.csproj||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Process\\Deposition.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Process\\Deposition.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Layer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Model\\Layer.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Material.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Model\\Material.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationProcessExecutor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationProcessExecutor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "plan-3d.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "DocumentMoniker": "C:\\Users\\KMG\\.copilot\\plans\\plan-3d.md",
+              "ToolTip": "C:\\Users\\KMG\\.copilot\\plans\\plan-3d.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-03T12:24:31.674Z",
+              "EditorCaption": " [\uBBF8\uB9AC \uBCF4\uAE30]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "plan-untitled.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "DocumentMoniker": "C:\\Users\\KMG\\.copilot\\plans\\plan-untitled.md",
+              "ToolTip": "C:\\Users\\KMG\\.copilot\\plans\\plan-untitled.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-03T13:50:48.651Z",
+              "EditorCaption": " [\uBBF8\uB9AC \uBCF4\uAE30]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "plan-c-ui-c.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "DocumentMoniker": "C:\\Users\\KMG\\.copilot\\plans\\plan-c-ui-c.md",
+              "ToolTip": "C:\\Users\\KMG\\.copilot\\plans\\plan-c-ui-c.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-03T12:15:29.743Z",
+              "EditorCaption": " [\uBBF8\uB9AC \uBCF4\uAE30]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "remaining-requirements.private.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\docs\\remaining-requirements.private.md",
+              "RelativeDocumentMoniker": "docs\\remaining-requirements.private.md",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\docs\\remaining-requirements.private.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "RelativeToolTip": "docs\\remaining-requirements.private.md [\uBBF8\uB9AC \uBCF4\uAE30]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-04T15:38:55.538Z",
+              "EditorCaption": " [\uBBF8\uB9AC \uBCF4\uAE30]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": ".gitignore",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\.gitignore",
+              "RelativeDocumentMoniker": ".gitignore",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\.gitignore",
+              "RelativeToolTip": ".gitignore",
+              "ViewState": "AgIAAAAAAAAAAAAAAAApwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-11-04T15:35:27.234Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "remaining-requirements.private.md",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\docs\\remaining-requirements.private.md",
+              "RelativeDocumentMoniker": "docs\\remaining-requirements.private.md",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\docs\\remaining-requirements.private.md",
+              "RelativeToolTip": "docs\\remaining-requirements.private.md",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAAEkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-04T15:36:21.013Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "PatternProcessModelsTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\PatternProcessModelsTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\PatternProcessModelsTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\PatternProcessModelsTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\PatternProcessModelsTests.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAADgv1UAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:19:16.73Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "SimulationConfiguration.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfiguration.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfiguration.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfiguration.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfiguration.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAADgvyUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:06:48.311Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "GlobalUsings.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\GlobalUsings.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.IntegrationTests\\GlobalUsings.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\GlobalUsings.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.IntegrationTests\\GlobalUsings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:12:03.26Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "StageOneViewModel.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\StageOneViewModel.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\ViewModels\\StageOneViewModel.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\StageOneViewModel.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\ViewModels\\StageOneViewModel.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAADgv3gAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:38:09.497Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "InspectionParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\InspectionParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\InspectionParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\InspectionParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\InspectionParameters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:31:18.51Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "MetallizationModelsTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\MetallizationModelsTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\MetallizationModelsTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\MetallizationModelsTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\MetallizationModelsTests.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:30:38.157Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ConfigurationAndSessionStoreTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\ConfigurationAndSessionStoreTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.IntegrationTests\\ConfigurationAndSessionStoreTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\ConfigurationAndSessionStoreTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.IntegrationTests\\ConfigurationAndSessionStoreTests.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAADgv1MAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:08:45.878Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ImplantAnnealSessionTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\ImplantAnnealSessionTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.IntegrationTests\\ImplantAnnealSessionTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\ImplantAnnealSessionTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.IntegrationTests\\ImplantAnnealSessionTests.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAADgvyoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:20:07.962Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "MetallizationParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\MetallizationParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\MetallizationParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\MetallizationParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\MetallizationParameters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:29:56.847Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "InspectionState.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\State\\InspectionState.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\State\\InspectionState.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\State\\InspectionState.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\State\\InspectionState.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:32:20.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "WaferState.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\State\\WaferState.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\State\\WaferState.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\State\\WaferState.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\State\\WaferState.cs",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAhwAoAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:00:25.569Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\App.xaml.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\App.xaml.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\App.xaml.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\App.xaml.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAhwEEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:10:32.357Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "ProcessExecutors.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessExecutors.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Application\\Execution\\ProcessExecutors.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessExecutors.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Application\\Execution\\ProcessExecutors.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAADgv4gAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:24:17.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\ViewModels\\MainViewModel.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\MainViewModel.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\ViewModels\\MainViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAO4BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:11:06.321Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "MetallizationInspectionSessionTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\MetallizationInspectionSessionTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.IntegrationTests\\MetallizationInspectionSessionTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\MetallizationInspectionSessionTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.IntegrationTests\\MetallizationInspectionSessionTests.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAADgv0sAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:39:19.245Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\MainWindow.xaml",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\MainWindow.xaml",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\MainWindow.xaml",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAMEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-11-03T13:12:09.625Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "SemiSimApi.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Interop\\SemiSimApi.cpp",
+              "RelativeDocumentMoniker": "src\\Interop\\SemiSimApi.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Interop\\SemiSimApi.cpp",
+              "RelativeToolTip": "src\\Interop\\SemiSimApi.cpp",
+              "ViewState": "AgIAAAwAAAAAAAAAAAApwOEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T12:10:11.845Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "NativeApi.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\NativeApi.cs",
+              "RelativeDocumentMoniker": "ui\\SemiSim.Wpf\\NativeApi.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\NativeApi.cs",
+              "RelativeToolTip": "ui\\SemiSim.Wpf\\NativeApi.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAhwFUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:11:52.169Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "SemiconductorEdu.Domain.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\SemiconductorEdu.Domain.csproj",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\SemiconductorEdu.Domain.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\SemiconductorEdu.Domain.csproj",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\SemiconductorEdu.Domain.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:58:05.979Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "SemiconductorEdu.Application.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\SemiconductorEdu.Application.csproj",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Application\\SemiconductorEdu.Application.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\SemiconductorEdu.Application.csproj",
+              "RelativeToolTip": "src\\SemiconductorEdu.Application\\SemiconductorEdu.Application.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:58:05.886Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "SemiconductorEdu.Simulation.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\SemiconductorEdu.Simulation.csproj",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\SemiconductorEdu.Simulation.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\SemiconductorEdu.Simulation.csproj",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\SemiconductorEdu.Simulation.csproj",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-04T15:19:14.301Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "SemiconductorEdu.Wpf.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\SemiconductorEdu.Wpf.csproj",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:58:06.582Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "CrossSectionCanvas.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\Controls\\CrossSectionCanvas.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\Controls\\CrossSectionCanvas.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\Controls\\CrossSectionCanvas.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\Controls\\CrossSectionCanvas.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAADgv2kAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:11:32.936Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "global.json",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\global.json",
+              "RelativeDocumentMoniker": "global.json",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\global.json",
+              "RelativeToolTip": "global.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-03T12:58:05.463Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "main.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\main.cpp",
+              "RelativeToolTip": "main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-04T15:19:10.159Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "Directory.Build.props",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\Directory.Build.props",
+              "RelativeDocumentMoniker": "Directory.Build.props",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\Directory.Build.props",
+              "RelativeToolTip": "Directory.Build.props",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2026-11-03T12:58:05.806Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "CMakePresets.json",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\CMakePresets.json",
+              "RelativeDocumentMoniker": "CMakePresets.json",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\CMakePresets.json",
+              "RelativeToolTip": "CMakePresets.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-03T12:12:42.492Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "README.md",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\README.md",
+              "RelativeDocumentMoniker": "README.md",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\README.md",
+              "RelativeToolTip": "README.md",
+              "ViewState": "AgIAADYAAAAAAAAAAAAAAEUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-03T12:12:42.854Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "MainWindow.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\UI\\MainWindow.cpp",
+              "RelativeDocumentMoniker": "src\\UI\\MainWindow.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\UI\\MainWindow.cpp",
+              "RelativeToolTip": "src\\UI\\MainWindow.cpp",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-04T15:13:36.243Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "MetallizationModels.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\MetallizationModels.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Processes\\MetallizationModels.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\MetallizationModels.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Processes\\MetallizationModels.cs",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAEUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:30:13.856Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "ImplantAnnealModels.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ImplantAnnealModels.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Processes\\ImplantAnnealModels.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ImplantAnnealModels.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Processes\\ImplantAnnealModels.cs",
+              "ViewState": "AgIAAKoAAAAAAAAAAADgvx4BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:17:31.659Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "DepositionAndCmpModels.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\DepositionAndCmpModels.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Processes\\DepositionAndCmpModels.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\DepositionAndCmpModels.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Processes\\DepositionAndCmpModels.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAAAHwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:28:26.965Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "EquipmentSnapshot.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Equipment\\EquipmentSnapshot.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Equipment\\EquipmentSnapshot.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Equipment\\EquipmentSnapshot.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Equipment\\EquipmentSnapshot.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:59:18.632Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "ParameterDefinition.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Parameters\\ParameterDefinition.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Parameters\\ParameterDefinition.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Parameters\\ParameterDefinition.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Parameters\\ParameterDefinition.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAAAFIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:59:19.115Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "WaferInitializationParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\WaferInitializationParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\WaferInitializationParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\WaferInitializationParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\WaferInitializationParameters.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:00:25.034Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "ProcessType.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ProcessType.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\ProcessType.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ProcessType.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\ProcessType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:59:18.741Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "ProcessContracts.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ProcessContracts.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\ProcessContracts.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ProcessContracts.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\ProcessContracts.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:59:19.212Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "PatternProcessParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\PatternProcessParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\PatternProcessParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\PatternProcessParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\PatternProcessParameters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:16:29.328Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "OxidationParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\OxidationParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\OxidationParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\OxidationParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\OxidationParameters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:00:24.763Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "ImplantAnnealParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ImplantAnnealParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\ImplantAnnealParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\ImplantAnnealParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\ImplantAnnealParameters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:16:56.916Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "DepositionAndCmpParameters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\DepositionAndCmpParameters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Processes\\DepositionAndCmpParameters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Processes\\DepositionAndCmpParameters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Processes\\DepositionAndCmpParameters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:28:00.069Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "project.nuget.cache",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\obj\\project.nuget.cache",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\obj\\project.nuget.cache",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\obj\\project.nuget.cache",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\obj\\project.nuget.cache",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002368|",
+              "WhenOpened": "2026-11-04T15:12:31.602Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "SimulationConfigurationMapper.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationMapper.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationMapper.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationMapper.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationMapper.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAADgvyUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:07:36.927Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "GlobalUsings.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\GlobalUsings.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\GlobalUsings.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\GlobalUsings.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\GlobalUsings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:11:59.742Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "InspectionModelsTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\InspectionModelsTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\InspectionModelsTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\InspectionModelsTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\InspectionModelsTests.cs",
+              "ViewState": "AgIAADoAAAAAAAAAAADgv1gAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:33:01.276Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "ImplantAnnealModelsTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\ImplantAnnealModelsTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\ImplantAnnealModelsTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\ImplantAnnealModelsTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\ImplantAnnealModelsTests.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAADgv4sAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T10:18:15.652Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 52,
+              "Title": "ProcessExecutorAdapters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutorAdapters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutorAdapters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutorAdapters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutorAdapters.cs",
+              "ViewState": "AgIAADoAAAAAAAAAAABIwJwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T04:20:17.246Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 53,
+              "Title": "ProcessExecutorAdapters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessExecutorAdapters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Application\\Execution\\ProcessExecutorAdapters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessExecutorAdapters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Application\\Execution\\ProcessExecutorAdapters.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAABAwIMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T04:56:22.565Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 54,
+              "Title": "DepositionAndCmpModelsTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\DepositionAndCmpModelsTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\DepositionAndCmpModelsTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\DepositionAndCmpModelsTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\DepositionAndCmpModelsTests.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAADgv1QAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-04T04:21:31.854Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 55,
+              "Title": "copilot-instructions.md",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\.github\\copilot-instructions.md",
+              "RelativeDocumentMoniker": ".github\\copilot-instructions.md",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\.github\\copilot-instructions.md",
+              "RelativeToolTip": ".github\\copilot-instructions.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAB1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-11-04T04:59:29.283Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 56,
+              "Title": "CMakeLists.txt",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\CMakeLists.txt",
+              "RelativeDocumentMoniker": "CMakeLists.txt",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\CMakeLists.txt",
+              "RelativeToolTip": "CMakeLists.txt",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2026-11-03T12:10:51.882Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 57,
+              "Title": "MainStageOneViewModel.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\MainStageOneViewModel.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\ViewModels\\MainStageOneViewModel.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\MainStageOneViewModel.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\ViewModels\\MainStageOneViewModel.cs",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAABAAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:34:50.916Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 58,
+              "Title": "ProcessSession.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessSession.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Application\\Execution\\ProcessSession.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\ProcessSession.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Application\\Execution\\ProcessSession.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAADgvw8AAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:05:21.07Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 59,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\MainWindow.xaml.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:12:15.199Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 60,
+              "Title": "CrossSectionColumnViewModel.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\CrossSectionColumnViewModel.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\ViewModels\\CrossSectionColumnViewModel.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\CrossSectionColumnViewModel.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\ViewModels\\CrossSectionColumnViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:10:39.751Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 61,
+              "Title": "StageTwoViewModel.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\StageTwoViewModel.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\ViewModels\\StageTwoViewModel.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\ViewModels\\StageTwoViewModel.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\ViewModels\\StageTwoViewModel.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAAAEcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:33:55.958Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 62,
+              "Title": "SimulationConfigurationLoader.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationLoader.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationLoader.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationLoader.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\Configuration\\SimulationConfigurationLoader.cs",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAhwH8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:07:29.122Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 63,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "ui\\SemiSim.Wpf\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\MainWindow.xaml.cs",
+              "RelativeToolTip": "ui\\SemiSim.Wpf\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:11:52.289Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 64,
+              "Title": "App.xaml",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\App.xaml",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Wpf\\App.xaml",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Wpf\\App.xaml",
+              "RelativeToolTip": "src\\SemiconductorEdu.Wpf\\App.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-11-03T13:10:23.178Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 65,
+              "Title": "SessionStore.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\SessionStore.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\Storage\\SessionStore.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\SessionStore.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\Storage\\SessionStore.cs",
+              "ViewState": "AgIAAGIAAAAAAAAAAAAhwHYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:08:14.236Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 66,
+              "Title": "QuantityJsonConverters.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\QuantityJsonConverters.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\Storage\\QuantityJsonConverters.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\QuantityJsonConverters.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\Storage\\QuantityJsonConverters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:09:13.651Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 67,
+              "Title": "SessionDocument.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\SessionDocument.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\Storage\\SessionDocument.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\Storage\\SessionDocument.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\Storage\\SessionDocument.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:07:53.808Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 68,
+              "Title": "SemiSimApi.h",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\include\\Interop\\SemiSimApi.h",
+              "RelativeDocumentMoniker": "include\\Interop\\SemiSimApi.h",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\include\\Interop\\SemiSimApi.h",
+              "RelativeToolTip": "include\\Interop\\SemiSimApi.h",
+              "ViewState": "AgIAAAUAAAAAAAAAAAApwBUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-11-03T12:10:11.314Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 69,
+              "Title": "OxidationProcessExecutor.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\OxidationProcessExecutor.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Application\\Execution\\OxidationProcessExecutor.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\OxidationProcessExecutor.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Application\\Execution\\OxidationProcessExecutor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:06:07.321Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 70,
+              "Title": "WaferRenderer.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Scene\\WaferRenderer.cpp",
+              "RelativeDocumentMoniker": "src\\Scene\\WaferRenderer.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Scene\\WaferRenderer.cpp",
+              "RelativeToolTip": "src\\Scene\\WaferRenderer.cpp",
+              "ViewState": "AgIAABMAAAAAAAAAAAApwPIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T12:10:11.741Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 71,
+              "Title": "IProcessExecutor.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\IProcessExecutor.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Application\\Execution\\IProcessExecutor.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Application\\Execution\\IProcessExecutor.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Application\\Execution\\IProcessExecutor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:04:42.123Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 72,
+              "Title": "OxidationModel.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationModel.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationModel.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationModel.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationModel.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAhwCoBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:02:16.339Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 73,
+              "Title": "WaferRenderer.h",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\include\\Scene\\WaferRenderer.h",
+              "RelativeDocumentMoniker": "include\\Scene\\WaferRenderer.h",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\include\\Scene\\WaferRenderer.h",
+              "RelativeToolTip": "include\\Scene\\WaferRenderer.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-11-03T12:10:11.631Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 74,
+              "Title": "WaferStateFactory.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Initialization\\WaferStateFactory.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Initialization\\WaferStateFactory.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Initialization\\WaferStateFactory.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Initialization\\WaferStateFactory.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAhwEYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:00:43.132Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 75,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "ui\\SemiSim.Wpf\\MainWindow.xaml",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\MainWindow.xaml",
+              "RelativeToolTip": "ui\\SemiSim.Wpf\\MainWindow.xaml",
+              "ViewState": "AgIAACMAAAAAAAAAAAApwEgAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-11-03T12:11:52.067Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 76,
+              "Title": "ValidationResult.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Validation\\ValidationResult.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Validation\\ValidationResult.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Validation\\ValidationResult.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Validation\\ValidationResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:59:19.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 77,
+              "Title": "UnitQuantities.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Units\\UnitQuantities.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Domain\\Units\\UnitQuantities.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Domain\\Units\\UnitQuantities.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Domain\\Units\\UnitQuantities.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:59:18.928Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 78,
+              "Title": "SemiconductorEdu.sln",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\SemiconductorEdu.sln",
+              "RelativeDocumentMoniker": "SemiconductorEdu.sln",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\SemiconductorEdu.sln",
+              "RelativeToolTip": "SemiconductorEdu.sln",
+              "ViewState": "AgIAAB0AAAAAAAAAAAApwDYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002855|",
+              "WhenOpened": "2026-11-03T12:58:05.556Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 79,
+              "Title": "SemiconductorEdu.UnitTests.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\SemiconductorEdu.UnitTests.csproj",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\SemiconductorEdu.UnitTests.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\SemiconductorEdu.UnitTests.csproj",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\SemiconductorEdu.UnitTests.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:58:06.663Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 80,
+              "Title": "SemiconductorEdu.Infrastructure.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\SemiconductorEdu.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Infrastructure\\SemiconductorEdu.Infrastructure.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Infrastructure\\SemiconductorEdu.Infrastructure.csproj",
+              "RelativeToolTip": "src\\SemiconductorEdu.Infrastructure\\SemiconductorEdu.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:58:06.384Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 81,
+              "Title": "ProcessSessionTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\ProcessSessionTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\ProcessSessionTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\ProcessSessionTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\ProcessSessionTests.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAAAFMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:06:21.74Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 82,
+              "Title": "OxidationModelTests.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\OxidationModelTests.cs",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.UnitTests\\OxidationModelTests.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.UnitTests\\OxidationModelTests.cs",
+              "RelativeToolTip": "tests\\SemiconductorEdu.UnitTests\\OxidationModelTests.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:03:28.424Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 83,
+              "Title": "SemiconductorEdu.IntegrationTests.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\SemiconductorEdu.IntegrationTests.csproj",
+              "RelativeDocumentMoniker": "tests\\SemiconductorEdu.IntegrationTests\\SemiconductorEdu.IntegrationTests.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\tests\\SemiconductorEdu.IntegrationTests\\SemiconductorEdu.IntegrationTests.csproj",
+              "RelativeToolTip": "tests\\SemiconductorEdu.IntegrationTests\\SemiconductorEdu.IntegrationTests.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:58:05.379Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 84,
+              "Title": "Wafer.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Wafer.cpp",
+              "RelativeDocumentMoniker": "src\\Model\\Wafer.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Wafer.cpp",
+              "RelativeToolTip": "src\\Model\\Wafer.cpp",
+              "ViewState": "AgIAABcAAAAAAAAAAAApwCQAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T15:54:25.458Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 85,
+              "Title": "AppManager.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Core\\AppManager.cpp",
+              "RelativeDocumentMoniker": "src\\Core\\AppManager.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Core\\AppManager.cpp",
+              "RelativeToolTip": "src\\Core\\AppManager.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T15:53:50.969Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 86,
+              "Title": "Timeline.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Animation\\Timeline.cpp",
+              "RelativeDocumentMoniker": "src\\Animation\\Timeline.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Animation\\Timeline.cpp",
+              "RelativeToolTip": "src\\Animation\\Timeline.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T15:53:48.717Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 87,
+              "Title": "AnimationPlayer.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Animation\\AnimationPlayer.cpp",
+              "RelativeDocumentMoniker": "src\\Animation\\AnimationPlayer.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Animation\\AnimationPlayer.cpp",
+              "RelativeToolTip": "src\\Animation\\AnimationPlayer.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T11:33:07.892Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 95,
+              "Title": "ProcessExecutors.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutors.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutors.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutors.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Processes\\ProcessExecutors.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAABIwJQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:18:49.819Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 94,
+              "Title": "OxidationProcessExecutor.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationProcessExecutor.cs",
+              "RelativeDocumentMoniker": "src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationProcessExecutor.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationProcessExecutor.cs",
+              "RelativeToolTip": "src\\SemiconductorEdu.Simulation\\Oxidation\\OxidationProcessExecutor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T13:05:01.788Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 88,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\App.xaml.cs",
+              "RelativeDocumentMoniker": "ui\\SemiSim.Wpf\\App.xaml.cs",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\App.xaml.cs",
+              "RelativeToolTip": "ui\\SemiSim.Wpf\\App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-03T12:11:49.877Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 89,
+              "Title": "App.xaml",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\App.xaml",
+              "RelativeDocumentMoniker": "ui\\SemiSim.Wpf\\App.xaml",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\App.xaml",
+              "RelativeToolTip": "ui\\SemiSim.Wpf\\App.xaml",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAABEAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-11-03T12:11:49.165Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 90,
+              "Title": "SemiSim.Wpf.csproj",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\SemiSim.Wpf.csproj",
+              "RelativeDocumentMoniker": "ui\\SemiSim.Wpf\\SemiSim.Wpf.csproj",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\ui\\SemiSim.Wpf\\SemiSim.Wpf.csproj",
+              "RelativeToolTip": "ui\\SemiSim.Wpf\\SemiSim.Wpf.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-03T12:11:48.938Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 91,
+              "Title": "Deposition.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Process\\Deposition.cpp",
+              "RelativeDocumentMoniker": "src\\Process\\Deposition.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Process\\Deposition.cpp",
+              "RelativeToolTip": "src\\Process\\Deposition.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T11:33:11.586Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 92,
+              "Title": "Layer.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Layer.cpp",
+              "RelativeDocumentMoniker": "src\\Model\\Layer.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Layer.cpp",
+              "RelativeToolTip": "src\\Model\\Layer.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T11:33:05.772Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 93,
+              "Title": "Material.cpp",
+              "DocumentMoniker": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Material.cpp",
+              "RelativeDocumentMoniker": "src\\Model\\Material.cpp",
+              "ToolTip": "D:\\Program_Files\\SemiPlay\\SemiSim\\src\\Model\\Material.cpp",
+              "RelativeToolTip": "src\\Model\\Material.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-11-03T11:32:59.879Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

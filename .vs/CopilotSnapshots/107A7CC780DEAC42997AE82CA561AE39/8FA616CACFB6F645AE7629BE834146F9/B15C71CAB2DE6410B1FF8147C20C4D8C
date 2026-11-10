@@ -1,0 +1,78 @@
+﻿using System.Runtime.InteropServices;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+
+namespace SemiSim.Wpf;
+
+internal static class NativeApi
+{
+    private const string LibraryName = "SemiSimNative";
+
+    static NativeApi()
+    {
+        NativeLibrary.SetDllImportResolver(typeof(NativeApi).Assembly, ResolveLibrary);
+    }
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern IntPtr semisim_create();
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern void semisim_destroy(IntPtr instance);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern int semisim_reset(IntPtr instance);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern int semisim_apply_process(IntPtr instance, int step, [MarshalAs(UnmanagedType.LPUTF8Str)] string parametersJson);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern int semisim_get_state(IntPtr instance, byte[]? buffer, int capacity);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern int semisim_render(IntPtr instance, int width, int height, double yawDegrees, double zoom, byte[]? pixels, int capacity);
+
+    internal static IntPtr Create() => semisim_create();
+    internal static void Destroy(IntPtr instance) => semisim_destroy(instance);
+    internal static bool Reset(IntPtr instance) => semisim_reset(instance) != 0;
+    internal static bool ApplyProcess(IntPtr instance, int step, object parameters) =>
+        semisim_apply_process(instance, step, JsonSerializer.Serialize(parameters)) != 0;
+
+    internal static JsonDocument GetState(IntPtr instance)
+    {
+        var required = semisim_get_state(instance, null, 0);
+        if (required <= 1) throw new InvalidOperationException("Could not read native process state.");
+        var buffer = new byte[required];
+        if (semisim_get_state(instance, buffer, buffer.Length) != required)
+            throw new InvalidOperationException("Native process state changed while being read.");
+        return JsonDocument.Parse(Encoding.UTF8.GetString(buffer, 0, required - 1));
+    }
+
+    internal static byte[] Render(IntPtr instance, int width, int height, double yaw, double zoom)
+    {
+        var length = checked(width * height * 4);
+        var pixels = new byte[length];
+        var written = semisim_render(instance, width, height, yaw, zoom, pixels, pixels.Length);
+        if (written != length) throw new InvalidOperationException("Native renderer returned an invalid frame size.");
+        return pixels;
+    }
+
+    private static IntPtr ResolveLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+    {
+        if (libraryName != LibraryName) return IntPtr.Zero;
+
+        var candidates = new List<string>();
+        var configuredDirectory = Environment.GetEnvironmentVariable("SEMISIM_NATIVE_DIR");
+        if (!string.IsNullOrWhiteSpace(configuredDirectory))
+            candidates.Add(Path.Combine(configuredDirectory, "SemiSimNative.dll"));
+        candidates.Add(Path.Combine(AppContext.BaseDirectory, "SemiSimNative.dll"));
+        var repositoryRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        candidates.Add(Path.Combine(repositoryRoot, "build-native-debug", "SemiSimNative.dll"));
+        candidates.Add(Path.Combine(repositoryRoot, "build-qtcreator-debug", "SemiSimNative.dll"));
+        candidates.Add(Path.Combine(repositoryRoot, "build", "SemiSimNative.dll"));
+
+        foreach (var candidate in candidates)
+            if (File.Exists(candidate) && NativeLibrary.TryLoad(candidate, out var handle)) return handle;
+        return IntPtr.Zero;
+    }
+}

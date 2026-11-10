@@ -1,0 +1,123 @@
+﻿using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Validation;
+using SemiconductorEdu.Simulation.Processes;
+
+namespace SemiconductorEdu.Application.Execution;
+
+public sealed class PatternProcessExecutor(PatternProcessModels models) : IProcessExecutor
+{
+    private static Guid? LastRunId(WaferState? state) => state is { HistoryIds.Count: > 0 } ? state.HistoryIds[^1] : null;
+
+    internal static ProcessExecutionStatus FailureStatus(IReadOnlyList<ValidationIssue> errors) =>
+        errors.Any(error => error.Stage == ExecutionStage.ModelDomain.ToString())
+            ? ProcessExecutionStatus.ModelOutOfDomain
+            : errors.Any(error => error.Stage == ExecutionStage.Preconditions.ToString())
+                ? ProcessExecutionStatus.PreconditionFailed
+                : ProcessExecutionStatus.InvalidInput;
+
+    private static ValidationIssue Issue(string code, ExecutionStage stage) =>
+        new(code, stage.ToString(), null, null, "valid supported recipe and wafer", code, "입력과 공정 상태를 확인하세요.");
+
+    internal static ProcessExecutionResponse Succeeded(ProcessExecutionRequest request, Guid runId, ProcessModelOutput output)
+    {
+        var state = request.CurrentState!;
+        var result = new ProcessResult(runId, LastRunId(state), request.Recipe.ProcessType,
+            ProcessExecutionStatus.ProcessSuccess, QualityStatus.NotEvaluated, state.StateId, output.CandidateState!.StateId,
+            output.Metrics, Array.Empty<ValidationIssue>(), output.Validation.Warnings, request.ConfigurationHash,
+            "1.0.0", request.RequestedAtUtc, request.RequestedAtUtc, EducationalModelNotice.SourceNote);
+        return new ProcessExecutionResponse(result, output.CandidateState);
+    }
+
+
+public sealed class ImplantAnnealProcessExecutor(ImplantAnnealModels models) : IProcessExecutor
+{
+    private static ValidationIssue Issue(string code, ExecutionStage stage) =>
+        new(code, stage.ToString(), null, null, "valid supported recipe and wafer", code, "입력과 공정 상태를 확인하세요.");
+
+    public ProcessExecutionResponse Execute(ProcessExecutionRequest request)
+    {
+        if (request.CurrentState is null)
+            return PatternProcessExecutor.Failed(request, Guid.NewGuid(), ProcessExecutionStatus.PreconditionFailed,
+                new[] { Issue("PRECONDITION_WAFER_REQUIRED", ExecutionStage.Preconditions) });
+
+        var runId = Guid.NewGuid();
+        var output = request.Recipe.Parameters switch
+        {
+            IonImplantationParameters implant when request.Recipe.ProcessType == ProcessType.IonImplantation =>
+                models.ApplyImplantation(request.CurrentState, implant, runId, request.RequestedAtUtc),
+            AnnealParameters anneal when request.Recipe.ProcessType == ProcessType.Anneal =>
+                models.ApplyAnneal(request.CurrentState, anneal, runId, request.RequestedAtUtc),
+            _ => null
+        };
+        if (output is null)
+            return PatternProcessExecutor.Failed(request, runId, ProcessExecutionStatus.InvalidInput,
+                new[] { Issue("PROCESS_TYPE_OR_PARAMETERS_UNSUPPORTED", ExecutionStage.InputValidation) });
+        if (!output.Validation.IsValid || output.CandidateState is null)
+            return PatternProcessExecutor.Failed(request, runId, PatternProcessExecutor.FailureStatus(output.Validation.Errors), output.Validation.Errors);
+
+        return PatternProcessExecutor.Succeeded(request, runId, output);
+    }
+}
+
+    internal static ProcessExecutionResponse Failed(ProcessExecutionRequest request, Guid runId, ProcessExecutionStatus status, IReadOnlyList<ValidationIssue> errors) =>
+        new(new ProcessResult(runId, LastRunId(request.CurrentState), request.Recipe.ProcessType, status, QualityStatus.NotEvaluated,
+            request.CurrentState?.StateId ?? Guid.Empty, null, Array.Empty<ProcessMetric>(), errors, Array.Empty<ValidationIssue>(),
+            request.ConfigurationHash, "1.0.0", request.RequestedAtUtc, request.RequestedAtUtc, EducationalModelNotice.SourceNote), null);
+
+    public ProcessExecutionResponse Execute(ProcessExecutionRequest request)
+    {
+        if (request.CurrentState is null)
+            return Failed(request, Guid.NewGuid(), ProcessExecutionStatus.PreconditionFailed,
+                new[] { Issue("PRECONDITION_WAFER_REQUIRED", ExecutionStage.Preconditions) });
+
+        var runId = Guid.NewGuid();
+        var output = request.Recipe.Parameters switch
+        {
+            PhotolithographyParameters photo when request.Recipe.ProcessType == ProcessType.Photolithography =>
+                models.ApplyPhotolithography(request.CurrentState, photo, runId, request.RequestedAtUtc),
+            EtchParameters etch when request.Recipe.ProcessType == ProcessType.Etch =>
+                models.ApplyEtch(request.CurrentState, etch, runId, request.RequestedAtUtc),
+            CleaningParameters cleaning when request.Recipe.ProcessType == ProcessType.Cleaning =>
+                models.ApplyPhotoresistStrip(request.CurrentState, cleaning, runId, request.RequestedAtUtc),
+            _ => null
+        };
+        if (output is null)
+            return Failed(request, runId, ProcessExecutionStatus.InvalidInput,
+                new[] { Issue("PROCESS_TYPE_OR_PARAMETERS_UNSUPPORTED", ExecutionStage.InputValidation) });
+        if (!output.Validation.IsValid || output.CandidateState is null)
+            return Failed(request, runId, FailureStatus(output.Validation.Errors), output.Validation.Errors);
+
+        return Succeeded(request, runId, output);
+    }
+}
+
+public sealed class DepositionAndCmpProcessExecutor(DepositionAndCmpModels models) : IProcessExecutor
+{
+    private static ValidationIssue Issue(string code, ExecutionStage stage) =>
+        new(code, stage.ToString(), null, null, "valid supported recipe and wafer", code, "입력과 공정 상태를 확인하세요.");
+
+    public ProcessExecutionResponse Execute(ProcessExecutionRequest request)
+    {
+        if (request.CurrentState is null)
+            return PatternProcessExecutor.Failed(request, Guid.NewGuid(), ProcessExecutionStatus.PreconditionFailed,
+                new[] { Issue("PRECONDITION_WAFER_REQUIRED", ExecutionStage.Preconditions) });
+
+        var runId = Guid.NewGuid();
+        var output = request.Recipe.Parameters switch
+        {
+            DepositionParameters deposition when request.Recipe.ProcessType == ProcessType.Deposition =>
+                models.ApplyDeposition(request.CurrentState, deposition, runId, request.RequestedAtUtc),
+            CmpParameters cmp when request.Recipe.ProcessType == ProcessType.Cmp =>
+                models.ApplyCmp(request.CurrentState, cmp, runId, request.RequestedAtUtc),
+            _ => null
+        };
+        if (output is null)
+            return PatternProcessExecutor.Failed(request, runId, ProcessExecutionStatus.InvalidInput,
+                new[] { Issue("PROCESS_TYPE_OR_PARAMETERS_UNSUPPORTED", ExecutionStage.InputValidation) });
+        if (!output.Validation.IsValid || output.CandidateState is null)
+            return PatternProcessExecutor.Failed(request, runId, PatternProcessExecutor.FailureStatus(output.Validation.Errors), output.Validation.Errors);
+
+        return PatternProcessExecutor.Succeeded(request, runId, output);
+    }
+}

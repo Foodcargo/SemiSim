@@ -1,0 +1,116 @@
+﻿using SemiconductorEdu.Domain.Units;
+
+namespace SemiconductorEdu.Domain.State;
+
+public enum WaferMaterial
+{
+    Silicon,
+    SiliconDioxide,
+    SiliconNitride,
+    Photoresist,
+    Aluminum,
+    Copper,
+    Tungsten,
+    TitaniumNitride
+}
+
+public enum CrystalOrientation
+{
+    OneZeroZero,
+    OneOneZero,
+    OneOneOne
+}
+
+public enum DopingType
+{
+    PType,
+    NType
+}
+
+public enum WaferStartSurface
+{
+    BareSi,
+    UniformSiO2
+}
+
+public enum DopantSpecies
+{
+    Boron,
+    Phosphorus,
+    Arsenic
+}
+
+public sealed record SubstrateState(
+    WaferMaterial Material,
+    int DiameterMm,
+    Length Thickness,
+    CrystalOrientation Orientation,
+    DopingType DopingType,
+    Concentration BackgroundDoping,
+    WaferStartSurface StartSurface);
+
+public sealed record MaterialSegment(
+    Guid LayerId,
+    WaferMaterial Material,
+    Length Thickness,
+    Guid OriginProcessId);
+
+public sealed record CrossSectionColumn(
+    Length X,
+    IReadOnlyList<MaterialSegment> SegmentsBottomToTop,
+    Length SurfaceHeight);
+
+public sealed record CrossSectionState(
+    Length Width,
+    Length VisibleDepth,
+    int Resolution,
+    IReadOnlyList<CrossSectionColumn> Columns);
+
+public sealed record LayerReference(
+    Guid LayerId,
+    WaferMaterial Material,
+    Guid OriginProcessId);
+
+public sealed record LengthInterval(Length Start, Length End);
+
+public sealed record ResistPatternState(
+    Guid PatternId,
+    IReadOnlyList<LengthInterval> OpenIntervals,
+    IReadOnlyList<Length> ResidualThicknessByColumn);
+
+public sealed record ImplantProfileState(
+    DopantSpecies Species,
+    IReadOnlyList<Concentration> TotalConcentrationByDepth,
+    IReadOnlyList<Concentration> ActiveConcentrationByDepth,
+    IReadOnlyList<Length> DepthGrid,
+    Guid ProfileId = default);
+
+public sealed record WireGeometry(
+    Length Width,
+    Length Thickness,
+    Length Length,
+    Length Offset);
+
+public sealed record WireState(
+    Guid WireId,
+    WaferMaterial Material,
+    WireGeometry Geometry,
+    double ResistanceOhms,
+    Guid OriginProcessId);
+
+public sealed record QualityFlag(string Code, string MessageKo, bool IsFailure);
+
+public sealed record WaferState(
+    Guid StateId,
+    Guid? ParentStateId,
+    long Revision,
+    DateTimeOffset CreatedAtUtc,
+    SubstrateState Substrate,
+    CrossSectionState CrossSection,
+    IReadOnlyList<LayerReference> Layers,
+    ResistPatternState? ResistPattern,
+    IReadOnlyList<ImplantProfileState> ImplantProfiles,
+    IReadOnlyList<WireState> Wires,
+    double ContaminationIndex,
+    IReadOnlyList<QualityFlag> QualityFlags,
+    IReadOnlyList<Guid> HistoryIds);

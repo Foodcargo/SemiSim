@@ -1,0 +1,55 @@
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using SemiconductorEdu.Application.Execution;
+using SemiconductorEdu.Domain.Equipment;
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Simulation.Initialization;
+using SemiconductorEdu.Simulation.Processes;
+using SemiconductorEdu.Simulation.Oxidation;
+using SemiconductorEdu.Wpf.ViewModels;
+
+namespace SemiconductorEdu.Wpf;
+
+public partial class App : Application
+{
+    private ServiceProvider? _services;
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+        var services = new ServiceCollection();
+        services.AddSingleton<OxidationModel>();
+        services.AddSingleton<WaferStateFactory>();
+        services.AddSingleton(new EquipmentSnapshot(true, false, true, new HashSet<int> { 150, 200, 300 }));
+        services.AddSingleton(new QualityProfile("educational-default", "1.0.0", new[]
+        {
+            new QualityTarget("oxideThickness", 70, 10, null, null, null, "nm", true)
+        }));
+        services.AddSingleton<OxidationProcessExecutor>();
+        services.AddSingleton<PatternProcessModels>();
+        services.AddSingleton<PatternProcessExecutor>();
+        services.AddSingleton<DepositionAndCmpModels>();
+        services.AddSingleton<DepositionAndCmpProcessExecutor>();
+        services.AddSingleton<IProcessExecutor>(provider => provider.GetRequiredService<OxidationProcessExecutor>());
+        services.AddSingleton(provider => new ProcessSession(
+            new Dictionary<ProcessType, IProcessExecutor>
+            {
+                [ProcessType.Oxidation] = provider.GetRequiredService<OxidationProcessExecutor>()
+                , [ProcessType.Photolithography] = provider.GetRequiredService<PatternProcessExecutor>()
+                , [ProcessType.Etch] = provider.GetRequiredService<PatternProcessExecutor>()
+                , [ProcessType.Cleaning] = provider.GetRequiredService<PatternProcessExecutor>()
+                , [ProcessType.Deposition] = provider.GetRequiredService<DepositionAndCmpProcessExecutor>()
+                , [ProcessType.Cmp] = provider.GetRequiredService<DepositionAndCmpProcessExecutor>()
+            }));
+        services.AddTransient<MainViewModel>();
+        _services = services.BuildServiceProvider();
+        var window = new MainWindow { DataContext = _services.GetRequiredService<MainViewModel>() };
+        window.Show();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _services?.Dispose();
+        base.OnExit(e);
+    }
+}

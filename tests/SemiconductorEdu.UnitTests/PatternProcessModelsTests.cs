@@ -1,0 +1,85 @@
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Simulation.Initialization;
+using SemiconductorEdu.Simulation.Processes;
+
+namespace SemiconductorEdu.UnitTests;
+
+public sealed class PatternProcessModelsTests
+{
+    private static readonly DateTimeOffset Now = new(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void PhotolithographyCreatesResistMaskOverOnlyNonOpenColumns()
+    {
+        var before = CreateWafer();
+        var parameters = new PhotolithographyParameters(
+            Length.FromNanometers(1200),
+            new[] { new LengthInterval(Length.FromMicrometers(5), Length.FromMicrometers(10)) });
+
+        var output = new PatternProcessModels().ApplyPhotolithography(before, parameters, Guid.NewGuid(), Now.AddMinutes(1));
+
+        Assert.True(output.Validation.IsValid);
+        Assert.NotNull(output.CandidateState);
+        Assert.NotNull(output.CandidateState!.ResistPattern);
+        Assert.Contains(output.CandidateState.CrossSection.Columns, column => column.SegmentsBottomToTop.Any(segment => segment.Material == WaferMaterial.Photoresist));
+        Assert.Contains(output.CandidateState.CrossSection.Columns, column => column.SegmentsBottomToTop.All(segment => segment.Material != WaferMaterial.Photoresist));
+    }
+
+    [Fact]
+    public void EtchRemovesOnlyExposedTargetMaterialAtOpenColumns()
+    {
+        var models = new PatternProcessModels();
+        var before = CreateWafer();
+        var photo = models.ApplyPhotolithography(
+            before,
+            new PhotolithographyParameters(Length.FromNanometers(1000), new[] { new LengthInterval(Length.FromMicrometers(5), Length.FromMicrometers(10)) }),
+            Guid.NewGuid(), Now.AddMinutes(1)).CandidateState!;
+        var output = models.ApplyEtch(photo, new EtchParameters(WaferMaterial.SiliconDioxide, Length.FromNanometers(50), 0), Guid.NewGuid(), Now.AddMinutes(2));
+
+        Assert.True(output.Validation.IsValid);
+        Assert.NotNull(output.CandidateState);
+        var openColumn = output.CandidateState!.CrossSection.Columns.Single(column => Math.Abs(column.X.Micrometers - 5) < 0.001);
+        Assert.Equal(50, openColumn.SegmentsBottomToTop.Where(segment => segment.Material == WaferMaterial.SiliconDioxide).Sum(segment => segment.Thickness.Nanometers), 8);
+        var protectedColumn = output.CandidateState.CrossSection.Columns.Single(column => Math.Abs(column.X.Micrometers - 15) < 0.001);
+        Assert.Single(protectedColumn.SegmentsBottomToTop, segment => segment.Material == WaferMaterial.SiliconDioxide);
+    }
+
+    [Fact]
+    public void PhotoresistStripRemovesResistAndClearsPattern()
+    {
+        var models = new PatternProcessModels();
+        var before = CreateWafer();
+        var patterned = models.ApplyPhotolithography(
+            before,
+            new PhotolithographyParameters(Length.FromNanometers(1000), new[] { new LengthInterval(Length.FromMicrometers(5), Length.FromMicrometers(10)) }),
+            Guid.NewGuid(), Now.AddMinutes(1)).CandidateState!;
+
+        var output = models.ApplyPhotoresistStrip(patterned, new CleaningParameters(CleaningMethod.PhotoresistStrip), Guid.NewGuid(), Now.AddMinutes(2));
+
+        Assert.True(output.Validation.IsValid);
+        Assert.Null(output.CandidateState!.ResistPattern);
+        Assert.All(output.CandidateState.CrossSection.Columns, column => Assert.DoesNotContain(column.SegmentsBottomToTop, segment => segment.Material == WaferMaterial.Photoresist));
+    }
+
+    [Fact]
+    public void EtchWithoutPatternDoesNotProduceCandidateState()
+    {
+        var output = new PatternProcessModels().ApplyEtch(
+            CreateWafer(), new EtchParameters(WaferMaterial.SiliconDioxide, Length.FromNanometers(50), 0), Guid.NewGuid(), Now);
+
+        Assert.False(output.Validation.IsValid);
+        Assert.Null(output.CandidateState);
+    }
+
+    private static WaferState CreateWafer() => new WaferStateFactory().Create(
+        WaferInitializationParameters.EducationalDefaults() with
+        {
+            StartSurface = WaferStartSurface.UniformSiO2,
+            InitialOxideThickness = Length.FromNanometers(100)
+        },
+        Guid.NewGuid(),
+        Now,
+        resolution: 21);
+}

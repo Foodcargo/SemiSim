@@ -1,68 +1,68 @@
 # SemiSim
 
-SemiSim은 반도체 제조 공정을 단계별로 시각화하는 Qt/C++ 기반 시뮬레이션 프로그램입니다.
+SemiSim은 C# WPF 데스크톱 UI와 C++ 네이티브 시뮬레이션/렌더링 DLL로 구성된 반도체 공정 시각화 프로토타입입니다. UI는 WPF에서 관리하고, 공정 상태 계산과 QPainter 기반 메시 렌더링은 `SemiSimNative` C++ 라이브러리에서 처리합니다. 두 계층은 C ABI와 P/Invoke로 연결됩니다.
 
-현재는 NMOS 트랜지스터 제작 흐름을 단순화해서 보여주는 초기 프로토타입입니다. 마스크 패턴, 이온 주입, 산화, 식각 화학약품, 콘택트 충전, 금속 배선 같은 공정 조건을 선택하고 결과를 시각적으로 확인할 수 있습니다.
+현재는 NMOS 트랜지스터 제작 흐름을 단순화해 보여줍니다. 웨이퍼 원통과 공정 레이어 메시를 C++에서 만들며, C++ 카메라가 yaw/pitch 회전과 확대를 관리합니다. 렌더링은 CPU/QImage 기반의 저폴리곤 프로토타입이며 GPU 깊이 버퍼나 셰이더를 사용하는 3D 엔진은 아닙니다.
+
+## 명세서 적용 범위
+
+이 네이티브 3D 화면은 별도 시각화 프로토타입이며, 개발 명세서 12.1의 2D 단면·산화 전용 MVP를 구현하거나 대체하지 않습니다. 메시의 재료와 표시 단계는 현재 레이어 상태에서 가져오지만, 공정 구조의 위치와 패턴은 고정된 교육용 템플릿입니다. 따라서 단면 물질 구간 계산, 제조 레시피 검증 또는 실제 형상 예측으로 해석하면 안 됩니다. 전체 명세서의 도메인/시뮬레이션 구조, MVVM, 입력·인터록 검증, 이력 및 테스트 요구사항은 별도 구현 범위입니다.
 
 ## 주요 기능
 
 - 반도체 공정 흐름 단계별 진행
-- 웨이퍼와 공정 구조의 3D 스타일 시각화
-- 공정별 파라미터 선택
-  - 기판 방향과 두께
-  - 웰 이온 주입 도펀트와 도즈
-  - 포토 마스크 패턴과 현상액
-  - 게이트 산화 조건과 폴리실리콘 증착
-  - 소스/드레인 이온 주입 도즈
-  - 콘택트 식각 화학약품과 충전 재료
-  - 금속 배선 재료
-- 공정 로그와 웨이퍼 레이어 정보 표시
+- Wafer 재료/두께 레이어에서 생성하는 C++ 메시 장면
+- 드래그로 yaw/pitch 회전, 휠 확대/축소를 수행하는 네이티브 카메라
+- 기판, 웰 이온 주입, 포토 마스크, 게이트 산화/증착, 소스/드레인, 콘택트, 금속 공정 입력
+- 공정 로그, 실패 조건 및 웨이퍼 레이어 정보 표시
 
 ## 실행 환경
 
-- CMake 3.24 이상
-- C++20 지원 컴파일러
-- Qt 6 Widgets
+- Windows x64
+- CMake 3.24 이상, C++20 컴파일러, Ninja
+- Qt 6 Core 및 Gui
+- .NET 8 SDK와 Windows Desktop/WPF 타깃 팩
 
-포함된 CMake preset은 Windows 환경의 Qt 6.11.1, MinGW, Ninja 기준으로 설정되어 있습니다.
+기본 CMake preset은 Qt 6.11.1, MinGW, Ninja 설치가 `C:/Qt`에 있는 Windows 개발 환경을 대상으로 합니다. 다른 환경에서는 Qt 설치 경로와 CMake 컴파일러를 맞춰야 합니다.
 
-## 빌드 방법
+## 빌드
 
-포함된 CMake preset을 사용하는 경우:
+저장소 루트에서 네이티브 DLL을 빌드합니다.
 
-```bash
-cmake --preset qt-mingw-debug
-cmake --build --preset qt-mingw-debug
+```powershell
+cmake --preset native-mingw-debug
+cmake --build --preset native-mingw-debug
 ```
 
-Qt 경로를 직접 지정해서 빌드하는 경우:
+WPF 애플리케이션을 빌드합니다.
 
-```bash
-cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/Qt/lib/cmake
-cmake --build build
+```powershell
+dotnet build ui/SemiSim.Wpf/SemiSim.Wpf.csproj
 ```
 
-## 실행 방법
+## 실행
 
-빌드가 끝난 뒤 생성된 실행 파일을 실행합니다.
+WPF 앱은 `build-native-debug/SemiSimNative.dll`을 자동으로 찾습니다. Qt 및 MinGW 런타임 DLL을 찾을 수 있도록 개발 환경의 `PATH`를 설정한 후 실행합니다.
 
-```bash
-./build-qtcreator-debug/SemiSim.exe
+```powershell
+$env:PATH = "C:/Qt/6.11.1/mingw_64/bin;C:/Qt/Tools/mingw1310_64/bin;$env:PATH"
+$env:SEMISIM_NATIVE_DIR = (Resolve-Path build-native-debug).Path
+dotnet run --project ui/SemiSim.Wpf/SemiSim.Wpf.csproj
 ```
 
 ## 프로젝트 구조
 
 ```text
-include/     헤더 파일
-src/         소스 파일
-data/        공정 데이터
-assets/      시각 자료용 폴더
-main.cpp     애플리케이션 진입점
+include/Interop/   C ABI 공개 인터페이스
+include/Model/     웨이퍼/레이어 모델
+include/Process/   네이티브 공정 처리
+include/Scene/     프레임 렌더 인터페이스
+src/Interop/       C ABI 구현
+src/Scene/         메시 구성, 카메라 투영, C++ 이미지 렌더링
+ui/SemiSim.Wpf/    WPF UI와 P/Invoke 연결
 ```
 
-## 현재 상태
-
-SemiSim은 학습, 데모, UI 실험을 위한 초기 버전입니다. 실제 반도체 공정을 물리적으로 정확하게 계산하는 목적보다는 공정 흐름과 구조 변화를 직관적으로 보여주는 데 초점을 두고 있습니다.
+SemiSim은 학습, 데모, UI 실험을 위한 초기 버전이며 실제 반도체 공정을 물리적으로 정확하게 계산하는 용도가 아닙니다.
 
 ## 라이선스
 

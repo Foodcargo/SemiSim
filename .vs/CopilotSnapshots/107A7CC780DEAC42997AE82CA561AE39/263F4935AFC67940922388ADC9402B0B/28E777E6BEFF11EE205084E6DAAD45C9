@@ -1,0 +1,433 @@
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using SemiconductorEdu.Application.Execution;
+using SemiconductorEdu.Domain.Processes;
+using SemiconductorEdu.Domain.State;
+using SemiconductorEdu.Domain.Units;
+using SemiconductorEdu.Simulation.Initialization;
+
+namespace SemiconductorEdu.Wpf.ViewModels;
+
+public sealed partial class MainViewModel : ObservableObject
+{
+    private readonly ProcessSession _session;
+    private readonly WaferStateFactory _waferFactory;
+    private readonly Guid _initializationProcessId = Guid.NewGuid();
+
+    [ObservableProperty] private string _statusMessage = "웨이퍼를 초기화한 뒤 산화 공정을 실행하세요.";
+    [ObservableProperty] private string _oxidationMethod = "Dry";
+    [ObservableProperty] private string _temperatureCelsius = "1000";
+    [ObservableProperty] private string _durationMinutes = "60";
+    [ObservableProperty] private string _pressureTorr = "760";
+    [ObservableProperty] private bool _canUndo;
+    [ObservableProperty] private bool _canRedo;
+    [ObservableProperty] private string _oxideThickness = "—";
+    [ObservableProperty] private string _qualityResult = "미평가";
+    [ObservableProperty] private string _waferDiameterMm = "200";
+    [ObservableProperty] private string _substrateThicknessMicrometers = "725";
+    [ObservableProperty] private string _domainWidthMicrometers = "20";
+    [ObservableProperty] private string _initialOxideNanometers = "100";
+    [ObservableProperty] private string _startSurface = "Bare Si";
+    [ObservableProperty] private bool _isUniformOxideEnabled;
+    [ObservableProperty] private string _photoThicknessNanometers = "1200";
+    [ObservableProperty] private string _openStartMicrometers = "5";
+    [ObservableProperty] private string _openEndMicrometers = "10";
+    [ObservableProperty] private string _etchDepthNanometers = "50";
+    [ObservableProperty] private string _etchTargetMaterial = "SiO₂";
+    [ObservableProperty] private string _depositionMaterial = "Silicon dioxide";
+    [ObservableProperty] private string _depositionMethod = "CVD";
+    [ObservableProperty] private string _depositionThicknessNanometers = "100";
+    [ObservableProperty] private string _cmpTargetHeightNanometers = "1000";
+    [ObservableProperty] private string _cmpRemovalRateNanometersPerMinute = "100";
+    [ObservableProperty] private string _cmpDurationMinutes = "1";
+    [ObservableProperty] private string _implantSpecies = "Boron";
+    [ObservableProperty] private string _implantEnergyKeV = "50";
+    [ObservableProperty] private string _implantDose = "1e13";
+    [ObservableProperty] private string _implantTiltDegrees = "7";
+    [ObservableProperty] private string _annealMethod = "Rta";
+    [ObservableProperty] private string _annealTemperatureCelsius = "1000";
+    [ObservableProperty] private string _annealDurationSeconds = "30";
+    [ObservableProperty] private string _annealAmbient = "N2";
+    [ObservableProperty] private string _wireMaterial = "Aluminum";
+    [ObservableProperty] private string _wireWidthNanometers = "1000";
+    [ObservableProperty] private string _wireThicknessNanometers = "500";
+    [ObservableProperty] private string _wireLengthMicrometers = "100";
+    [ObservableProperty] private string _wireOffsetMicrometers = "0";
+    [ObservableProperty] private string _inspectionMode = "Thickness";
+    [ObservableProperty] private Guid? _inspectionTargetId;
+    [ObservableProperty] private string _inspectionTarget = "SiO₂";
+    [ObservableProperty] private string _inspectionTolerancePercent = "10";
+    [ObservableProperty] private string _inspectionAbsoluteTolerance = "50";
+    [ObservableProperty] private string _inspectionMinimum = "";
+    [ObservableProperty] private string _inspectionMaximum = "";
+    [ObservableProperty] private string _inspectionResult = "검사 전";
+
+    public string PhotoResistThicknessNanometers { get => PhotoThicknessNanometers; set => PhotoThicknessNanometers = value; }
+    public string PhotoOpenStartMicrometers { get => OpenStartMicrometers; set => OpenStartMicrometers = value; }
+    public string PhotoOpenEndMicrometers { get => OpenEndMicrometers; set => OpenEndMicrometers = value; }
+
+    public MainViewModel(ProcessSession session, WaferStateFactory waferFactory)
+    {
+        _session = session;
+        _waferFactory = waferFactory;
+        CrossSection = new ObservableCollection<CrossSectionColumnViewModel>();
+        History = new ObservableCollection<string>();
+        InspectionTargets = new ObservableCollection<InspectionTargetOption>();
+        InitializeWaferCommand.Execute(null);
+    }
+
+    public ObservableCollection<CrossSectionColumnViewModel> CrossSection { get; }
+    public ObservableCollection<string> History { get; }
+    public IReadOnlyList<string> SupportedProcesses { get; } = new[] { "Wafer initialization", "Oxidation", "Photolithography", "Etch", "PR strip", "Deposition", "CMP" };
+    public IReadOnlyList<string> PlannedProcesses { get; } = new[] { "Implantation (planned)", "Anneal (planned)", "Metallization (planned)", "Inspection (planned)" };
+    public IReadOnlyList<string> OxidationMethods { get; } = new[] { "Dry", "Wet" };
+    public IReadOnlyList<string> WaferDiameters { get; } = new[] { "150", "200", "300" };
+    public IReadOnlyList<string> EtchMaterials { get; } = new[] { "SiO₂", "Si" };
+    public IReadOnlyList<string> DepositionMaterials { get; } = new[] { "Silicon dioxide", "Silicon nitride", "Aluminum", "Copper", "Tungsten" };
+    public IReadOnlyList<string> DepositionMethods { get; } = new[] { "CVD", "PVD", "ALD" };
+    public IReadOnlyList<string> DopantSpeciesOptions { get; } = new[] { "Boron", "Phosphorus", "Arsenic" };
+    public IReadOnlyList<string> AnnealMethods { get; } = new[] { "Rta", "Furnace" };
+    public IReadOnlyList<string> AnnealAmbients { get; } = new[] { "N2", "Ar" };
+    public IReadOnlyList<string> WireMaterials { get; } = new[] { "Aluminum", "Copper", "Tungsten" };
+    public IReadOnlyList<string> InspectionModes { get; } = new[] { "Thickness", "Cd", "Contamination", "Electrical", "Profile" };
+    public ObservableCollection<InspectionTargetOption> InspectionTargets { get; }
+
+    public IReadOnlyList<string> StartSurfaces { get; } = new[] { "Bare Si", "Uniform SiO₂/Si" };
+
+    public bool CanRunOxidation => _session.CurrentState is not null;
+
+    [RelayCommand]
+    private void InitializeWafer()
+    {
+        if (!int.TryParse(WaferDiameterMm, NumberStyles.Integer, CultureInfo.InvariantCulture, out var diameter) ||
+            !TryPositive( SubstrateThicknessMicrometers, out var substrateThickness) ||
+            !TryPositive(DomainWidthMicrometers, out var domainWidth) ||
+            !TryNonNegative(InitialOxideNanometers, out var initialOxide))
+        {
+            StatusMessage = "웨이퍼 직경과 두께 입력을 확인하세요.";
+            return;
+        }
+
+        var parameters = WaferInitializationParameters.EducationalDefaults() with
+        {
+            DiameterMm = diameter,
+            SubstrateThickness = Length.FromMicrometers(substrateThickness),
+            DomainWidth = Length.FromMicrometers(domainWidth),
+            StartSurface = IsUniformOxideEnabled ? WaferStartSurface.UniformSiO2 : WaferStartSurface.BareSi,
+            InitialOxideThickness = Length.FromNanometers(initialOxide)
+        };
+        var state = _waferFactory.Create(parameters, _initializationProcessId, DateTimeOffset.UtcNow);
+        _session.Initialize(state);
+        OxideThickness = IsUniformOxideEnabled ? initialOxide.ToString("F3", CultureInfo.InvariantCulture) : "0.000";
+        QualityResult = "미평가";
+        StatusMessage = $"웨이퍼 초기화 완료 · Si {diameter} mm · 단면 {state.CrossSection.Resolution}열";
+        History.Clear();
+        History.Add($"{state.CreatedAtUtc:HH:mm:ss} · 웨이퍼 초기화 · {diameter} mm Si");
+        RefreshState();
+    }
+
+    [RelayCommand]
+    private void RunOxidation()
+    {
+        if (!double.TryParse(TemperatureCelsius, NumberStyles.Float, CultureInfo.InvariantCulture, out var temperature) ||
+            !double.TryParse(DurationMinutes, NumberStyles.Float, CultureInfo.InvariantCulture, out var duration) ||
+            !double.TryParse(PressureTorr, NumberStyles.Float, CultureInfo.InvariantCulture, out var pressure))
+        {
+            StatusMessage = "산화 온도·시간·압력은 숫자로 입력해야 합니다.";
+            return;
+        }
+
+        var method = OxidationMethod == "Wet" ? SemiconductorEdu.Domain.Processes.OxidationMethod.Wet : SemiconductorEdu.Domain.Processes.OxidationMethod.Dry;
+        var recipe = new ProcessRecipe(
+            Guid.NewGuid(),
+            ProcessType.Oxidation,
+            new OxidationParameters(
+                method,
+                Temperature.FromCelsius(temperature),
+                Duration.FromMinutes(duration),
+                Pressure.FromTorr(pressure)),
+            "educational-furnace",
+            "educational-default",
+            "1.0.0",
+            "1.0.0");
+
+        try
+        {
+            var response = _session.Execute(recipe, DateTimeOffset.UtcNow);
+            var result = response.Result;
+            if (response.CommittedState is not null)
+            {
+                var oxide = response.CommittedState.CrossSection.Columns[0].SegmentsBottomToTop
+                    .Where(segment => segment.Material == WaferMaterial.SiliconDioxide)
+                    .Sum(segment => segment.Thickness.Nanometers);
+                OxideThickness = oxide.ToString("F3", CultureInfo.InvariantCulture);
+                QualityResult = result.QualityStatus switch
+                {
+                    QualityStatus.Pass => "PASS",
+                    QualityStatus.Fail => "FAIL · 상태는 이력에 커밋됨",
+                    _ => "미평가"
+                };
+                StatusMessage = result.Errors.Count == 0
+                    ? $"산화 계산 완료 · {result.ExecutionStatus} · 품질 {result.QualityStatus}"
+                    : string.Join(Environment.NewLine, result.Errors.Select(issue => issue.MessageKo));
+                History.Insert(0, $"{result.StartedAtUtc:HH:mm:ss} · 산화 {method} · {OxideThickness} nm · 품질 {result.QualityStatus}");
+                RefreshState();
+            }
+            else
+            {
+                StatusMessage = string.Join(Environment.NewLine, result.Errors.Select(issue => issue.MessageKo));
+                History.Insert(0, $"{result.StartedAtUtc:HH:mm:ss} · 산화 실패 · {result.ExecutionStatus}");
+            }
+        }
+        catch (NotSupportedException exception)
+        {
+            StatusMessage = exception.Message;
+        }
+    }
+
+    [RelayCommand]
+    private void Undo()
+    {
+        if (_session.Undo())
+        {
+            if (_session.CurrentState is { } state)
+            {
+                OxideThickness = state.CrossSection.Columns[0].SegmentsBottomToTop
+                    .Where(segment => segment.Material == WaferMaterial.SiliconDioxide)
+                    .Sum(segment => segment.Thickness.Nanometers)
+                    .ToString("F3", CultureInfo.InvariantCulture);
+                QualityResult = "미평가";
+            }
+            StatusMessage = "이전 웨이퍼 상태로 되돌렸습니다.";
+            RefreshState();
+        }
+    }
+
+    [RelayCommand]
+    private void Redo()
+    {
+        if (_session.Redo())
+        {
+            if (_session.CurrentState is { } state)
+                OxideThickness = state.CrossSection.Columns[0].SegmentsBottomToTop
+                    .Where(segment => segment.Material == WaferMaterial.SiliconDioxide)
+                    .Sum(segment => segment.Thickness.Nanometers)
+                    .ToString("F3", CultureInfo.InvariantCulture);
+            StatusMessage = "공정 결과 상태를 다시 적용했습니다.";
+            RefreshState();
+        }
+    }
+
+    private void RefreshState()
+    {
+        CrossSection.Clear();
+        if (_session.CurrentState is { } state)
+            foreach (var column in state.CrossSection.Columns)
+                CrossSection.Add(CrossSectionColumnViewModel.From(column));
+        CanUndo = _session.CanUndo;
+        CanRedo = _session.CanRedo;
+        RefreshInspectionTargets();
+        OnPropertyChanged(nameof(CanRunOxidation));
+    }
+
+    private static bool TryPositive(string text, out double value) =>
+        double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value) && double.IsFinite(value) && value > 0;
+
+    private static bool TryNonNegative(string text, out double value) =>
+        double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value) && double.IsFinite(value) && value >= 0;
+
+    private static bool TryFinite(string text, out double value) =>
+        double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value) && double.IsFinite(value);
+
+    private void RefreshInspectionTargets()
+    {
+        InspectionTargets.Clear();
+        if (_session.CurrentState is not { } state) return;
+        foreach (var layer in state.Layers)
+            InspectionTargets.Add(new InspectionTargetOption(layer.LayerId, $"Layer · {layer.Material} · {layer.LayerId.ToString("N")[..8]}"));
+        if (state.ResistPattern is { } pattern)
+            InspectionTargets.Add(new InspectionTargetOption(pattern.PatternId, $"Pattern · {pattern.PatternId.ToString("N")[..8]}"));
+        foreach (var wire in state.Wires)
+            InspectionTargets.Add(new InspectionTargetOption(wire.WireId, $"Wire · {wire.Material} · {wire.WireId.ToString("N")[..8]}"));
+        foreach (var profile in state.ImplantProfiles)
+            InspectionTargets.Add(new InspectionTargetOption(profile.ProfileId, $"Profile · {profile.Species} · {profile.ProfileId.ToString("N")[..8]}"));
+        if (InspectionTargetId is null || InspectionTargets.All(option => option.Id != InspectionTargetId))
+            InspectionTargetId = InspectionTargets.FirstOrDefault()?.Id;
+    }
+
+    [RelayCommand]
+    private void RunPhotolithography()
+    {
+        if (!TryPositive(PhotoThicknessNanometers, out var thickness) || !TryFinite(OpenEndMicrometers, out var end) || !TryNonNegative(OpenStartMicrometers, out var start))
+        {
+            StatusMessage = "포토 두께와 개구 구간을 확인하세요.";
+            return;
+        }
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Photolithography,
+            new PhotolithographyParameters(Length.FromNanometers(thickness), new[] { new LengthInterval(Length.FromMicrometers(start), Length.FromMicrometers(end)) }),
+            "educational-lithography", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunEtch()
+    {
+        if (!TryPositive(EtchDepthNanometers, out var depth)) { StatusMessage = "식각 깊이는 양수로 입력하세요."; return; }
+        var target = EtchTargetMaterial == "Si" ? WaferMaterial.Silicon : WaferMaterial.SiliconDioxide;
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Etch,
+            new EtchParameters(target, Length.FromNanometers(depth), 0), "educational-etcher", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunPhotoresistStrip() => ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Cleaning,
+        new CleaningParameters(CleaningMethod.PhotoresistStrip), "educational-cleaner", "not-evaluated", "1.0.0", "1.0.0"));
+
+    [RelayCommand]
+    private void RunDeposition()
+    {
+        if (!TryPositive(DepositionThicknessNanometers, out var thickness) ||
+            !Enum.TryParse<DepositionMethod>(DepositionMethod, true, out var method) ||
+            !TryGetDepositionMaterial(DepositionMaterial, out var material))
+        {
+            StatusMessage = "증착 방식·재료·두께를 확인하세요.";
+            return;
+        }
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Deposition,
+            new DepositionParameters(method, material, Length.FromNanometers(thickness)), "educational-deposition", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunCmp()
+    {
+        if (!TryPositive(CmpTargetHeightNanometers, out var target) || !TryPositive(CmpRemovalRateNanometersPerMinute, out var rate) || !TryPositive(CmpDurationMinutes, out var duration))
+        {
+            StatusMessage = "CMP 입력값을 확인하세요.";
+            return;
+        }
+        if (_session.CurrentState is not { } current || target > current.CrossSection.Columns.Min(column => column.SurfaceHeight.Nanometers))
+        {
+            StatusMessage = "CMP 목표 높이는 현재 표면 높이를 초과할 수 없습니다.";
+            return;
+        }
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Cmp,
+            new CmpParameters(Length.FromNanometers(target), Length.FromNanometers(rate), Duration.FromMinutes(duration)), "educational-cmp", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunImplantation()
+    {
+        if (!Enum.TryParse<DopantSpecies>(ImplantSpecies, true, out var species) ||
+            !TryPositive(ImplantEnergyKeV, out var energy) || !TryPositive(ImplantDose, out var dose) ||
+            !TryNonNegative(ImplantTiltDegrees, out var tilt))
+        {
+            StatusMessage = "주입 종·에너지·주입량·기울기 입력을 확인하세요.";
+            return;
+        }
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.IonImplantation,
+            new IonImplantationParameters(species, Energy.FromKiloElectronVolts(energy), ArealDose.FromIonsPerSquareCentimeter(dose), tilt),
+            "implant-edu", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunAnneal()
+    {
+        if (!Enum.TryParse<AnnealMethod>(AnnealMethod, true, out var method) ||
+            !TryFinite(AnnealTemperatureCelsius, out var temperature) || !TryPositive(AnnealDurationSeconds, out var duration) ||
+            AnnealAmbient is not "N2" and not "Ar")
+        {
+            StatusMessage = "열처리 방식·온도·시간·분위기를 확인하세요.";
+            return;
+        }
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Anneal,
+            new AnnealParameters(method, Temperature.FromCelsius(temperature), Duration.FromSeconds(duration), AnnealAmbient),
+            "anneal-edu", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunMetallization()
+    {
+        if (!TryGetDepositionMaterial(WireMaterial, out var material) ||
+            !TryPositive(WireWidthNanometers, out var width) || !TryPositive(WireThicknessNanometers, out var thickness) ||
+            !TryPositive(WireLengthMicrometers, out var length) || !TryNonNegative(WireOffsetMicrometers, out var offset))
+        {
+            StatusMessage = "배선 재료와 형상 입력을 확인하세요.";
+            return;
+        }
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Metallization,
+            new MetallizationParameters(material, MetallizationMode.IdealPattern, Length.FromNanometers(width), Length.FromNanometers(thickness),
+                Length.FromMicrometers(length), Length.FromMicrometers(offset)),
+            "wire-edu", "not-evaluated", "1.0.0", "1.0.0"));
+    }
+
+    [RelayCommand]
+    private void RunInspection()
+    {
+        if (!Enum.TryParse<InspectionMode>(InspectionMode, true, out var mode) ||
+            !TryFinite(InspectionTarget, out var target) || !TryNonNegative(InspectionTolerancePercent, out var tolerance) ||
+            !TryNonNegative(InspectionAbsoluteTolerance, out var absoluteTolerance) ||
+            !TryOptionalFinite(InspectionMinimum, out var minimum) || !TryOptionalFinite(InspectionMaximum, out var maximum))
+        {
+            StatusMessage = "검사 모드, 목표값 및 허용 범위를 확인하세요.";
+            return;
+        }
+        if (mode is InspectionMode.Thickness or InspectionMode.Cd or InspectionMode.Electrical or InspectionMode.Profile && InspectionTargetId is null)
+        {
+            StatusMessage = "현재 웨이퍼에서 검사 대상을 선택하세요.";
+            return;
+        }
+        var unit = mode switch
+        {
+            InspectionMode.Thickness or InspectionMode.Cd or InspectionMode.Profile => "nm",
+            InspectionMode.Electrical => "Ω",
+            InspectionMode.Contamination => "point",
+            _ => "1"
+        };
+        var quality = new QualityTarget(mode.ToString(), target, tolerance, absoluteTolerance, maximum, minimum, unit, true);
+        ExecuteAdditional(new ProcessRecipe(Guid.NewGuid(), ProcessType.Inspection,
+            new InspectionParameters(mode, mode == InspectionMode.Contamination ? null : InspectionTargetId, quality),
+            "inspection-edu", "custom", "1.0.0", "1.0.0"));
+    }
+
+    private static bool TryOptionalFinite(string text, out double? value)
+    {
+        if (string.IsNullOrWhiteSpace(text)) { value = null; return true; }
+        if (TryFinite(text, out var parsed)) { value = parsed; return true; }
+        value = null;
+        return false;
+    }
+
+    private void ExecuteAdditional(ProcessRecipe recipe)
+    {
+        try
+        {
+            var response = _session.Execute(recipe, DateTimeOffset.UtcNow);
+            StatusMessage = response.CommittedState is not null
+                ? $"{recipe.ProcessType} 완료 · 교육용 단순 모델 · 품질 미평가"
+                : string.Join(Environment.NewLine, response.Result.Errors.Select(issue => issue.MessageKo));
+            if (recipe.ProcessType == ProcessType.Inspection)
+            {
+                QualityResult = response.Result.QualityStatus.ToString();
+                InspectionResult = response.Result.QualityStatus.ToString();
+                StatusMessage = $"검사 {response.Result.QualityStatus} · 모델 기반 교육용 평가";
+            }
+            if (response.CommittedState is not null) RefreshState();
+            History.Insert(0, $"{response.Result.StartedAtUtc:HH:mm:ss} · {recipe.ProcessType} · {response.Result.ExecutionStatus}");
+        }
+        catch (NotSupportedException exception) { StatusMessage = exception.Message; }
+    }
+
+    private static bool TryGetDepositionMaterial(string name, out WaferMaterial material)
+    {
+        material = name switch
+        {
+            "Silicon dioxide" => WaferMaterial.SiliconDioxide,
+            "Silicon nitride" => WaferMaterial.SiliconNitride,
+            "Aluminum" => WaferMaterial.Aluminum,
+            "Copper" => WaferMaterial.Copper,
+            "Tungsten" => WaferMaterial.Tungsten,
+            _ => WaferMaterial.SiliconDioxide
+        };
+        return name is "Silicon dioxide" or "Silicon nitride" or "Aluminum" or "Copper" or "Tungsten";
+    }
+}
