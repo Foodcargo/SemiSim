@@ -10,10 +10,10 @@
 | --- | --- | --- |
 | View | `app/qml/` | QML 13개(Main, ProcessList, LayerManager, ParamEditor, ParamField, ViewHeader, ResultPanel, ObjectTable, HistoryPanel, Theme, DockTitle, SectionHeader, ToolBtn). 바인딩과 ViewModel 호출만 하며, 검증·계산 코드는 없습니다. |
 | ViewModel | `app/viewmodels/` | AppViewModel, ProcessEditorViewModel, ParamListModel, ResultViewModel, SceneViewModel, PlotViewModel, JsonListModel |
-| 렌더링 | `app/render/` | `WaferView`(QQuickFramebufferObject, OpenGL 3.3 Core, 조명 2개, 외곽선, 반투명 정렬, MSAA 4, 격자 바닥), `PlotItem`(QQuickPaintedItem) |
+| 렌더링 | `app/render/` | `WaferView`(Qt FBO·카메라) + `BoxRenderer`(OpenGL 3.3 인스턴싱·프러스텀 컬링·버퍼 재사용), `PlotItem`(QQuickPaintedItem). 조명·외곽선·반투명·MSAA 4 유지 |
 | 엔진 연결 | `app/engine/EngineClient.*` | `QLibrary`로 `SemiEdu.Engine.dll`을 불러옵니다. `abiVersion == 1`을 확인하고, 실행은 `QtConcurrent` 워커에서 합니다. |
 | Model | `engine/SemiEdu.Engine/` | C# .NET 8 NativeAOT. 검증기·8단계 파이프라인·15개 공정·도체 분류(Union-Find)·MOSFET 모델·SceneBuilder·SelfTest를 담습니다. C ABI는 `engine/semiedu_engine.h`입니다. |
-| 테스트 | `engine.tests/` | xUnit. SelfTest 시나리오 42개와 직접 테스트 8개, 합계 50개입니다. |
+| 테스트 | `engine.tests/` | xUnit. SelfTest 시나리오 42개, 기존 직접 테스트 8개, 입력 타입·ABI·원문 계약 회귀 테스트 7개로 합계 57개입니다. |
 | 학습 경로 | `scripts/path1~5*.json` | 원본 4개 경로와 경로 5(NMOS 제작 → 전기 검사)를 담은 재생 스크립트입니다. |
 
 화면은 위쪽 툴바(회전·이동·확대·축소·맞춤 / 미리보기·실행·취소·Undo / 전기적 분류 / 교육용 장비 상태 토글)와 세 영역으로 구성됩니다. 왼쪽은 Design Browser(Process Navigator · Layer Manager · 공정 조건), 가운데는 3D process view, 오른쪽은 Inspector(속성·판정 / 객체 분류 / 그래프 / 이력)입니다.
@@ -65,15 +65,45 @@ windeployqt --qmldir app/qml build/SemiEduApp.exe
 | 선택지가 사라지면 재선택 | ‘— 다시 선택 —’ 항목으로 구현 | — |
 | 단면 확대·전후 비교 | 3D 궤도 카메라와 미리보기 | 전·후 분할 뷰 |
 | ⑧ 패키징 | 비활성(임의 결과 없음) | 별도 명세 필요 |
-| JSON 소스 생성기(`JsonSerializerContext`) | `Utf8JsonWriter`·`JsonDocument` 수작업 직렬화(리플렉션 없이 AOT 안전) | — |
+| JSON 소스 생성기(`JsonSerializerContext`) | `EngineJsonContext`와 응답 전용 converter로 직렬화. 기존 ABI 필드 작성과 JsonDocument 입력 파싱 유지 | — |
 | Qt MSVC 키트 | Qt MinGW 키트(C ABI로 연결) | — |
 
 추가 사항(원본 v1 범위 밖, 모두 교육용 가정): 마스크 제작·MaskLibrary(8장), 도체 분류·NetList(9장), 확장 규칙 X1–X5, IdealContact, MOSFET 전기 모델(10장).
 
-### 구현 중 결정한 사항
+### 이전 구현의 결정 사항 (2026-11-17 변경 전)
 
 - **T04**: B 50 keV는 Rp+4σ = 330 nm여서 300 nm W 게이트에서 X1 `MASK_TOO_THIN`에 걸립니다(명세 내부 충돌). 그래서 T04는 **B 15 keV**(Rp+4σ = 99 nm)로 NO_JUNCTION을 재현합니다.
 - **오믹 접촉**: 스크린 산화막 때문에 As 피크가 표면 아래(약 40 nm)에 있습니다. 그래서 금속 컨택은 표면에서 같은 형(n)의 Si를 따라 내려가 도달한 N+ 셀과 연결된 것으로 봅니다(교육용 이상 접촉).
 - **경로 4**: CMP는 최상부의 연속된 SiO2(초기 100 nm + CVD 100 nm)에서 72 nm를 제거합니다. 그래서 스크립트는 잔여 목표를 128 nm로, 두께 검사 목표(CVD 층 L2-SiO2)를 28 nm로 지정합니다.
 - **‘불량 상태로 계속 학습’**: 직전 커밋이 ProcessFailure이면 초기화·마스크 제작 외 공정은 `PREVIOUS_FAILURE`로 막습니다. 이 검사는 엔진에서 합니다.
 - **se_form의 장비 상태**: ABI는 명세 그대로 두었습니다. 사전 점검용 장비 상태는 valuesJson의 예약 키 `"$equipment"`로 전달합니다.
+
+## 원문 우선 검증 (2026-11-17)
+
+사용자 지시에 따라 명세 원문을 우선했습니다. 위 2026-11-16의 50/50 및 42/42 통과 기록은 변경 전 결과이며 현재 결과가 아닙니다.
+
+- 14개 활성 공정에 불변 입력 레코드를 적용했습니다. 계산과 공정별 검증은 문자열 키 사전 대신 해당 레코드를 사용합니다. 비활성 숫자 필드는 null로 유지하고 필수값 누락을 0으로 대체하지 않습니다.
+- ABI의 입력 문자열 변환을 예외 처리 범위 안으로 옮겼습니다. valuesJson의 파라미터는 원문 문자열만 허용하며 숫자·불리언 JSON 값은 INVALID_JSON으로 거부합니다.
+- 명세 9장에 따라 금속은 직접 맞닿은 N+/P+ 표면 셀에만 연결합니다. 반도체층을 건너뛰는 기존 이상 접촉 규칙을 제거했습니다.
+- T04는 원문대로 B 50 keV를 사용합니다. NO_JUNCTION 기대값은 수정하거나 건너뛰지 않았습니다.
+- 품질 epsilon은 원문 수식 1e-9 × max(1, |actual|, |boundary|)를 유지했습니다. 작은 전류에서 허용오차가 큰 문제는 명세의 한계로 남습니다.
+
+실행: `dotnet test engine.tests --no-restore --logger "trx;LogFileName=spec-alignment.trx" --results-directory TestResults`
+
+결과: **57개 중 52개 통과, 5개 실패, 건너뜀 0**. 상세 원본은 로컬 `TestResults/spec-alignment.trx`에 있습니다.
+
+NativeAOT `dotnet publish`와 Qt `cmake --build build`도 확인했습니다. 최신 DLL을 앱 옆에 복사한 뒤 실행한 `--selftest`는 **42개 중 38개 통과, 4개 실패(T01·T03·T04·T08), 종료 코드 1**입니다. 상세 결과는 로컬 `build/selftest-result.json`에 있습니다. GUI 상호작용은 이번에 검증하지 않았습니다.
+
+PowerShell 실행 정책 때문에 `build.ps1` 직접 실행은 차단되어, 실행 정책을 변경하지 않고 게시·빌드·자가 테스트 명령을 각각 실행했습니다.
+
+| 실패 테스트 | 원문 기대 | 실제 결과 |
+| --- | --- | --- |
+| T01 | 기본 NMOS 정상, Ion 약 6.2835e-4 A | 컨택 표면이 도체성 기준 미만이므로 OPEN_SOURCE·OPEN_DRAIN, Ion=0 |
+| T03 | SD_SHORT, Ioff 실패 | 직접 접촉 규칙에 따라 OPEN_SOURCE·OPEN_DRAIN |
+| T04 | B 주입 후 NO_JUNCTION | B 50 keV는 300 nm 게이트의 차폐 한계 초과로 MASK_TOO_THIN; 후속 경로도 차단 |
+| T08 | 목표 변경으로 정상→비정상, 전류 동일 | 기본 구조가 이미 비정상이라 ProcessFailure→ProcessFailure, Ion=0 |
+| SweepProducesCurve | 외삽 Vth 존재 | 구조 실패로 외삽 Vth 없음 |
+
+원문 테스트의 기대값을 바꾸어 통과시키지 않았습니다. 경로 5의 정상 판정과 전체 인수 기준은 현재 충족하지 않습니다. `build.ps1`은 xUnit 실패 시 중단하는 기존 동작을 유지합니다.
+
+응답 직렬화는 명세의 EngineJsonContext 소스 생성기를 적용했습니다. 명시적 필드 converter로 기존 JSON 계약을 유지하며 리플렉션을 사용하지 않습니다. 나머지 편차: Qt 키트와 화면 배치는 기존 구현을 유지합니다. 따라서 이번 수정이 명세 전체와의 완전 일치를 의미하지 않습니다.

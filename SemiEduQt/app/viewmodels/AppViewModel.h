@@ -37,6 +37,9 @@ class AppViewModel : public QObject
     Q_PROPERTY(int maskCount READ maskCount NOTIFY stateChanged)
     Q_PROPERTY(bool hasLastRun READ hasLastRun NOTIFY stateChanged)
     Q_PROPERTY(int historyCount READ historyCount NOTIFY stateChanged)
+    Q_PROPERTY(bool canUndoSelected READ canUndoSelected NOTIFY undoSelectionChanged)
+    Q_PROPERTY(QString selectedLayerId READ selectedLayerId NOTIFY layerSelectionChanged)
+    Q_PROPERTY(QString selectedLayerText READ selectedLayerText NOTIFY layerSelectionChanged)
 public:
     AppViewModel(EngineClient *engine, ProcessEditorViewModel *editor, ResultViewModel *result, SceneViewModel *scene,
                  PlotViewModel *plot, QObject *parent = nullptr);
@@ -57,6 +60,9 @@ public:
     int maskCount() const { return m_maskCount; }
     bool hasLastRun() const { return !m_lastRun.isEmpty(); }
     int historyCount() const { return m_history->count(); }
+    bool canUndoSelected() const;
+    QString selectedLayerId() const { return m_selectedLayer; }
+    QString selectedLayerText() const { return m_selectedLayerText; }
 
     void setDoorClosed(bool v);
     void setEmergencyStop(bool v);
@@ -66,6 +72,10 @@ public:
     Q_INVOKABLE void selectProcess(const QString &processId);
     Q_INVOKABLE void undo();
     Q_INVOKABLE void cancel();
+    Q_INVOKABLE void requestUndoSelected();
+    Q_INVOKABLE void confirmUndoSelected();
+    Q_INVOKABLE void discardUndoRequest() { m_pendingUndoRun.clear(); }
+    Q_INVOKABLE void selectLayer(const QString &layerId);
 
     // File / Manage menu commands. Each returns a Korean message for the notice dialog.
     Q_INVOKABLE QString newSession();
@@ -86,6 +96,10 @@ signals:
     void equipmentChanged();
     void stateChanged();
     void busyChanged();
+    void undoSelectionChanged();
+    void undoConfirmationRequested(const QString &processName, int laterCount);
+    void undoError(const QString &message);
+    void layerSelectionChanged();
 
 private:
     QJsonObject equipmentJson() const;
@@ -93,6 +107,7 @@ private:
     void refreshState();
     void onRunFinished(const QJsonObject &result, bool commit);
     void setBusy(bool b);
+    int selectedUndoIndex() const;
 
     EngineClient *m_engine;
     ProcessEditorViewModel *m_editor;
@@ -105,6 +120,9 @@ private:
     int m_maskCount = 0;
     QJsonObject m_lastRun;
     QJsonArray m_historyRaw;
+    QJsonArray m_activeRuns, m_layersRaw;
+    QString m_pendingUndoRun, m_selectedLayer, m_selectedLayerText;
+    qint64 m_undoRevision = 0, m_pendingUndoRevision = -1;
     void afterExternalChange(const QString &select);
     QString m_current, m_banner;
     qint64 m_revision = 0;

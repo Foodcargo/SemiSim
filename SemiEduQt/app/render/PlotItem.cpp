@@ -112,7 +112,7 @@ void PlotItem::paint(QPainter *p)
     tf.setBold(true);
     p->setFont(tf);
     p->drawText(QRectF(area.left(), all.top() + 6, area.width(), 18), Qt::AlignHCenter,
-                m_plot->title() + QStringLiteral("  ·  검증되지 않은 교육용 예시 모델"));
+                m_plot->title());
     p->setFont(f);
     p->drawText(QRectF(area.left(), area.bottom() + 20, area.width(), 16), Qt::AlignHCenter, m_plot->xLabel());
     p->save();

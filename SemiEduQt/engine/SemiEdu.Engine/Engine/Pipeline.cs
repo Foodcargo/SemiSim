@@ -27,11 +27,13 @@ public sealed class RunResult
     public Guid BeforeStateId;
     public Guid? AfterStateId;
     public bool Committed, Preview, PhysicalChange;
+    public bool Undone;
     public long Revision;
     public DateTime StartedUtc, FinishedUtc;
     public ElectricalResult? Electrical;
     public string[] Unsupported = Array.Empty<string>();
     public readonly Dictionary<string, string> Inputs = new();
+    public string InputDetails = "";
     public Output? Output;
 
     public string StatusKind => Status switch
@@ -83,6 +85,7 @@ public static class Pipeline
             Stages = StageDefs.Select(d => new StageRow { Stage = d.Id, NameKo = d.Ko }).ToList(),
         };
         foreach (var kv in raw) res.Inputs[kv.Key] = kv.Value;
+        res.InputDetails = string.Join("\n", raw.Select(kv => $"{kv.Key}: {kv.Value}"));
         try
         {
             RunCore(s, p, raw, eq, commit, expectedRevision, token, res);
@@ -123,6 +126,15 @@ public static class Pipeline
         if (!p.Enabled)
             errs.Add(new Err("PROCESS_NOT_IMPLEMENTED", "Input", null, null, null, $"{p.Name}: {p.DisabledReason}", "다른 공정을 선택하세요."));
         var ev = Validator.Evaluate(p, raw, ctx, strict: true);
+        // Snapshot resolved defaults at execution time, never recompute against a later wafer state.
+        var inputLines = ev.Fields.Where(f => !f.ReadOnly).Select(f =>
+            $"{f.Def.Id}: {(raw.TryGetValue(f.Def.Id, out var supplied) ? supplied : f.Text)} {f.Def.Unit}".TrimEnd()
+            + (raw.ContainsKey(f.Def.Id) ? "" : " (default)"));
+        var extraLines = raw.Where(kv => !ev.Fields.Any(f => !f.ReadOnly && f.Def.Id == kv.Key))
+            .Select(kv => $"{kv.Key}: {kv.Value} (not an active input)");
+        res.InputDetails = "Process Inputs\n" + string.Join("\n", inputLines.Concat(extraLines))
+            + $"\n\nEquipment\nDoor closed: {eq.DoorClosed}\nEmergency stop: {eq.EmergencyStop}"
+            + $"\nAvailable: {eq.Available}\nContinue on failure: {eq.ContinueOnFailure}";
         errs.AddRange(ev.Errors);
         if (errs.Count == 0) p.Cross(ev.Recipe, ctx, errs);
         if (Block(res, 0, "InvalidInput", errs)) return;
@@ -273,6 +285,7 @@ public static class Pipeline
                 "계산 시작 후 웨이퍼 상태가 바뀌어 커밋을 거부했습니다.", "현재 상태에서 다시 실행하세요."));
             return;
         }
+        s.RecordBeforeCommit(res);
         if (p.ChangesState && o.Candidate != null)
         {
             var cand = o.Candidate;

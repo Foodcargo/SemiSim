@@ -1,7 +1,9 @@
 namespace SemiEdu.Engine;
 
-public sealed class ImplantProcess : ProcessBase
+public sealed class ImplantProcess : ProcessBase<ImplantParameters>
 {
+    protected override ImplantParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "implant";
     public override string Group => "⑤ 증착·이온주입";
     public override string Name => "이온주입";
@@ -25,9 +27,9 @@ public sealed class ImplantProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public static (double Rp, double Sigma) RpSigma(Recipe r)
+    public static (double Rp, double Sigma) RpSigma(ImplantParameters r)
     {
-        double rp = K(r.E("species")) * r.N("energy") * Math.Cos(r.N("tilt") * Math.PI / 180);
+        double rp = K(r.Species) * Required(r.Energy) * Math.Cos(Required(r.Tilt) * Math.PI / 180);
         return (rp, Math.Max(1, 0.30 * rp));
     }
 
@@ -60,7 +62,7 @@ public sealed class ImplantProcess : ProcessBase
         return p;
     }
 
-    static (double Dz, int N) Grid(Recipe r, WaferState s)
+    static (double Dz, int N) Grid(ImplantParameters r, WaferState s)
     {
         var (rp, sig) = RpSigma(r);
         double zmax = Math.Max(2000, rp + 8 * sig), dz = sig / 8;
@@ -72,7 +74,7 @@ public sealed class ImplantProcess : ProcessBase
         return (dz, (int)Math.Ceiling(zmax / dz - 1e-9) + 1);
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(ImplantParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
         var gateLayers = s.Wires.Where(w => w.Role == "Gate").Select(w => w.LayerId).ToHashSet();
@@ -85,13 +87,13 @@ public sealed class ImplantProcess : ProcessBase
         else if (plan.ToxMax > 20) Pre(e, "SCREEN_OXIDE_TOO_THICK", $"스크린 산화막 {F(plan.ToxMax)} nm가 20 nm를 넘습니다(X2).", "더 얇은 산화막에서 주입하세요.");
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(ImplantParameters r, Ctx c, List<Err> e)
     {
-        if (r.N("energy") > 200) Ilk(e, "IMPLANT_ENERGY_LIMIT", "energy", r.N("energy"), "≤ 200 keV", "ImplantEdu 에너지 한계를 넘었습니다.");
-        if (r.N("implantDose") > 1e15) Ilk(e, "IMPLANT_DOSE_LIMIT", "implantDose", r.N("implantDose"), "≤ 1e15 ions/cm²", "ImplantEdu 주입량 한계를 넘었습니다.");
+        if (Required(r.Energy) > 200) Ilk(e, "IMPLANT_ENERGY_LIMIT", "energy", Required(r.Energy), "≤ 200 keV", "ImplantEdu 에너지 한계를 넘었습니다.");
+        if (Required(r.ImplantDose) > 1e15) Ilk(e, "IMPLANT_DOSE_LIMIT", "implantDose", Required(r.ImplantDose), "≤ 1e15 ions/cm²", "ImplantEdu 주입량 한계를 넘었습니다.");
     }
 
-    public override void Domain(Recipe r, Ctx c, List<Err> e)
+    public override void Domain(ImplantParameters r, Ctx c, List<Err> e)
     {
         var (rp, sig) = RpSigma(r);
         if (Math.Max(2000, rp + 8 * sig) > 10000) Dom(e, "GRID_DEPTH_LIMIT", "도핑 격자 깊이가 10000 nm를 넘습니다.", "에너지를 낮추세요.");
@@ -107,7 +109,7 @@ public sealed class ImplantProcess : ProcessBase
             }
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(ImplantParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
         var plan = Analyze(c.State);
@@ -121,7 +123,7 @@ public sealed class ImplantProcess : ProcessBase
         map.SplitBy(plan.Implanted);
 
         double tox = plan.ToxMax > double.NegativeInfinity ? plan.ToxMax : 0;
-        double center = rp - tox, dose = r.N("implantDose");
+        double center = rp - tox, dose = Required(r.ImplantDose);
         var g = new double[map.N];
         for (int i = 0; i < map.N; i++)
         {
@@ -130,7 +132,7 @@ public sealed class ImplantProcess : ProcessBase
         }
         double integral = DopingMap.Trap(g, map.Dz * 1e-7);
         var conc = g.Select(v => dose * v / integral).ToArray();
-        string sp = r.E("species");
+        string sp = r.Species;
         foreach (var grp in map.Groups)
         {
             if (!plan.Implanted[grp.Start]) continue;
@@ -158,12 +160,14 @@ public sealed class ImplantProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o) =>
-        new() { new("meanDepth", CK.RelTarget, r.N("targetDepth"), r.N("depthTolerance")) };
+    public override List<Criterion> Criteria(ImplantParameters r, Ctx c, Output o) =>
+        new() { new("meanDepth", CK.RelTarget, Required(r.TargetDepth), Required(r.DepthTolerance)) };
 }
 
-public sealed class AnnealProcess : ProcessBase
+public sealed class AnnealProcess : ProcessBase<AnnealParameters>
 {
+    protected override AnnealParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "anneal";
     public override string Group => "⑤ 증착·이온주입";
     public override string Name => "열처리(활성화)";
@@ -186,7 +190,7 @@ public sealed class AnnealProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(AnnealParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
         if (s.HasPR) Pre(e, "PR_PRESENT", "PR이 남아 있어 열처리를 할 수 없습니다.", "PRStrip을 먼저 수행하세요.");
@@ -196,22 +200,22 @@ public sealed class AnnealProcess : ProcessBase
             Pre(e, "METAL_NOT_REFRACTORY", "role=Gate인 W·TiN 외의 금속(Al·Cu·컨택 금속)이 있어 열처리를 할 수 없습니다(X3).", "금속 배선 전에 열처리하세요.");
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(AnnealParameters r, Ctx c, List<Err> e)
     {
-        if (r.N("temperature") > 1100) Ilk(e, "ANNEAL_TEMPERATURE_LIMIT", "temperature", r.N("temperature"), "≤ 1100 °C", "AnnealEdu 온도 한계를 넘었습니다.");
+        if (Required(r.Temperature) > 1100) Ilk(e, "ANNEAL_TEMPERATURE_LIMIT", "temperature", Required(r.Temperature), "≤ 1100 °C", "AnnealEdu 온도 한계를 넘었습니다.");
     }
 
     static double D(string sp, double T) => D0(sp) * Math.Exp((T - 1000) / 100);
 
-    static int NeededCells(Recipe r, DopingMap m)
+    static int NeededCells(AnnealParameters r, DopingMap m)
     {
-        double T = r.N("temperature"), t = r.N("duration");
+        double T = Required(r.Temperature), t = Required(r.Duration);
         double dmax = m.SpeciesPresent().Select(sp => D(sp, T)).DefaultIfEmpty(0).Max();
         double need = m.SignificantDepth() + 8 * Math.Sqrt(2 * dmax * t);
         return Math.Max(m.N, (int)Math.Ceiling(need / m.Dz) + 1);
     }
 
-    public override void Domain(Recipe r, Ctx c, List<Err> e)
+    public override void Domain(AnnealParameters r, Ctx c, List<Err> e)
     {
         var m = c.State.Doping;
         if (m == null) return;
@@ -249,12 +253,12 @@ public sealed class AnnealProcess : ProcessBase
         return x;
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(AnnealParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
         var o = new Output { Candidate = s };
-        double T = r.N("temperature"), time = r.N("duration");
-        double tau = r.E("method") == "RTA" ? 10 : 600;
+        double T = Required(r.Temperature), time = Required(r.Duration);
+        double tau = r.Method == "RTA" ? 10 : 600;
         double inc = 1 - Math.Exp(-(time / tau) * Math.Exp((T - 1000) / 100));
         var m = s.Doping;
         if (m == null || !s.HasDoping)
@@ -300,12 +304,14 @@ public sealed class AnnealProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o) =>
-        new() { new("activation", CK.Min, r.N("minActivation")) };
+    public override List<Criterion> Criteria(AnnealParameters r, Ctx c, Output o) =>
+        new() { new("activation", CK.Min, Required(r.MinActivation)) };
 }
 
-public sealed class MetalProcess : ProcessBase
+public sealed class MetalProcess : ProcessBase<MetalParameters>
 {
+    protected override MetalParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "metal";
     public override string Group => "⑥ 금속 배선";
     public override string Name => "금속 배선(이상적 패턴)";
@@ -334,21 +340,21 @@ public sealed class MetalProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public static (double WidthNm, double OffsetUm, Mask? Mask) Geometry(Recipe r, Ctx c)
+    public static (double WidthNm, double OffsetUm, Mask? Mask) Geometry(MetalParameters r, Ctx c)
     {
-        if (r.E("maskId") == "None") return (r.N("width"), r.N("offset"), null);
-        var m = c.Session.Masks.First(x => x.MaskId == r.E("maskId"));
+        if (r.MaskId == "None") return (Required(r.Width), Required(r.Offset), null);
+        var m = c.Session.Masks.First(x => x.MaskId == r.MaskId);
         return (m.MaskCd, m.OffsetUm, m);
     }
 
-    public override void Cross(Recipe r, Ctx c, List<Err> e)
+    public override void Cross(MetalParameters r, Ctx c, List<Err> e)
     {
         var (w, off, _) = Geometry(r, c);
         if (off + w / 1000 > c.State.DomainWidthUm + 1e-9)
             InputErr(e, "WIRE_OUTSIDE_DOMAIN", "offset", F(off), $"offset + width ≤ {F(c.State.DomainWidthUm)} µm", "배선이 단면 폭을 넘습니다.");
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(MetalParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
         if (s.HasPR) Pre(e, "PR_PRESENT", "PR이 남아 있어 배선을 만들 수 없습니다.", "PRStrip을 먼저 수행하세요.");
@@ -358,7 +364,7 @@ public sealed class MetalProcess : ProcessBase
         if (m != null && m.RepeatCount != 1) Pre(e, "MASK_NOT_SINGLE", "배선용 마스크는 반복 수 1이어야 합니다.", "repeatCount 1인 Gate층 마스크를 쓰세요.");
     }
 
-    public override void Domain(Recipe r, Ctx c, List<Err> e)
+    public override void Domain(MetalParameters r, Ctx c, List<Err> e)
     {
         var (w, off, _) = Geometry(r, c);
         var (a, b) = c.State.ColumnsIn(off, off + w / 1000);
@@ -366,18 +372,18 @@ public sealed class MetalProcess : ProcessBase
             Dom(e, "GEOMETRY_RESOLUTION", $"배선 폭 {F(w)} nm가 열 폭 {F(c.State.ColWidthNm)} nm의 4배보다 작습니다.", "폭을 키우거나 단면 폭을 줄이세요.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(MetalParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
         var (w, off, m) = Geometry(r, c);
         var (a, b) = s.ColumnsIn(off, off + w / 1000);
-        string metal = r.E("metal");
-        var id = s.NewLayer(metal, r.E("role") == "Gate" ? "gate" : "wire");
-        for (int i = a; i < b; i++) s.Columns[i].Segs.Add(new Seg { Material = metal, Thickness = r.N("thickness"), LayerId = id });
+        string metal = r.Metal;
+        var id = s.NewLayer(metal, r.Role == "Gate" ? "gate" : "wire");
+        for (int i = a; i < b; i++) s.Columns[i].Segs.Add(new Seg { Material = metal, Thickness = Required(r.Thickness), LayerId = id });
         var wire = new Wire
         {
-            WireId = s.NewId("W"), Material = metal, Role = r.E("role"), MaskId = m?.MaskId ?? "None",
-            ColStart = a, ColEnd = b, WidthNm = w, ThicknessNm = r.N("thickness"), LengthUm = r.N("length"), OffsetUm = off, LayerId = id,
+            WireId = s.NewId("W"), Material = metal, Role = r.Role, MaskId = m?.MaskId ?? "None",
+            ColStart = a, ColEnd = b, WidthNm = w, ThicknessNm = Required(r.Thickness), LengthUm = Required(r.Length), OffsetUm = off, LayerId = id,
         };
         s.Wires.Add(wire);
         var o = new Output { Candidate = s };
@@ -387,11 +393,13 @@ public sealed class MetalProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o) => new() { new("resistance", CK.Max, r.N("maxResistance")) };
+    public override List<Criterion> Criteria(MetalParameters r, Ctx c, Output o) => new() { new("resistance", CK.Max, Required(r.MaxResistance)) };
 }
 
-public sealed class ContactProcess : ProcessBase
+public sealed class ContactProcess : ProcessBase<ContactParameters>
 {
+    protected override ContactParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "contact";
     public override string Group => "⑥ 금속 배선";
     public override string Name => "컨택 형성(IdealContact)";
@@ -417,18 +425,18 @@ public sealed class ContactProcess : ProcessBase
         return c.State.ColumnsIn(m.OffsetUm, m.OffsetUm + m.MaskCd / 1000);
     }
 
-    public override void Cross(Recipe r, Ctx c, List<Err> e)
+    public override void Cross(ContactParameters r, Ctx c, List<Err> e)
     {
-        if (r.E("sourceMaskId") == r.E("drainMaskId"))
-            InputErr(e, "SAME_MASK", "drainMaskId", r.E("drainMaskId"), "소스와 다른 마스크", "소스와 드레인에 같은 마스크를 쓸 수 없습니다.");
+        if (r.SourceMaskId == r.DrainMaskId)
+            InputErr(e, "SAME_MASK", "drainMaskId", r.DrainMaskId, "소스와 다른 마스크", "소스와 드레인에 같은 마스크를 쓸 수 없습니다.");
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(ContactParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
         if (s.HasPR) Pre(e, "PR_PRESENT", "PR이 남아 있어 컨택을 만들 수 없습니다.", "PRStrip을 먼저 수행하세요.");
-        var src = Cols(c, r.E("sourceMaskId"));
-        var drn = Cols(c, r.E("drainMaskId"));
+        var src = Cols(c, r.SourceMaskId);
+        var drn = Cols(c, r.DrainMaskId);
         foreach (var (name, (a, b)) in new[] { ("소스", src), ("드레인", drn) })
         {
             if (b <= a) { Pre(e, "CONTACT_EMPTY", $"{name} 컨택이 단면 안에 없습니다.", "마스크 위치를 확인하세요."); continue; }
@@ -448,16 +456,16 @@ public sealed class ContactProcess : ProcessBase
                 Pre(e, "CONTACT_OVERLAP", $"기존 컨택 {ct.ContactId}과 겹칩니다.", "Undo 후 다시 실행하세요.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(ContactParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
-        string metal = r.E("metal");
-        double plug = r.N("plugAboveNm");
+        string metal = r.Metal;
+        double plug = Required(r.PlugAboveNm);
         var o = new Output { Candidate = s };
         bool siContact = true;
-        foreach (var (role, key) in new[] { ("Source", "sourceMaskId"), ("Drain", "drainMaskId") })
+        foreach (var (role, maskId) in new[] { ("Source", r.SourceMaskId), ("Drain", r.DrainMaskId) })
         {
-            var (a, b) = Cols(c, r.E(key));
+            var (a, b) = Cols(c, maskId);
             var id = s.NewLayer(metal, "contact-" + role);
             for (int i = a; i < b; i++)
             {
@@ -475,14 +483,16 @@ public sealed class ContactProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o) => new()
+    public override List<Criterion> Criteria(ContactParameters r, Ctx c, Output o) => new()
     {
         new("sourceColumns", CK.Min, 4), new("drainColumns", CK.Min, 4), new("siContact", CK.Present, 0),
     };
 }
 
-public sealed class InspectionProcess : ProcessBase
+public sealed class InspectionProcess : ProcessBase<InspectionParameters>
 {
+    protected override InspectionParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "inspection";
     public override string Group => "⑦ EDS(검사)";
     public override string Name => "검사";
@@ -527,18 +537,18 @@ public sealed class InspectionProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(InspectionParameters r, Ctx c, List<Err> e)
     {
-        if (!Targets(c.State, r.E("inspectionMode")).Contains(r.E("targetId")))
-            Pre(e, "TARGET_MISSING", $"검사 대상 '{r.E("targetId")}'이(가) 현재 상태에 없습니다(삭제되었거나 다른 상태의 ID).", "현재 상태의 대상을 선택하세요.");
+        if (!Targets(c.State, r.InspectionMode).Contains(r.TargetId))
+            Pre(e, "TARGET_MISSING", $"검사 대상 '{r.TargetId}'이(가) 현재 상태에 없습니다(삭제되었거나 다른 상태의 ID).", "현재 상태의 대상을 선택하세요.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(InspectionParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State;
         var o = new Output();
-        string id = r.E("targetId");
-        switch (r.E("inspectionMode"))
+        string id = r.TargetId;
+        switch (r.InspectionMode)
         {
             case "Thickness":
             {
@@ -593,20 +603,20 @@ public sealed class InspectionProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o) => r.E("inspectionMode") switch
+    public override List<Criterion> Criteria(InspectionParameters r, Ctx c, Output o) => r.InspectionMode switch
     {
         "Thickness" => new()
         {
-            new("thickness", CK.RelTarget, r.N("targetThickness"), r.N("thicknessTolerance")),
-            new("nonuniformity", CK.Max, r.N("maxNonuniformity")),
+            new("thickness", CK.RelTarget, Required(r.TargetThickness), Required(r.ThicknessTolerance)),
+            new("nonuniformity", CK.Max, Required(r.MaxNonuniformity)),
         },
-        "CD" => new() { new("openingCd", CK.AbsTarget, r.N("targetCd"), r.N("cdTolerance")) },
-        "Contamination" => new() { new("contamination", CK.Max, r.N("maxContamination")) },
-        "Electrical" => new() { new("resistance", CK.Max, r.N("maxResistance")) },
+        "CD" => new() { new("openingCd", CK.AbsTarget, Required(r.TargetCd), Required(r.CdTolerance)) },
+        "Contamination" => new() { new("contamination", CK.Max, Required(r.MaxContamination)) },
+        "Electrical" => new() { new("resistance", CK.Max, Required(r.MaxResistance)) },
         _ => new()
         {
-            new("meanDepth", CK.RelTarget, r.N("targetDepth"), r.N("depthTolerance")),
-            new("activation", CK.Min, r.N("minActivation")),
+            new("meanDepth", CK.RelTarget, Required(r.TargetDepth), Required(r.DepthTolerance)),
+            new("activation", CK.Min, Required(r.MinActivation)),
         },
     };
 }

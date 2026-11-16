@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import SemiEdu
 
-// Inspector "Properties" + "Errors / 판정 사유".
+// Inspector "Properties" + "Errors / Failure Reasons".
 Rectangle {
     id: root
     required property ResultViewModel result
@@ -45,7 +45,7 @@ Rectangle {
 
                     Label {
                         visible: !root.result.hasResult
-                        text: "아직 실행 결과가 없습니다. 조건을 넣고 [계산 미리보기] 또는 [공정 실행]을 누르세요."
+                        text: "No results yet. Enter process conditions and select Preview or Run."
                         color: Theme.textDim
                         wrapMode: Text.Wrap
                         Layout.fillWidth: true
@@ -58,16 +58,16 @@ Rectangle {
                         rowSpacing: 3
                         Layout.fillWidth: true
                         Label { text: "Process"; color: Theme.textDim }
-                        Label { text: root.result.processName; color: Theme.text; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                        Label { text: Theme.english(root.result.processName); color: Theme.text; Layout.fillWidth: true; wrapMode: Text.Wrap }
                         Label { text: "Status"; color: Theme.textDim }
                         Label {
-                            text: Theme.statusIcon(root.result.statusKind) + " " + root.result.statusText
+                            text: Theme.statusIcon(root.result.statusKind) + " " + Theme.statusLabel(root.result.statusKind)
                             color: Theme.statusColor(root.result.statusKind)
                             font.bold: true
                         }
                         Label { text: "Mode"; color: Theme.textDim }
                         Label {
-                            text: (root.result.isPreview ? "미리보기(상태 미변경)" : "실행(커밋)") + (root.editor.staleResult ? " · ⟲ 이전 레시피 결과" : "")
+                            text: (root.result.isPreview ? "Preview (No State Change)" : "Run (Committed)") + (root.editor.staleResult ? " · ⟲ Previous Recipe Result" : "")
                             color: root.editor.staleResult ? Theme.warn : Theme.text
                         }
                     }
@@ -109,7 +109,7 @@ Rectangle {
                                     anchors.centerIn: parent
                                     font.pixelSize: 11
                                     color: verdict === "Pass" ? Theme.ok : verdict === "Fail" ? Theme.bad : Theme.textFaint
-                                    text: (verdict === "Pass" ? "✔ " : verdict === "Fail" ? "✖ " : "· ") + name
+                                    text: (verdict === "Pass" ? "✔ " : verdict === "Fail" ? "✖ " : "· ") + Theme.english(name)
                                 }
                             }
                         }
@@ -120,7 +120,7 @@ Rectangle {
             SectionHeader {
                 Layout.fillWidth: true
                 visible: root.result.metrics.count > 0
-                title: "지표 · 목표 · 판정"
+                title: "Metrics / Targets / Verdicts"
             }
             Repeater {
                 model: root.result.metrics
@@ -151,7 +151,7 @@ Rectangle {
                             Label { text: m.value; color: Theme.text; font.bold: true; font.pixelSize: 12 }
                             Label {
                                 visible: m.judged
-                                text: m.ok ? "✔ 합격" : "✖ " + m.pass
+                                text: m.ok ? "✔ Pass" : "✖ " + Theme.english(m.pass)
                                 color: m.ok ? Theme.ok : Theme.bad
                                 font.bold: true
                                 font.pixelSize: 12
@@ -160,7 +160,7 @@ Rectangle {
                         Label {
                             Layout.fillWidth: true
                             visible: m.judged || m.note !== "정보"
-                            text: (m.judged ? "목표 " + m.target + " · 허용구간 " + m.range : "") + (m.note !== "" && m.note !== "정보" ? (m.judged ? " · " : "") + m.note : "")
+                            text: (m.judged ? "Target: " + m.target + " · Range: " + m.range : "") + (m.note !== "" && m.note !== "정보" ? (m.judged ? " · " : "") + m.note : "")
                             color: Theme.textFaint
                             font.pixelSize: 11
                             wrapMode: Text.Wrap
@@ -169,7 +169,7 @@ Rectangle {
                 }
             }
 
-            SectionHeader { Layout.fillWidth: true; title: "Errors / 판정 사유" }
+            SectionHeader { Layout.fillWidth: true; title: "Errors / Failure Reasons" }
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: errCol.implicitHeight + 16
@@ -184,7 +184,7 @@ Rectangle {
                     spacing: 8
                     Label {
                         visible: root.result.errors.count === 0
-                        text: root.result.hasResult ? "오류·불합격 사유 없음" : "—"
+                        text: root.result.hasResult ? "No errors or quality failures" : "—"
                         color: Theme.textFaint
                     }
                     Repeater {
@@ -212,14 +212,6 @@ Rectangle {
                 }
             }
 
-            Label {
-                Layout.fillWidth: true
-                visible: root.result.hasResult
-                text: "모든 수치는 검증되지 않은 교육용 예시 모델의 결과입니다. 테스트 통과는 실제 공정 검증이 아닙니다."
-                font.pixelSize: 11
-                color: Theme.bannerText
-                wrapMode: Text.Wrap
-            }
             Item { implicitHeight: 6 }
         }
     }

@@ -30,6 +30,8 @@ public:
     QJsonObject run(const QString &processId, const QJsonObject &values, const QJsonObject &equipment, bool commit, qint64 expectedRevision);
     void cancel();
     QJsonObject undo();
+    bool supportsUndoTo() const { return m_undoTo != nullptr; }
+    QJsonObject undoTo(const QString &runId, qint64 expectedUndoRevision);
     QJsonObject state();
     QJsonObject sceneMeta(const QJsonObject &options);
     QVector<float> sceneBoxes(const QJsonObject &options);
@@ -54,6 +56,7 @@ private:
     se_run_fn m_run = nullptr;
     se_cancel_fn m_cancel = nullptr;
     se_undo_fn m_undo = nullptr;
+    se_undo_to_fn m_undoTo = nullptr;
     se_state_fn m_state = nullptr;
     se_scene_meta_fn m_sceneMeta = nullptr;
     se_scene_boxes_fn m_sceneBoxes = nullptr;

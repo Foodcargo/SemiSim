@@ -30,7 +30,7 @@ Rectangle {
                 id: hint
                 anchors.fill: parent
                 anchors.margins: 5
-                text: "조건을 입력하세요. 범위 밖 값은 실행 전에 차단됩니다. 수치는 검증되지 않은 교육용 예시입니다."
+                text: "Enter process conditions. Out-of-range values are blocked before execution."
                 color: Theme.textDim
                 wrapMode: Text.Wrap
                 font.pixelSize: 12

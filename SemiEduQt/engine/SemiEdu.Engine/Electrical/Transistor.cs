@@ -209,8 +209,10 @@ public sealed class MosfetModel
     }
 }
 
-public sealed class TransistorTestProcess : ProcessBase
+public sealed class TransistorTestProcess : ProcessBase<TransistorTestParameters>
 {
+    protected override TransistorTestParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "transistor";
     public override string Group => "⑦ EDS(검사)";
     public override string Name => "트랜지스터 전기 검사";
@@ -245,13 +247,13 @@ public sealed class TransistorTestProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public override void Cross(Recipe r, Ctx c, List<Err> e)
+    public override void Cross(TransistorTestParameters r, Ctx c, List<Err> e)
     {
-        if (r.Nums.ContainsKey("sweepStart") && r.N("sweepStart") >= r.N("sweepStop"))
-            InputErr(e, "SWEEP_RANGE", "sweepStart", F(r.N("sweepStart")), "< sweepStop", "스위프 시작은 끝보다 작아야 합니다.");
+        if (r.SweepStart.HasValue && Required(r.SweepStart) >= Required(r.SweepStop))
+            InputErr(e, "SWEEP_RANGE", "sweepStart", F(Required(r.SweepStart)), "< sweepStop", "스위프 시작은 끝보다 작아야 합니다.");
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(TransistorTestParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
         var missing = new List<string>();
@@ -264,36 +266,36 @@ public sealed class TransistorTestProcess : ProcessBase
     }
 
     /// <summary>Bias points (vg, vd, vs) the prober will apply.</summary>
-    static IEnumerable<(double Vg, double Vd, double Vs)> Points(Recipe r, bool pmos)
+    static IEnumerable<(double Vg, double Vd, double Vs)> Points(TransistorTestParameters r, bool pmos)
     {
         double sg = pmos ? -1 : 1;
-        switch (r.E("testMode"))
+        switch (r.TestMode)
         {
             case "AutoJudge":
-                double vdd = r.N("vdd");
+                double vdd = Required(r.Vdd);
                 yield return (sg * vdd, sg * vdd, 0);
                 yield return (0, sg * vdd, 0);
                 break;
             case "SinglePoint":
-                yield return (r.N("vg"), r.N("vd"), r.N("vs"));
+                yield return (Required(r.Vg), Required(r.Vd), Required(r.Vs));
                 break;
             case "IdVgSweep":
-                yield return (r.N("sweepStart"), r.N("vd"), r.N("vs"));
-                yield return (r.N("sweepStop"), r.N("vd"), r.N("vs"));
+                yield return (Required(r.SweepStart), Required(r.Vd), Required(r.Vs));
+                yield return (Required(r.SweepStop), Required(r.Vd), Required(r.Vs));
                 break;
             default:
-                yield return (r.N("vg"), r.N("sweepStart"), r.N("vs"));
-                yield return (r.N("vg"), r.N("sweepStop"), r.N("vs"));
+                yield return (Required(r.Vg), Required(r.SweepStart), Required(r.Vs));
+                yield return (Required(r.Vg), Required(r.SweepStop), Required(r.Vs));
                 break;
         }
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(TransistorTestParameters r, Ctx c, List<Err> e)
     {
         var gate = c.State.Wires.First(w => w.Role == "Gate");
         double tox = DeviceStructure.GateTox(c.State, gate);
         if (!(tox > 1e-9)) return;
-        double vb = r.N("vb"), worst = 0;
+        double vb = Required(r.Vb), worst = 0;
         bool pmos = Analysis(r, c).DeviceType == "PMOS";
         foreach (var (vg, vd, vs) in Points(r, pmos))
             worst = Math.Max(worst, Math.Max(Math.Abs(vg - vs), Math.Max(Math.Abs(vg - vd), Math.Abs(vg - vb))));
@@ -302,7 +304,7 @@ public sealed class TransistorTestProcess : ProcessBase
             Ilk(e, "PROBER_OXIDE_FIELD", "vg", eox, "≤ 8 MV/cm", $"산화막 전계 {F(eox)} MV/cm(tox {F(tox)} nm)가 8 MV/cm를 넘어 전압을 걸기 전에 차단했습니다(산화막 파괴 방지).");
     }
 
-    static DeviceStructure Analysis(Recipe r, Ctx c)
+    static DeviceStructure Analysis(TransistorTestParameters r, Ctx c)
     {
         if (c.Cache.TryGetValue("device", out var o)) return (DeviceStructure)o;
         var nl = new Netlist(c.State);
@@ -311,7 +313,7 @@ public sealed class TransistorTestProcess : ProcessBase
         return ds;
     }
 
-    public override void Domain(Recipe r, Ctx c, List<Err> e)
+    public override void Domain(TransistorTestParameters r, Ctx c, List<Err> e)
     {
         var ds = Analysis(r, c);
         double cw = c.State.ColWidthNm;
@@ -321,20 +323,20 @@ public sealed class TransistorTestProcess : ProcessBase
             Dom(e, "BODY_UNDEFINED", "게이트 아래 바디 농도가 너무 낮아 문턱 전압을 정의할 수 없습니다.", "기판 도핑을 확인하세요.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(TransistorTestParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State;
         var ds = Analysis(r, c);
         var gate = ds.Gate!;
         var codes = new List<string>(ds.Codes);
-        string want = r.E("deviceType");
+        string want = r.DeviceType;
         if (want != "Auto" && want != ds.DeviceType) codes.Add("TYPE_MISMATCH");
         bool pmos = ds.DeviceType == "PMOS";
         double lNm = double.IsFinite(ds.LNm) ? ds.LNm : gate.WidthNm;
         double toxForModel = double.IsFinite(ds.ToxNm) && ds.ToxNm > 1e-9 ? ds.ToxNm : 1;
         var mos = new MosfetModel(ds, toxForModel, Math.Max(ds.Nb, Classes.SemiThreshold), gate.Material, gate.LengthUm, lNm, pmos);
-        double vb = r.N("vb");
-        string mode = r.E("testMode");
+        double vb = Required(r.Vb);
+        string mode = r.TestMode;
         var er = new ElectricalResult
         {
             Mode = mode, DeviceType = ds.DeviceType, StructureFail = ds.Codes.Count > 0,
@@ -353,7 +355,7 @@ public sealed class TransistorTestProcess : ProcessBase
         double sg = pmos ? -1 : 1;
         if (mode == "SinglePoint")
         {
-            double vg = r.N("vg"), vd = r.N("vd"), vs = r.N("vs");
+            double vg = Required(r.Vg), vd = Required(r.Vd), vs = Required(r.Vs);
             double id = mos.Id(vg, vd, vs, vb), ig = mos.Ig(vg, vd, vs, vb);
             er.Region = mos.Region(vg, vd, vs, vb);
             er.Applied = $"Vg {F(vg)} V · Vd {F(vd)} V · Vs {F(vs)} V · Vb {F(vb)} V";
@@ -367,7 +369,7 @@ public sealed class TransistorTestProcess : ProcessBase
         }
         else
         {
-            double vdd = mode == "AutoJudge" ? r.N("vdd") : Math.Max(Math.Abs(r.N("sweepStop")), 0.1);
+            double vdd = mode == "AutoJudge" ? Required(r.Vdd) : Math.Max(Math.Abs(Required(r.SweepStop)), 0.1);
             double ion = Math.Abs(mos.Id(sg * vdd, sg * vdd, 0, vb));
             double ioff = Math.Abs(mos.Id(0, sg * vdd, 0, vb));
             double igMax = Math.Max(Math.Abs(mos.Ig(sg * vdd, sg * vdd, 0, vb)), Math.Abs(mos.Ig(0, sg * vdd, 0, vb)));
@@ -385,8 +387,8 @@ public sealed class TransistorTestProcess : ProcessBase
             }
             else
             {
-                int n = (int)r.N("sweepPoints");
-                double a = r.N("sweepStart"), b = r.N("sweepStop"), vs = r.N("vs");
+                int n = (int)Required(r.SweepPoints);
+                double a = Required(r.SweepStart), b = Required(r.SweepStop), vs = Required(r.Vs);
                 bool vgSweep = mode == "IdVgSweep";
                 er.SweepKind = mode;
                 er.LogY = vgSweep;
@@ -396,7 +398,7 @@ public sealed class TransistorTestProcess : ProcessBase
                 {
                     t.ThrowIfCancellationRequested();
                     double x = a + (b - a) * i / (n - 1);
-                    double id = vgSweep ? mos.Id(x, r.N("vd"), vs, vb) : mos.Id(r.N("vg"), x, vs, vb);
+                    double id = vgSweep ? mos.Id(x, Required(r.Vd), vs, vb) : mos.Id(Required(r.Vg), x, vs, vb);
                     er.Sweep.Add((x, vgSweep ? Math.Abs(id) : id));
                 }
                 if (vgSweep && ds.Codes.Count == 0)
@@ -410,9 +412,9 @@ public sealed class TransistorTestProcess : ProcessBase
                     }
                     if (best > 0) er.VthExt = er.Sweep[best].X - er.Sweep[best].Y / gmMax;
                 }
-                er.Applied = vgSweep ? $"Vg {F(a)}→{F(b)} V · Vd {F(r.N("vd"))} V · Vs {F(vs)} V · Vb {F(vb)} V"
-                                     : $"Vd {F(a)}→{F(b)} V · Vg {F(r.N("vg"))} V · Vs {F(vs)} V · Vb {F(vb)} V";
-                er.Vov = vgSweep ? mos.Vov(b, vs, vb) : mos.Vov(r.N("vg"), vs, vb);
+                er.Applied = vgSweep ? $"Vg {F(a)}→{F(b)} V · Vd {F(Required(r.Vd))} V · Vs {F(vs)} V · Vb {F(vb)} V"
+                                     : $"Vd {F(a)}→{F(b)} V · Vg {F(Required(r.Vg))} V · Vs {F(vs)} V · Vb {F(vb)} V";
+                er.Vov = vgSweep ? mos.Vov(b, vs, vb) : mos.Vov(Required(r.Vg), vs, vb);
                 if (er.VthExt is double ve) o.M("vthExt", "외삽 Vth(최대 gm점)", ve, "V");
             }
         }
@@ -444,15 +446,15 @@ public sealed class TransistorTestProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o)
+    public override List<Criterion> Criteria(TransistorTestParameters r, Ctx c, Output o)
     {
-        var list = new List<Criterion> { new("structureFailures", CK.Max, 0), new("igAbs", CK.Max, r.N("maxIg")) };
-        if (r.E("testMode") == "SinglePoint") return list;
-        list.Add(new("ion", CK.Min, r.N("minIon")));
-        list.Add(new("ioff", CK.Max, r.N("maxIoff")));
-        list.Add(new("onOff", CK.Min, r.N("minOnOff")));
-        list.Add(new("vth", CK.Min, r.N("minVth")));
-        list.Add(new("vth", CK.Max, r.N("maxVth")));
+        var list = new List<Criterion> { new("structureFailures", CK.Max, 0), new("igAbs", CK.Max, Required(r.MaxIg)) };
+        if (r.TestMode == "SinglePoint") return list;
+        list.Add(new("ion", CK.Min, Required(r.MinIon)));
+        list.Add(new("ioff", CK.Max, Required(r.MaxIoff)));
+        list.Add(new("onOff", CK.Min, Required(r.MinOnOff)));
+        list.Add(new("vth", CK.Min, Required(r.MinVth)));
+        list.Add(new("vth", CK.Max, Required(r.MaxVth)));
         return list;
     }
 }

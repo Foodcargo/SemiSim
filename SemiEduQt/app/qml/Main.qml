@@ -14,7 +14,7 @@ ApplicationWindow {
     visibility: Window.Maximized
     visible: true
     color: Theme.window
-    title: "SemiEdu — 반도체 공정 교육용 시뮬레이터 (검증되지 않은 교육용 예시 모델)"
+    title: "SemiEdu — Semiconductor Process Simulator"
 
     required property AppViewModel app
     required property ProcessEditorViewModel editor
@@ -56,7 +56,7 @@ ApplicationWindow {
         }
         Menu {
             title: "편집(&E)"
-            Action { text: "실행 취소(Undo) — 부모 상태로"; shortcut: "Ctrl+Z"; enabled: win.app.canUndo && !win.app.busy; onTriggered: win.app.undo() }
+            Action { text: "Undo Last Run"; shortcut: "Ctrl+Z"; enabled: win.app.canUndo && !win.app.busy; onTriggered: win.app.undo() }
             MenuSeparator {}
             Action { text: "현재 공정 입력을 기본값으로"; enabled: !win.app.busy; onTriggered: win.editor.resetInputs() }
         }
@@ -114,10 +114,10 @@ ApplicationWindow {
         }
     }
 
-    // Educational banner + equipment status strip.
+    // Engine and equipment status strip.
     header: Rectangle {
         implicitHeight: 28
-        color: win.app.engineReady ? Theme.banner : "#5a1d1d"
+        color: win.app.engineReady ? Theme.toolbar : "#5a1d1d"
         RowLayout {
             anchors.fill: parent
             anchors.leftMargin: 12
@@ -125,8 +125,8 @@ ApplicationWindow {
             spacing: 14
             Label {
                 Layout.fillWidth: true
-                text: (win.app.engineReady ? "⚠ " : "⛔ ") + win.app.bannerText
-                color: win.app.engineReady ? Theme.bannerText : "#ffb4b4"
+                text: (win.app.engineReady ? "" : "⛔ ") + win.app.bannerText
+                color: win.app.engineReady ? Theme.textDim : "#ffb4b4"
                 elide: Text.ElideRight
                 font.pixelSize: 12
             }
@@ -152,7 +152,7 @@ ApplicationWindow {
         + "5. 품질 불량 뒤에는 다음 공정이 막힙니다. 관리 ▸ ‘불량 상태로 계속 학습’을 켜거나 Undo(Ctrl+Z)로 되돌리세요.\n"
         + "6. 파일 ▸ 학습 경로 열기로 scripts 폴더의 경로 1–5를 재생할 수 있습니다(경로 5: NMOS 제작 → 전기 검사).\n\n"
         + "3D 조작: 왼쪽 드래그 회전(보기 ▸ 이동 모드로 전환), 오른쪽/가운데 드래그 이동, 휠 확대, 더블클릭 화면 맞춤."
-    readonly property string disclaimerText: "이 프로그램의 모든 입력 범위, 장비 한계, 계수, 품질 기준은 검증되지 않은 교육용 예시입니다.\n"
+    readonly property string disclaimerText: "이 프로그램은 단순화된 공정 수식과 계수를 사용합니다.\n"
         + "실제 제조 레시피, 장비 사양·안전 운전 한계, 공정 보증값, 수율 예측으로 사용할 수 없습니다.\n"
         + "식의 형태는 문헌(예: Deal–Grove, Preston, square-law)을 참고했지만 계수는 이 제품이 임의로 정한 값입니다.\n"
         + "테스트 통과는 소프트웨어 검증이며 실제 공정 정확도 검증이 아닙니다."
@@ -281,22 +281,37 @@ ApplicationWindow {
                 anchors.fill: parent
                 scene: win.scene
             }
-            ViewHeader {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                scene: win.scene
-                editor: win.editor
-            }
-            Label {
+            ColumnLayout {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 anchors.margins: 10
+                spacing: 6
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: selectedLayerLog.implicitHeight + 16
+                    visible: win.app.selectedLayerText !== ""
+                    color: Theme.dock
+                    border.color: Theme.accent
+                    radius: 3
+                    Label {
+                        id: selectedLayerLog
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        text: "Selected Layer  ›  " + win.app.selectedLayerText
+                        textFormat: Text.PlainText
+                        color: Theme.text
+                        wrapMode: Text.Wrap
+                        font.pixelSize: 12
+                    }
+                }
+                Label {
+                Layout.fillWidth: true
                 text: win.scene.scaleText + "\n조작: 왼쪽 드래그 " + (view.dragMode === "rotate" ? "회전" : "이동") + " · 오른쪽/가운데 드래그 이동 · 휠 확대 · 더블클릭 화면 맞춤"
                 color: Theme.textFaint
                 font.pixelSize: 11
                 wrapMode: Text.Wrap
+                }
             }
             BusyIndicator {
                 anchors.centerIn: parent
@@ -315,10 +330,10 @@ ApplicationWindow {
             TabBar {
                 id: tabs
                 Layout.fillWidth: true
-                TabButton { text: "속성·판정" }
-                TabButton { text: "객체 분류" }
-                TabButton { text: "그래프" }
-                TabButton { text: "이력" }
+                TabButton { text: "Properties" }
+                TabButton { text: "Objects" }
+                TabButton { text: "Graphs" }
+                TabButton { text: "History" }
             }
             StackLayout {
                 Layout.fillWidth: true
@@ -344,7 +359,7 @@ ApplicationWindow {
                         visible: !win.plot.visible
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.Wrap
-                        text: "트랜지스터 전기 검사에서 IdVgSweep 또는 IdVdSweep을 실행하면 그래프가 표시됩니다."
+                        text: "Run IdVgSweep or IdVdSweep in Transistor Electrical Test to display a graph."
                         color: Theme.textDim
                     }
                 }

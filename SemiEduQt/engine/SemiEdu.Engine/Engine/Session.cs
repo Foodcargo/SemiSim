@@ -9,6 +9,12 @@ public sealed class Session
     public readonly List<RunResult> History = new();
     public readonly List<Mask> Masks = new();
     public int MaskCounter;
+    // Includes mask/inspection commits, which do not change the wafer Revision.
+    public long UndoRevision;
+    sealed record UndoCheckpoint(RunResult Run, WaferState State, Mask[] Masks, int MaskCounter,
+                                 ElectricalResult? Electrical);
+    readonly List<UndoCheckpoint> undo = new();
+    public IEnumerable<RunResult> ActiveRuns => undo.Select(x => x.Run);
 
     public WaferState? PreviewState;
     public Mask? PreviewMask;
@@ -26,18 +32,42 @@ public sealed class Session
         States[Current.StateId] = Current;
     }
 
-    public bool CanUndo => Current.ParentStateId is Guid g && States.ContainsKey(g);
+    public bool CanUndo => undo.Count > 0;
 
-    /// <summary>Returns to the parent snapshot. Run history is kept.</summary>
+    public void RecordBeforeCommit(RunResult run)
+    {
+        // Committed wafer states and masks are immutable; later calculations use candidate clones.
+        undo.Add(new UndoCheckpoint(run, Current, Masks.ToArray(), MaskCounter, LastElectrical));
+        UndoRevision++;
+    }
+
+    /// <summary>Undoes the most recent committed operation, retaining its audit history.</summary>
     public bool Undo()
     {
         if (!CanUndo) return false;
-        Current = States[Current.ParentStateId!.Value];
+        return UndoTo(undo[^1].Run.RunId, UndoRevision) > 0;
+    }
+
+    /// <summary>Restores the snapshot BEFORE the selected active run, atomically dropping its suffix.</summary>
+    public int UndoTo(string runId, long expectedUndoRevision)
+    {
+        if (expectedUndoRevision != UndoRevision) return -1;
+        int index = undo.FindIndex(x => x.Run.RunId == runId);
+        if (index < 0) return 0;
+        var before = undo[index];
+        int count = undo.Count - index;
+        Current = before.State;
+        Masks.Clear(); Masks.AddRange(before.Masks);
+        MaskCounter = before.MaskCounter;
+        LastElectrical = before.Electrical;
+        foreach (var checkpoint in undo.Skip(index)) checkpoint.Run.Undone = true;
+        undo.RemoveRange(index, count);
         Revision++;
+        UndoRevision++;
         PreviewState = null;
         PreviewMask = null;
         PreviewElectrical = null;
-        return true;
+        return count;
     }
 }
 

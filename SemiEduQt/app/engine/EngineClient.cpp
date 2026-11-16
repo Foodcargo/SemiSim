@@ -57,6 +57,7 @@ bool EngineClient::load()
         return false;
     }
     m_versionInfo = take(m_version());
+    resolve(m_lib, "se_undo_to", m_undoTo); // Optional, backward-compatible ABI extension.
     const int abi = m_versionInfo.value(QStringLiteral("abiVersion")).toInt(-1);
     if (abi != 1) {
         m_error = QStringLiteral("엔진 ABI 버전 불일치: %1 (필요: 1)").arg(abi);
@@ -135,6 +136,14 @@ void EngineClient::cancel()
 QJsonObject EngineClient::undo()
 {
     return m_ready ? take(m_undo(m_h)) : notReady();
+}
+
+QJsonObject EngineClient::undoTo(const QString &runId, qint64 expectedUndoRevision)
+{
+    if (!m_ready) return notReady();
+    if (!m_undoTo) return QJsonObject{{QStringLiteral("ok"), false}};
+    const QByteArray id = runId.toUtf8();
+    return take(m_undoTo(m_h, id.constData(), expectedUndoRevision));
 }
 
 QJsonObject EngineClient::state()

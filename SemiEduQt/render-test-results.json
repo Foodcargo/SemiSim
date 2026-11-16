@@ -1,0 +1,39 @@
+{
+    "gpu": "AMD Radeon 780M Graphics",
+    "measurements": [
+        {
+            "boxes": 1000,
+            "drawCalls": 4,
+            "firstFrameMsIncludingGpuWait": 0.5861,
+            "initialInstanceBytes": 80000,
+            "legacyExpandedFaceAndOutlineBytesCalculated": 2400000,
+            "movingFrameMsIncludingGpuWait": 0.57906,
+            "movingInstanceBytesTotal10Frames": 13360,
+            "stationaryFrameMsIncludingGpuWait": 0.6082
+        },
+        {
+            "boxes": 10000,
+            "drawCalls": 4,
+            "firstFrameMsIncludingGpuWait": 3.8463,
+            "initialInstanceBytes": 800000,
+            "legacyExpandedFaceAndOutlineBytesCalculated": 24000000,
+            "movingFrameMsIncludingGpuWait": 2.12703,
+            "movingInstanceBytesTotal10Frames": 133360,
+            "stationaryFrameMsIncludingGpuWait": 0.7404200000000001
+        },
+        {
+            "boxes": 50000,
+            "drawCalls": 4,
+            "firstFrameMsIncludingGpuWait": 14.3391,
+            "initialInstanceBytes": 4000000,
+            "legacyExpandedFaceAndOutlineBytesCalculated": 120000000,
+            "movingFrameMsIncludingGpuWait": 8.668600000000001,
+            "movingInstanceBytesTotal10Frames": 666680,
+            "stationaryFrameMsIncludingGpuWait": 2.3935500000000003
+        }
+    ],
+    "note": "Synthetic workload, not application FPS. Legacy bytes are calculated, not a baseline timing.",
+    "passed": true,
+    "version": "3.3.0 Core Profile Context 25.20.32.06.251214",
+    "viewport": "512x512, offscreen, no MSAA; glFinish after each frame"
+}

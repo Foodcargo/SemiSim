@@ -111,7 +111,7 @@ public sealed class NetInfo
 
 /// <summary>
 /// Union-Find over film segments (one cell each) and Si depth cells. Conductors and conductive Si (N+/P+) join a
-/// conductor net; metal touching Si is an ideal ohmic contact to the N+/P+ region reached through same-type silicon.
+/// conductor net; metal joins only the directly adjacent N+/P+ surface cell.
 /// Semiconductor cells are grouped by type into body regions. N+ and P+ never merge (PN junction).
 /// </summary>
 public sealed class Netlist
@@ -262,20 +262,10 @@ public sealed class Netlist
             }
     }
 
-    /// <summary>Si cell an ideal ohmic contact at the surface of column c reaches: the first N+/P+ cell reached through same-type silicon.</summary>
+    /// <summary>Only the directly adjacent conductive Si surface cell can join a metal net (spec 9).</summary>
     int OhmicCell(int c)
     {
-        var top = Grid.ClassAt(c, 0);
-        if (Classes.IsConductiveSi(top)) return 0;
-        Cls semi = top, plus = top == Cls.NSemi ? Cls.NPlus : top == Cls.PSemi ? Cls.PPlus : Cls.Intrinsic;
-        if (plus == Cls.Intrinsic) return -1;
-        for (int d = 1; d < Grid.Depth; d++)
-        {
-            var k = Grid.ClassAt(c, d);
-            if (k == plus) return d;
-            if (k != semi) return -1;
-        }
-        return -1;
+        return Classes.IsConductiveSi(Grid.ClassAt(c, 0)) ? 0 : -1;
     }
 
     public NetInfo? NetOfFilm(int col, int seg) => Nets.TryGetValue(Find(FilmNode(col, seg)), out var n) ? n : null;

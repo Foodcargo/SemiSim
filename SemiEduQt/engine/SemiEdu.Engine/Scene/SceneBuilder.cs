@@ -41,7 +41,7 @@ public readonly record struct SceneFrame(double Bottom, double Top, double SiDep
 /// <summary>WaferState → boxes, legend and scale text (spec 6, 8, 9, 10.7). The renderer only draws boxes.</summary>
 public static class SceneBuilder
 {
-    public const double WorldX = 12, WorldY = 4, WorldZ = 5;
+    public const double WorldX = 12, WorldY = 12, WorldZ = 1;
 
     static string Hex(float r, float g, float b) => $"#{(int)(r * 255):x2}{(int)(g * 255):x2}{(int)(b * 255):x2}";
     static string Swatch(float r, float g, float b, string label) => $"<span style=\"color:{Hex(r, g, b)}\">■</span> {label}";
@@ -76,12 +76,152 @@ public static class SceneBuilder
     {
         if (o.View == "mask") return BuildMask(s, o);
         var st = StateFor(s, o);
-        return BuildWafer(st, o, ElectricalFor(s, o, st), o.Preview && (s.PreviewState != null || s.PreviewElectrical != null));
+        bool isPreview = o.Preview && (s.PreviewState != null || s.PreviewElectrical != null);
+        if (o.View == "device" && o.Classification) return BuildDevice(st, o, ElectricalFor(s, o, st), isPreview);
+        return BuildWafer(st, o, ElectricalFor(s, o, st), isPreview);
+    }
+
+    /// <summary>
+    /// Schematic MOSFET view for the transistor step: body block, S/D wells, gate oxide and gate on top.
+    /// Topology (which side of the gate each region/contact is on, relative widths inside each zone and relative
+    /// junction depths) comes from the state; absolute proportions are normalised for readability.
+    /// </summary>
+    static SceneData BuildDevice(WaferState st, SceneOptions o, ElectricalResult? el, bool isPreview)
+    {
+        var sd = new SceneData { IsPreview = isPreview, ViewKind = "device" };
+        // Same transparency rules as the classification view: bright edges, see-through body, stronger S/D wells.
+        bool tr = o.Transparent;
+        int edge = tr ? 2 : 1;
+        float aBody = tr ? 0.38f : 1f, aWell = tr ? 0.75f : 1f, aMetal = tr ? 0.6f : 1f, aOx = tr ? 0.35f : 1f;
+        int n = st.N;
+        const double bodyBottom = -0.55, bodyTop = 3.2, bodyH = bodyTop - bodyBottom, depthY = 6;
+        const double oxideH = 0.1, gateH = 1.3, plugH = 0.9;
+        var gate = st.Wires.FirstOrDefault(w => w.Role == "Gate" && w.ColEnd > w.ColStart);
+
+        // Piecewise X map: [0,gA) → [0,4), [gA,gB) → [4,8), [gB,n) → [8,12). Linear when there is no usable gate.
+        bool piecewise = gate != null && gate.ColStart > 0 && gate.ColEnd < n;
+        int gA = gate?.ColStart ?? 0, gB = gate?.ColEnd ?? n;
+        double X(int c)
+        {
+            if (!piecewise) return (double)c / n * WorldX;
+            double third = WorldX / 3;
+            if (c <= gA) return third * c / gA;
+            if (c <= gB) return third + third * (c - gA) / (gB - gA);
+            return 2 * third + third * (c - gB) / (n - gB);
+        }
+
+        // Conductive Si (N+/P+) depth per column, measured from the Si surface.
+        var grid = SiGrid.Build(st);
+        var depth = new double[n];
+        var kind = new Cls[n];
+        int searchCells = Math.Max(1, (int)Math.Ceiling(100 / grid.Dz));
+        for (int c = 0; c < n; c++)
+        {
+            int first = -1;
+            for (int d = 0; d < Math.Min(grid.Depth, searchCells); d++)
+                if (Classes.IsConductiveSi(grid.ClassAt(c, d))) { first = d; break; }
+            if (first < 0) continue;
+            kind[c] = grid.ClassAt(c, first);
+            int last = first;
+            while (last + 1 < grid.Depth && grid.ClassAt(c, last + 1) == kind[c]) last++;
+            depth[c] = (last + 1) * grid.Dz;
+        }
+        double maxDepth = depth.DefaultIfEmpty(0).Max();
+
+        var bodyCls = grid.ClassAt(n / 2, grid.Depth - 1);
+        // Same palette as the electrical classification view (Classes.Color), drawn opaque.
+        var (bR, bG, bB, _) = Classes.Color(bodyCls is Cls.PSemi or Cls.NSemi ? bodyCls : Cls.PSemi);
+        var (mR, mG, mB, _) = Classes.Color(Cls.Metal);
+        var (iR, iG, iB, _) = Classes.Color(Cls.Insulator);
+        sd.Add(0, WorldX, 0, depthY, bodyBottom, bodyTop, bR, bG, bB, aBody, edge, "sub");
+
+        // Source/drain wells: runs of columns with the same conductive type.
+        var sdTypes = new HashSet<Cls>();
+        for (int a = 0; a < n;)
+        {
+            if (depth[a] <= 0) { a++; continue; }
+            int b = a + 1;
+            while (b < n && depth[b] > 0 && kind[b] == kind[a]) b++;
+            double runDepth = 0;
+            for (int c = a; c < b; c++) runDepth = Math.Max(runDepth, depth[c]);
+            double visDepth = bodyH * Math.Max(0.12, 0.6 * runDepth / maxDepth);
+            var (r, g, bl, _) = Classes.Color(kind[a]);
+            sdTypes.Add(kind[a]);
+            string pick = piecewise ? (b <= gA ? "t:S" : a >= gB ? "t:D" : "") : "";
+            // Grow outward faces slightly so they do not z-fight with the body's coplanar faces.
+            const double eps = 0.004;
+            sd.Add(X(a) - (a == 0 ? eps : 0), X(b) + (b == n ? eps : 0), -eps, depthY + eps,
+                bodyTop - visDepth, bodyTop + 0.002, r, g, bl, aWell, tr ? 2 : 1, pick);
+            a = b;
+        }
+
+        // Gate oxide + gate electrode.
+        double topZ = bodyTop;
+        if (gate != null)
+        {
+            int mid = (gate.ColStart + gate.ColEnd) / 2;
+            var col = st.Columns[mid];
+            int gateSeg = col.Segs.FindIndex(g => g.LayerId == gate.LayerId);
+            sd.Add(X(gate.ColStart), X(gate.ColEnd), 0, depthY, bodyTop, bodyTop + oxideH, iR, iG, iB, aOx, edge,
+                $"f:{gate.ColStart}:{gate.ColEnd}:0");
+            sd.Add(X(gate.ColStart), X(gate.ColEnd), 0, depthY, bodyTop + oxideH, bodyTop + oxideH + gateH, mR, mG, mB, aMetal, edge,
+                gateSeg >= 0 ? $"f:{gate.ColStart}:{gate.ColEnd}:{gateSeg}" : "t:G");
+            topZ = bodyTop + oxideH + gateH;
+        }
+
+        // Contact plugs on the S/D wells (middle third in Y so they read as plugs, not walls).
+        foreach (var ct in st.Contacts.Where(x => x.ColEnd > x.ColStart))
+        {
+            int mid = (ct.ColStart + ct.ColEnd) / 2;
+            int seg = st.Columns[mid].Segs.FindIndex(g => g.LayerId == ct.LayerId);
+            sd.Add(X(ct.ColStart), X(ct.ColEnd), 0.4 * depthY, 0.6 * depthY, bodyTop, bodyTop + plugH, mR, mG, mB, aMetal, edge,
+                seg >= 0 ? $"f:{ct.ColStart}:{ct.ColEnd}:{seg}" : "");
+            topZ = Math.Max(topZ, bodyTop + plugH);
+        }
+
+        if (el != null)
+        {
+            // Small floating cubes above each terminal (like the Source/Gate/Drain arrows of a textbook figure).
+            double markZ0 = topZ + 0.6, markZ1 = markZ0 + 0.45;
+            void Mark(int a, int b, float r, float g, float bl, string pick)
+            {
+                if (a < 0 || b <= a) return;
+                double cx = 0.5 * (X(a) + X(b));
+                sd.Add(cx - 0.25, cx + 0.25, 0.5 * depthY - 0.25, 0.5 * depthY + 0.25, markZ0, markZ1, r, g, bl, 1, 1, pick);
+            }
+            Mark(el.GateA, el.GateB, 0.95f, 0.15f, 0.15f, "t:G");
+            Mark(el.SourceA, el.SourceB, 0.15f, 0.80f, 0.25f, "t:S");
+            Mark(el.DrainA, el.DrainB, 0.20f, 0.40f, 0.95f, "t:D");
+            if (el.Vov > 0 && !el.StructureFail)
+            {
+                float alpha = (float)Math.Min(0.9, 0.3 + el.Vov / Math.Max(1e-9, el.Vref));
+                sd.Add(X(el.GateA), X(el.GateB), 0, depthY, bodyTop - 0.08, bodyTop + 0.003, 1f, 0.92f, 0.2f, alpha, 0, "inv");
+            }
+            sd.Terminals = $"<span style=\"color:#f22\">■ G</span> <span style=\"color:#2c4\">■ S</span> <span style=\"color:#36f\">■ D</span> · {el.Applied}"
+                           + (el.Vov > 0 && !el.StructureFail ? $" · 반전층 표시(Vov {Fmt.S(el.Vov, 3)} V)" : "");
+        }
+
+        var leg = new StringBuilder();
+        if (isPreview) leg.Append("<b style=\"color:#d80\">미리보기 — 커밋되지 않음</b><br/>");
+        string bodyLabel = bodyCls is Cls.NSemi or Cls.NPlus ? "Body (n형 기판)" : bodyCls is Cls.PSemi or Cls.PPlus ? "Body (p형 기판)" : "Body (기판)";
+        leg.Append(Swatch(bR, bG, bB, bodyLabel)).Append("&nbsp; ");
+        foreach (var c in new[] { Cls.NPlus, Cls.PPlus })
+            if (sdTypes.Contains(c)) { var (r, g, b, _) = Classes.Color(c); leg.Append(Swatch(r, g, b, $"Source/Drain ({Classes.Ko(c)})")).Append("&nbsp; "); }
+        if (gate != null)
+        {
+            leg.Append(Swatch(mR, mG, mB, $"Gate ({gate.Material}, 도체)")).Append("&nbsp; ");
+            leg.Append(Swatch(iR, iG, iB, "게이트 산화막(SiO2, 절연체)")).Append("&nbsp; ");
+        }
+        if (st.Contacts.Count > 0) leg.Append(Swatch(mR, mG, mB, "컨택 플러그(도체)"));
+        leg.Append("<br/>소자 보기: 위치 관계·상대 깊이만 표시(비율 정규화). 실제 단면은 보기 ▸ 전기적 분류 보기를 끄세요.");
+        sd.LegendHtml = leg.ToString();
+        sd.ScaleText = "소자 보기(개략도) · X: 소스 | 게이트 | 드레인 구간을 같은 폭으로 정규화 · Z: 접합 깊이는 상대값";
+        return sd;
     }
 
     static SceneData BuildWafer(WaferState st, SceneOptions o, ElectricalResult? el, bool isPreview)
     {
-        var sd = new SceneData { IsPreview = isPreview, ViewKind = "wafer" };
+        var sd = new SceneData { IsPreview = isPreview, ViewKind = o.View == "device" ? "device" : "wafer" };
         int n = st.N;
         double X(int i) => i * WorldX / n;
         var fr = Frame(st);

@@ -233,3 +233,24 @@ public static class Units
     public static double KeV(double v) => v * 1.602176634e-16;
     public static double RpmToRadPerS(double v) => v * 2 * Math.PI / 60;
 }
+
+/// <summary>Adapts validated dynamic forms to immutable, process-specific inputs.</summary>
+public abstract class ProcessBase<T> : ProcessBase where T : IProcessParameters
+{
+    protected abstract T Bind(Recipe recipe);
+    protected static double Required(double? value,
+        [System.Runtime.CompilerServices.CallerArgumentExpression("value")] string? field = null) =>
+        value ?? throw new InvalidOperationException($"Missing active parameter: {field}");
+    public sealed override void Cross(Recipe r, Ctx c, List<Err> e) => Cross(Bind(r), c, e);
+    public virtual void Cross(T r, Ctx c, List<Err> e) { }
+    public sealed override void Preconditions(Recipe r, Ctx c, List<Err> e) => Preconditions(Bind(r), c, e);
+    public virtual void Preconditions(T r, Ctx c, List<Err> e) { }
+    public sealed override void Interlock(Recipe r, Ctx c, List<Err> e) => Interlock(Bind(r), c, e);
+    public virtual void Interlock(T r, Ctx c, List<Err> e) { }
+    public sealed override void Domain(Recipe r, Ctx c, List<Err> e) => Domain(Bind(r), c, e);
+    public virtual void Domain(T r, Ctx c, List<Err> e) { }
+    public sealed override Output Calculate(Recipe r, Ctx c, CancellationToken t) => Calculate(Bind(r), c, t);
+    public abstract Output Calculate(T r, Ctx c, CancellationToken t);
+    public sealed override List<Criterion> Criteria(Recipe r, Ctx c, Output o) => Criteria(Bind(r), c, o);
+    public abstract List<Criterion> Criteria(T r, Ctx c, Output o);
+}

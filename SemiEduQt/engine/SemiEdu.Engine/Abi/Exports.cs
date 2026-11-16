@@ -69,16 +69,15 @@ public static unsafe class Exports
     [UnmanagedCallersOnly(EntryPoint = "se_form", CallConvs = new[] { typeof(CallConvCdecl) })]
     public static byte* Form(IntPtr h, byte* processId, byte* valuesJson)
     {
-        string? pid = In(processId), vals = In(valuesJson);
-        return Locked(h, s => Api.Form(s, pid ?? "", vals));
+        return Locked(h, s => Api.Form(s, In(processId) ?? "", In(valuesJson)));
     }
 
     [UnmanagedCallersOnly(EntryPoint = "se_run", CallConvs = new[] { typeof(CallConvCdecl) })]
     public static byte* Run(IntPtr h, byte* processId, byte* valuesJson, byte* equipmentJson, int commit, long expectedRevision)
     {
-        string? pid = In(processId), vals = In(valuesJson), eq = In(equipmentJson);
         return Locked(h, s =>
         {
+            string? pid = In(processId), vals = In(valuesJson), eq = In(equipmentJson);
             using var cts = new CancellationTokenSource();
             s.Cts = cts;
             try { return Api.Run(s, pid ?? "", vals, eq, commit != 0, expectedRevision, cts.Token); }
@@ -96,14 +95,17 @@ public static unsafe class Exports
     [UnmanagedCallersOnly(EntryPoint = "se_undo", CallConvs = new[] { typeof(CallConvCdecl) })]
     public static byte* UndoExport(IntPtr h) => Locked(h, Api.Undo);
 
+    [UnmanagedCallersOnly(EntryPoint = "se_undo_to", CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static byte* UndoToExport(IntPtr h, byte* runId, long expectedUndoRevision) =>
+        Locked(h, s => Api.UndoTo(s, In(runId) ?? "", expectedUndoRevision));
+
     [UnmanagedCallersOnly(EntryPoint = "se_state", CallConvs = new[] { typeof(CallConvCdecl) })]
     public static byte* StateExport(IntPtr h) => Locked(h, Api.State);
 
     [UnmanagedCallersOnly(EntryPoint = "se_scene_meta", CallConvs = new[] { typeof(CallConvCdecl) })]
     public static byte* SceneMeta(IntPtr h, byte* optionsJson)
     {
-        string? opts = In(optionsJson);
-        return Locked(h, s => Api.SceneMeta(s, opts));
+        return Locked(h, s => Api.SceneMeta(s, In(optionsJson)));
     }
 
     [UnmanagedCallersOnly(EntryPoint = "se_scene_boxes", CallConvs = new[] { typeof(CallConvCdecl) })]

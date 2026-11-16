@@ -47,6 +47,8 @@ qt_add_qml_module(SemiEduApp
         app/viewmodels/AppViewModel.cpp
         app/render/WaferView.h
         app/render/WaferView.cpp
+        app/render/BoxRenderer.h
+        app/render/BoxRenderer.cpp
         app/render/PlotItem.h
         app/render/PlotItem.cpp
 )
@@ -55,6 +57,32 @@ qt_add_qml_module(SemiEduApp
 target_include_directories(SemiEduApp PRIVATE app app/viewmodels app/render engine)
 target_link_libraries(SemiEduApp PRIVATE
     Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::OpenGL Qt6::Concurrent)
+
+option(SEMIEDU_BUILD_VIEWMODEL_TESTS "Build undo and layer selection integration checks" OFF)
+if(SEMIEDU_BUILD_VIEWMODEL_TESTS)
+    enable_testing()
+    add_executable(SemiEduViewModelTests
+        app/viewmodels/tests/SelectionTests.cpp
+        app/engine/EngineClient.cpp
+        app/viewmodels/ListModels.cpp
+        app/viewmodels/ProcessEditorViewModel.cpp
+        app/viewmodels/ResultViewModels.cpp
+        app/viewmodels/AppViewModel.cpp)
+    target_include_directories(SemiEduViewModelTests PRIVATE app app/viewmodels engine)
+    target_link_libraries(SemiEduViewModelTests PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Concurrent)
+    add_test(NAME SemiEduViewModelTests COMMAND SemiEduViewModelTests "${CMAKE_CURRENT_SOURCE_DIR}/scripts/path5-process-only.json")
+endif()
+
+option(SEMIEDU_BUILD_RENDER_TESTS "Build OpenGL renderer checks and synthetic workload measurements" OFF)
+if(SEMIEDU_BUILD_RENDER_TESTS)
+    enable_testing()
+    add_executable(SemiEduRenderTests
+        app/render/tests/RenderTests.cpp
+        app/render/BoxRenderer.cpp)
+    target_include_directories(SemiEduRenderTests PRIVATE app/render)
+    target_link_libraries(SemiEduRenderTests PRIVATE Qt6::Core Qt6::Gui Qt6::OpenGL)
+    add_test(NAME SemiEduRenderTests COMMAND SemiEduRenderTests)
+endif()
 
 # Learning-path scripts next to the exe (File ▸ 학습 경로 열기 starts in this folder).
 add_custom_command(TARGET SemiEduApp POST_BUILD

@@ -1,0 +1,11 @@
+{
+  "description": "NMOS 준비 및 이온주입: 초기화 → Gate 마스크 → 게이트 산화 → W 게이트 → As 자기정렬 주입. 주입 직후 상태에서 종료하며 열처리·컨택·트랜지스터 전기 검사는 실행하지 않습니다.",
+  "select": "implant",
+  "steps": [
+    { "processId": "init", "values": { "dopingType": "P-type", "backgroundDoping": "1e15", "startSurface": "BareSi", "domainWidth": "25.6" } },
+    { "processId": "mask", "values": { "maskLayer": "Gate", "designClearWidth": "1000", "offset": "9.5", "repeatCount": "1" } },
+    { "processId": "oxidation", "values": { "method": "Dry", "temperature": "900", "duration": "10", "pressure": "760", "targetThickness": "9.4" } },
+    { "processId": "metal", "values": { "metal": "W", "role": "Gate", "maskId": "Gate-1", "thickness": "300", "length": "10" } },
+    { "processId": "implant", "values": { "species": "As", "energy": "50", "implantDose": "1e14", "tilt": "0", "targetDepth": "50" } }
+  ]
+}

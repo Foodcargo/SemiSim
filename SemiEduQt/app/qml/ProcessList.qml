@@ -14,10 +14,24 @@ Rectangle {
         anchors.margins: 8
         spacing: 6
 
-        SectionHeader {
+        RowLayout {
             Layout.fillWidth: true
-            title: "Process Navigator"
-            trailing: "8대 공정"
+            spacing: 4
+            SectionHeader {
+                Layout.fillWidth: true
+                title: "Process Navigator"
+            }
+            ToolButton {
+                text: "↶"
+                font.pixelSize: 22
+                implicitWidth: 34
+                implicitHeight: 32
+                enabled: root.app.canUndoSelected
+                Accessible.name: "Undo selected process"
+                ToolTip.visible: hovered
+                ToolTip.text: "Undo the latest completed run of the selected process"
+                onClicked: root.app.requestUndoSelected()
+            }
         }
 
         Rectangle {
@@ -37,7 +51,7 @@ Rectangle {
                 section.delegate: Label {
                     required property string section
                     width: ListView.view.width
-                    text: "⌄  " + section
+                    text: "⌄  " + Theme.english(section)
                     color: Theme.text
                     topPadding: 6
                     bottomPadding: 2
@@ -52,7 +66,7 @@ Rectangle {
                     Label {
                         anchors.verticalCenter: parent.verticalCenter
                         x: 34
-                        text: model.name + (model.enabled ? "" : "  (비활성 · 범위 밖)")
+                        text: Theme.english(model.name) + (model.enabled ? "" : "  (Out of Scope)")
                         color: !model.enabled ? Theme.textFaint : parent.current ? "#ffffff" : Theme.text
                         font.pixelSize: 13
                     }
@@ -64,7 +78,7 @@ Rectangle {
                         onClicked: root.app.selectProcess(model.processId)
                     }
                     ToolTip.visible: mouse.containsMouse && model.reason !== ""
-                    ToolTip.text: model.reason
+                    ToolTip.text: model.enabled ? model.reason : "Packaging is outside the current specification."
                 }
             }
         }
@@ -72,10 +86,54 @@ Rectangle {
         Label {
             Layout.fillWidth: true
             visible: root.app.lastRunFailed
-            text: "직전 공정이 품질 불량입니다. 다음 공정은 ‘불량 상태로 계속 학습’을 켜야 진행됩니다(초기화·마스크 제작 제외)."
+            text: "The previous process failed quality checks. Enable Continue on Failure to proceed (except initialization and mask fabrication)."
             color: Theme.warn
             wrapMode: Text.Wrap
             font.pixelSize: 11
         }
+    }
+
+    Connections {
+        target: root.app
+        function onUndoConfirmationRequested(processName, laterCount) {
+            confirmUndo.processName = Theme.english(processName)
+            confirmUndo.laterCount = laterCount
+            confirmUndo.open()
+        }
+        function onUndoError(message) {
+            undoError.message = message
+            undoError.open()
+        }
+    }
+    Dialog {
+        id: confirmUndo
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        width: Math.min(480, parent ? parent.width - 40 : 480)
+        modal: true
+        title: "Undo Process"
+        property string processName: ""
+        property int laterCount: 0
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        closePolicy: Popup.CloseOnEscape
+        contentItem: Label {
+            text: "Undo " + confirmUndo.processName + " and " + confirmUndo.laterCount
+                  + " later process run(s)?\n\nTheir layers, masks and results may be removed. Earlier processes will be kept."
+            wrapMode: Text.Wrap
+            color: Theme.text
+        }
+        onAccepted: root.app.confirmUndoSelected()
+        onRejected: root.app.discardUndoRequest()
+    }
+    Dialog {
+        id: undoError
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        width: Math.min(480, parent ? parent.width - 40 : 480)
+        modal: true
+        title: "Unable to Undo"
+        property string message: ""
+        standardButtons: Dialog.Ok
+        contentItem: Label { text: undoError.message; wrapMode: Text.Wrap; color: Theme.text }
     }
 }

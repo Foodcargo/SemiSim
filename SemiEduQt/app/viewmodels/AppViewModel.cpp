@@ -7,6 +7,7 @@
 #include <QFutureWatcher>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMap>
 #include <QSaveFile>
 #include <QTextStream>
 #include <QtConcurrent/QtConcurrentRun>
@@ -22,7 +23,7 @@ AppViewModel::AppViewModel(EngineClient *engine, ProcessEditorViewModel *editor,
 {
     m_layers->setRoles({"layerId", "material", "materialKo", "color", "origin", "thicknessText", "coverage"});
     m_processes->setRoles({"group", "processId", "name", "enabled", "reason"});
-    m_history->setRoles({"runId", "name", "statusText", "statusKind", "time", "physical"});
+    m_history->setRoles({"runId", "name", "statusText", "statusKind", "time", "physical", "undone", "inputDetails"});
     connect(m_editor, &ProcessEditorViewModel::runRequested, this, &AppViewModel::execute);
     m_ready = m_engine->ready();
     if (!m_ready) {
@@ -30,7 +31,7 @@ AppViewModel::AppViewModel(EngineClient *engine, ProcessEditorViewModel *editor,
         return;
     }
     const auto v = m_engine->versionInfo();
-    m_banner = QStringLiteral("검증되지 않은 교육용 예시 모델 · SemiEdu.Engine %1 (ABI %2, 모델 %3) · 실제 제조 레시피·장비 제어·수율 예측용이 아닙니다")
+    m_banner = QStringLiteral("SemiEdu.Engine %1 · ABI %2 · Model %3")
                    .arg(v.value(QStringLiteral("engineVersion")).toString())
                    .arg(v.value(QStringLiteral("abiVersion")).toInt())
                    .arg(v.value(QStringLiteral("modelVersion")).toString());
@@ -92,6 +93,7 @@ void AppViewModel::setBusy(bool b)
     m_busy = b;
     m_editor->setBusy(b);
     emit busyChanged();
+    emit undoSelectionChanged();
 }
 
 void AppViewModel::selectProcess(const QString &processId)
@@ -99,8 +101,10 @@ void AppViewModel::selectProcess(const QString &processId)
     if (m_busy || !m_ready) return;
     m_current = processId;
     emit currentProcessIdChanged();
+    emit undoSelectionChanged();
     m_editor->setProcess(processId);
-    m_scene->setViewKind(processId == QStringLiteral("mask") ? QStringLiteral("mask") : QStringLiteral("wafer"));
+    m_scene->setViewKind(processId == QStringLiteral("mask") ? QStringLiteral("mask")
+                         : processId == QStringLiteral("transistor") ? QStringLiteral("device") : QStringLiteral("wafer"));
     if (processId == QStringLiteral("transistor")) m_scene->setClassificationView(true);
     m_scene->refresh(false);
 }
@@ -108,11 +112,79 @@ void AppViewModel::selectProcess(const QString &processId)
 void AppViewModel::undo()
 {
     if (m_busy || !m_ready) return;
-    m_engine->undo();
-    refreshState();
-    m_scene->refresh(false);
-    m_result->setObjects(m_engine->objects());
-    m_editor->refreshNow();
+    const auto response = m_engine->undo();
+    if (!response.value(QStringLiteral("ok")).toBool()) return;
+    m_lastRun = {};
+    afterExternalChange(m_current);
+}
+
+int AppViewModel::selectedUndoIndex() const
+{
+    for (int i = int(m_activeRuns.size()) - 1; i >= 0; --i)
+        if (m_activeRuns[i].toObject().value(QStringLiteral("processId")).toString() == m_current) return i;
+    return -1;
+}
+
+bool AppViewModel::canUndoSelected() const
+{
+    return m_ready && !m_busy && m_engine->supportsUndoTo() && selectedUndoIndex() >= 0;
+}
+
+void AppViewModel::requestUndoSelected()
+{
+    if (!canUndoSelected()) return;
+    const int index = selectedUndoIndex();
+    const auto run = m_activeRuns[index].toObject();
+    m_pendingUndoRun = run.value(QStringLiteral("runId")).toString();
+    m_pendingUndoRevision = m_undoRevision;
+    const int laterCount = int(m_activeRuns.size()) - index - 1;
+    if (laterCount > 0) emit undoConfirmationRequested(run.value(QStringLiteral("name")).toString(), laterCount);
+    else confirmUndoSelected();
+}
+
+void AppViewModel::confirmUndoSelected()
+{
+    if (m_busy || !m_ready || m_pendingUndoRun.isEmpty()) return;
+    const auto response = m_engine->undoTo(m_pendingUndoRun, m_pendingUndoRevision);
+    m_pendingUndoRun.clear();
+    if (!response.value(QStringLiteral("ok")).toBool()) {
+        refreshState();
+        emit undoError(response.value(QStringLiteral("error")).toObject().value(QStringLiteral("MessageKo")).toString());
+        return;
+    }
+    m_lastRun = {};
+    afterExternalChange(m_current);
+}
+
+void AppViewModel::selectLayer(const QString &layerId)
+{
+    const QMap<QString, QString> names{
+        {QStringLiteral("Si"), QStringLiteral("Silicon")},
+        {QStringLiteral("SiO2"), QStringLiteral("Silicon Dioxide")},
+        {QStringLiteral("Si3N4"), QStringLiteral("Silicon Nitride")},
+        {QStringLiteral("PR"), QStringLiteral("Photoresist")},
+        {QStringLiteral("Al"), QStringLiteral("Aluminum")},
+        {QStringLiteral("Cu"), QStringLiteral("Copper")},
+        {QStringLiteral("W"), QStringLiteral("Tungsten")},
+        {QStringLiteral("TiN"), QStringLiteral("Titanium Nitride")},
+    };
+    QString selected, description;
+    for (const auto &value : m_layersRaw) {
+        const auto layer = value.toObject();
+        if (layer.value(QStringLiteral("layerId")).toString() != layerId) continue;
+        selected = layerId;
+        const QString material = layer.value(QStringLiteral("material")).toString();
+        description = QStringLiteral("%1 | Material: %2 (%3) | %4 | Coverage: %5")
+            .arg(layerId, names.value(material, material), material,
+                 layer.value(QStringLiteral("thicknessText")).toString(),
+                 layer.value(QStringLiteral("coverage")).toString());
+        if (layerId == QStringLiteral("SUB")) description += QStringLiteral(" | Silicon substrate; only the upper cross-section is shown.");
+        else description += QStringLiteral(" | Created by: ") + layer.value(QStringLiteral("origin")).toString();
+        break;
+    }
+    if (selected == m_selectedLayer && description == m_selectedLayerText) return;
+    m_selectedLayer = selected; m_selectedLayerText = description;
+    emit layerSelectionChanged();
 }
 
 void AppViewModel::cancel()
@@ -155,6 +227,8 @@ void AppViewModel::refreshState()
 {
     const QJsonObject st = m_engine->state();
     m_revision = st.value(QStringLiteral("revision")).toInteger();
+    m_undoRevision = st.value(QStringLiteral("undoRevision")).toInteger();
+    m_activeRuns = st.value(QStringLiteral("activeRuns")).toArray();
     m_canUndo = st.value(QStringLiteral("canUndo")).toBool();
     m_lastFailed = st.value(QStringLiteral("lastRunFailed")).toBool();
     QJsonArray hist = st.value(QStringLiteral("history")).toArray();
@@ -171,9 +245,12 @@ void AppViewModel::refreshState()
                               {QStringLiteral("thicknessText"), QStringLiteral("상부만 표시")},
                               {QStringLiteral("coverage"), QStringLiteral("전체")}});
     for (const auto &v : st.value(QStringLiteral("layers")).toArray()) layers.append(v);
+    m_layersRaw = layers;
     m_layers->setItems(layers);
+    selectLayer(m_selectedLayer); // Clear removed layers; refresh descriptions for changed thicknesses.
     m_maskCount = int(st.value(QStringLiteral("masks")).toArray().size());
     emit stateChanged();
+    emit undoSelectionChanged();
 }
 
 // ---------------- menu commands ----------------

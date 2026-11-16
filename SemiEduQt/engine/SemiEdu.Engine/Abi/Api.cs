@@ -5,8 +5,8 @@ using System.Text.Json;
 namespace SemiEdu.Engine;
 
 /// <summary>
-/// Managed implementation of the C ABI. JSON is produced with Utf8JsonWriter and parsed with JsonDocument
-/// (no reflection-based serialization, NativeAOT-safe). Every entry point returns {"ok":true,...} or {"ok":false,"error":{...}}.
+/// Managed implementation of the C ABI. Responses use source-generated JSON metadata and an explicit
+/// field converter; requests use JsonDocument (no reflection). Responses have an ok/error envelope.
 /// </summary>
 public static class Api
 {
@@ -15,18 +15,14 @@ public static class Api
     public const string ModelVersion = "edu-1.0";
     public const string EducationalNote = "검증되지 않은 교육용 예시 모델";
 
-    static readonly JsonWriterOptions WriterOptions = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+    static readonly EngineJsonContext JsonContext = new(new JsonSerializerOptions
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    });
 
     static string Write(Action<Utf8JsonWriter> body)
     {
-        using var ms = new MemoryStream();
-        using (var w = new Utf8JsonWriter(ms, WriterOptions))
-        {
-            w.WriteStartObject();
-            body(w);
-            w.WriteEndObject();
-        }
-        return Encoding.UTF8.GetString(ms.ToArray());
+        return JsonSerializer.Serialize(new EngineResponse(body), JsonContext.EngineResponse);
     }
 
     public static string Error(string code, string message) => Write(w =>
@@ -66,9 +62,6 @@ public static class Api
             values[p.Name] = p.Value.ValueKind switch
             {
                 JsonValueKind.String => p.Value.GetString() ?? "",
-                JsonValueKind.Number => p.Value.GetRawText(),
-                JsonValueKind.True => "true",
-                JsonValueKind.False => "false",
                 _ => throw new JsonException($"'{p.Name}' 값은 문자열이어야 합니다."),
             };
         }
@@ -377,12 +370,38 @@ public static class Api
         });
     });
 
+    public static string UndoTo(Session s, string runId, long expectedUndoRevision) => Guard(() =>
+    {
+        int count = s.UndoTo(runId, expectedUndoRevision);
+        if (count < 0) return Error("STALE_UNDO", "실행 이력이 변경되었습니다. 취소할 공정을 다시 선택하세요.");
+        if (count == 0) return Error("RUN_NOT_ACTIVE", "이미 취소되었거나 현재 경로에 없는 실행입니다.");
+        return Write(w =>
+        {
+            w.WriteBoolean("ok", true);
+            w.WriteNumber("undoneCount", count);
+            w.WriteNumber("revision", s.Revision);
+            w.WriteNumber("undoRevision", s.UndoRevision);
+            w.WriteString("stateId", s.Current.StateId.ToString());
+        });
+    });
+
     public static string State(Session s) => Guard(() => Write(w =>
     {
         var st = s.Current;
         w.WriteBoolean("ok", true);
         w.WriteNumber("revision", s.Revision);
         w.WriteString("stateId", st.StateId.ToString());
+        w.WriteNumber("undoRevision", s.UndoRevision);
+        w.WriteStartArray("activeRuns");
+        foreach (var run in s.ActiveRuns)
+        {
+            w.WriteStartObject();
+            w.WriteString("runId", run.RunId);
+            w.WriteString("processId", run.ProcessId);
+            w.WriteString("name", run.ProcessName);
+            w.WriteEndObject();
+        }
+        w.WriteEndArray();
         w.WriteString("parentStateId", st.ParentStateId?.ToString() ?? "");
         w.WriteBoolean("canUndo", s.CanUndo);
         w.WriteBoolean("lastRunFailed", st.LastRunFailed);
@@ -433,6 +452,8 @@ public static class Api
             w.WriteString("statusText", h.StatusText);
             w.WriteString("time", h.StartedUtc.ToLocalTime().ToString("HH:mm:ss"));
             w.WriteBoolean("physical", h.PhysicalChange);
+            w.WriteBoolean("undone", h.Undone);
+            w.WriteString("inputDetails", h.InputDetails);
             w.WriteString("afterStateId", h.AfterStateId?.ToString() ?? "");
             w.WriteEndObject();
         }

@@ -1,7 +1,9 @@
 namespace SemiEdu.Engine;
 
-public sealed class EtchProcess : ProcessBase
+public sealed class EtchProcess : ProcessBase<EtchParameters>
 {
+    protected override EtchParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "etch";
     public override string Group => "④ 식각";
     public override string Name => "식각";
@@ -39,13 +41,13 @@ public sealed class EtchProcess : ProcessBase
 
     public override string EquipmentId => "DryEtchEdu/WetEtchEdu";
 
-    static double Rate(Recipe r)
+    static double Rate(EtchParameters r)
     {
-        double r0 = r.E("targetMaterial") switch { Mat.SiO2 => 1.0, Mat.Si3N4 => 0.5, _ => 1.5 };
-        double T = r.N("temperature");
-        double f = r.E("method") == "Dry"
-            ? Math.Sqrt(r.N("rfPower") / 300) * Math.Pow(50 / r.N("pressure"), 0.2) * Math.Pow(r.N("flow") / 100, 0.2) * Math.Exp((T - 25) / 200)
-            : Math.Sqrt(r.N("concentration") / 5) * Math.Exp((T - 25) / 50);
+        double r0 = r.TargetMaterial switch { Mat.SiO2 => 1.0, Mat.Si3N4 => 0.5, _ => 1.5 };
+        double T = Required(r.Temperature);
+        double f = r.Method == "Dry"
+            ? Math.Sqrt(Required(r.RfPower) / 300) * Math.Pow(50 / Required(r.Pressure), 0.2) * Math.Pow(Required(r.Flow) / 100, 0.2) * Math.Exp((T - 25) / 200)
+            : Math.Sqrt(Required(r.Concentration) / 5) * Math.Exp((T - 25) / 50);
         return r0 * f;
     }
 
@@ -56,11 +58,11 @@ public sealed class EtchProcess : ProcessBase
         return Mat.Si;
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(EtchParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
-        bool pat = r.E("scope") == "Patterned";
-        string tgt = r.E("targetMaterial");
+        bool pat = r.Scope == "Patterned";
+        string tgt = r.TargetMaterial;
         if (pat && (s.Resist == null || !s.Resist.Open.Any(x => x) || !s.HasPR))
             Pre(e, "NO_PR_OPENING", "Patterned 식각에는 PR 개구부가 필요합니다.", "포토 공정을 먼저 수행하세요.");
         if (!pat && s.HasPR) Pre(e, "PR_PRESENT_BLANKET", "Blanket 식각은 PR이 없어야 합니다.", "PRStrip 후 실행하거나 Patterned를 선택하세요.");
@@ -77,29 +79,29 @@ public sealed class EtchProcess : ProcessBase
         if (!exposed) Pre(e, "TARGET_NOT_EXPOSED", $"식각 영역 표면에 대상 재료 {tgt}이(가) 노출되어 있지 않습니다.", "대상 재료를 확인하세요.");
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(EtchParameters r, Ctx c, List<Err> e)
     {
-        if (r.E("method") == "Dry")
+        if (r.Method == "Dry")
         {
-            double p = r.N("pressure"), rf = r.N("rfPower");
+            double p = Required(r.Pressure), rf = Required(r.RfPower);
             if (p < 5 || p > 300) Ilk(e, "DRY_ETCH_PRESSURE_LIMIT", "pressure", p, "5–300 mTorr", "DryEtchEdu 압력 운전 한계를 벗어났습니다.");
             if (rf > 1000) Ilk(e, "DRY_ETCH_RF_LIMIT", "rfPower", rf, "≤ 1000 W", "DryEtchEdu RF 전력 한계를 넘었습니다.");
         }
-        else if (r.N("temperature") > 80) Ilk(e, "WET_ETCH_TEMPERATURE_LIMIT", "temperature", r.N("temperature"), "≤ 80 °C", "WetEtchEdu 약액 온도 한계를 넘었습니다.");
+        else if (Required(r.Temperature) > 80) Ilk(e, "WET_ETCH_TEMPERATURE_LIMIT", "temperature", Required(r.Temperature), "≤ 80 °C", "WetEtchEdu 약액 온도 한계를 넘었습니다.");
     }
 
-    public override void Domain(Recipe r, Ctx c, List<Err> e)
+    public override void Domain(EtchParameters r, Ctx c, List<Err> e)
     {
-        if (r.E("targetMaterial") == Mat.Si && Rate(r) * r.N("duration") >= c.State.SubstrateThicknessUm * 1000)
+        if (r.TargetMaterial == Mat.Si && Rate(r) * Required(r.Duration) >= c.State.SubstrateThicknessUm * 1000)
             Dom(e, "SUBSTRATE_PENETRATION", "기판 관통은 모델 범위 밖입니다.", "식각 시간을 줄이세요.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(EtchParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
-        bool pat = r.E("scope") == "Patterned", dry = r.E("method") == "Dry";
-        string tgt = r.E("targetMaterial");
-        double R = Rate(r), prRate = R / (dry ? 5 : 10), dur = r.N("duration");
+        bool pat = r.Scope == "Patterned", dry = r.Method == "Dry";
+        string tgt = r.TargetMaterial;
+        double R = Rate(r), prRate = R / (dry ? 5 : 10), dur = Required(r.Duration);
         bool[] evaluated = pat ? (bool[])s.Resist!.Open.Clone() : Enumerable.Repeat(true, s.N).ToArray();
         bool stop = false;
         int depleted = 0, nEval = 0;
@@ -158,16 +160,18 @@ public sealed class EtchProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o)
+    public override List<Criterion> Criteria(EtchParameters r, Ctx c, Output o)
     {
-        var list = new List<Criterion> { new("etchDepth", CK.RelTarget, r.N("targetEtchDepth"), r.N("etchTolerance")) };
-        if (r.E("scope") == "Patterned") list.Add(new("protectedPrDepletedColumns", CK.Max, 0));
+        var list = new List<Criterion> { new("etchDepth", CK.RelTarget, Required(r.TargetEtchDepth), Required(r.EtchTolerance)) };
+        if (r.Scope == "Patterned") list.Add(new("protectedPrDepletedColumns", CK.Max, 0));
         return list;
     }
 }
 
-public sealed class CleanProcess : ProcessBase
+public sealed class CleanProcess : ProcessBase<CleanParameters>
 {
+    protected override CleanParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "clean";
     public override string Group => "④ 식각";
     public override string Name => "세정·PR 제거";
@@ -192,33 +196,33 @@ public sealed class CleanProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(CleanParameters r, Ctx c, List<Err> e)
     {
-        if (r.E("purpose") == "PRStrip" && !c.State.HasPR) Pre(e, "NO_PR", "PRStrip은 PR이 있을 때만 실행할 수 있습니다.", "SurfaceClean을 선택하세요.");
+        if (r.Purpose == "PRStrip" && !c.State.HasPR) Pre(e, "NO_PR", "PRStrip은 PR이 있을 때만 실행할 수 있습니다.", "SurfaceClean을 선택하세요.");
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(CleanParameters r, Ctx c, List<Err> e)
     {
-        if (r.E("method") == "Wet")
+        if (r.Method == "Wet")
         {
-            if (r.N("temperature") > 80) Ilk(e, "WET_CLEAN_TEMPERATURE_LIMIT", "temperature", r.N("temperature"), "≤ 80 °C", "WetCleanEdu 온도 한계를 넘었습니다.");
+            if (Required(r.Temperature) > 80) Ilk(e, "WET_CLEAN_TEMPERATURE_LIMIT", "temperature", Required(r.Temperature), "≤ 80 °C", "WetCleanEdu 온도 한계를 넘었습니다.");
         }
-        else if (r.N("power") > 300) Ilk(e, "DRY_CLEAN_POWER_LIMIT", "power", r.N("power"), "≤ 300 W", "DryCleanEdu 전력 한계를 넘었습니다.");
+        else if (Required(r.Power) > 300) Ilk(e, "DRY_CLEAN_POWER_LIMIT", "power", Required(r.Power), "≤ 300 W", "DryCleanEdu 전력 한계를 넘었습니다.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(CleanParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
-        bool wet = r.E("method") == "Wet";
-        double T = r.N("temperature"), time = r.N("duration");
+        bool wet = r.Method == "Wet";
+        double T = Required(r.Temperature), time = Required(r.Duration);
         double factor = wet
-            ? Math.Sqrt(r.N("concentration") / 5) * Math.Exp((T - 25) / 100)
-            : Math.Sqrt(r.N("power") / 100) * Math.Pow(100 / r.N("pressure"), 0.1) * Math.Exp((T - 80) / 200);
+            ? Math.Sqrt(Required(r.Concentration) / 5) * Math.Exp((T - 25) / 100)
+            : Math.Sqrt(Required(r.Power) / 100) * Math.Pow(100 / Required(r.Pressure), 0.1) * Math.Exp((T - 80) / 200);
         double before = s.Contamination;
         s.Contamination = before * Math.Exp(-0.02 * factor * time);
         var o = new Output { Candidate = s };
         o.M("contamination", "오염 지수", s.Contamination, "점");
-        if (r.E("purpose") == "PRStrip")
+        if (r.Purpose == "PRStrip")
         {
             double removal = 10 * factor * time, maxResid = 0;
             foreach (var col in s.Columns)
@@ -242,16 +246,18 @@ public sealed class CleanProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o)
+    public override List<Criterion> Criteria(CleanParameters r, Ctx c, Output o)
     {
-        var list = new List<Criterion> { new("contamination", CK.Max, r.N("maxContamination")) };
-        if (r.E("purpose") == "PRStrip") list.Add(new("prResidualMax", CK.Max, r.N("maxPrResidual")));
+        var list = new List<Criterion> { new("contamination", CK.Max, Required(r.MaxContamination)) };
+        if (r.Purpose == "PRStrip") list.Add(new("prResidualMax", CK.Max, Required(r.MaxPrResidual)));
         return list;
     }
 }
 
-public sealed class DepositionProcess : ProcessBase
+public sealed class DepositionProcess : ProcessBase<DepositionParameters>
 {
+    protected override DepositionParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "deposition";
     public override string Group => "⑤ 증착·이온주입";
     public override string Name => "증착(CVD/PVD/ALD)";
@@ -287,95 +293,97 @@ public sealed class DepositionProcess : ProcessBase
     };
     public override IReadOnlyList<ParamDef> Params => Ps;
 
-    public static double Thickness(Recipe r)
+    public static double Thickness(DepositionParameters r)
     {
-        string m = r.E("method"), mat = r.E("material");
-        double T = r.N("temperature"), P = r.N("pressure");
+        string m = r.Method, mat = r.Material;
+        double T = Required(r.Temperature), P = Required(r.Pressure);
         switch (m)
         {
             case "CVD":
             {
                 double r0 = mat == Mat.SiO2 ? 10 : 8;
-                return r0 * Math.Exp((T - 400) / 300) * Math.Pow(P / 1, 0.1) * Math.Pow(r.N("flow") / 100, 0.2) * r.N("duration");
+                return r0 * Math.Exp((T - 400) / 300) * Math.Pow(P / 1, 0.1) * Math.Pow(Required(r.Flow) / 100, 0.2) * Required(r.Duration);
             }
             case "PVD":
             {
                 double r0 = mat == Mat.Al ? 20 : 10;
-                return r0 * (r.N("power") / 500) * Math.Pow(0.01 / P, 0.1) * Math.Exp((T - 100) / 500) * r.N("duration");
+                return r0 * (Required(r.Power) / 500) * Math.Pow(0.01 / P, 0.1) * Math.Exp((T - 100) / 500) * Required(r.Duration);
             }
             default:
             {
                 double gpc = mat == Mat.SiO2 ? 0.10 : 0.05;
-                double sat = Math.Min(1, r.N("pulseTime") / 1);
+                double sat = Math.Min(1, Required(r.PulseTime) / 1);
                 double thermal = Math.Exp(-Math.Pow((T - 200) / 100, 2));
-                return gpc * r.N("cycles") * sat * thermal * Math.Pow(P / 1, 0.05);
+                return gpc * Required(r.Cycles) * sat * thermal * Math.Pow(P / 1, 0.05);
             }
         }
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(DepositionParameters r, Ctx c, List<Err> e)
     {
         if (c.State.HasPR) Pre(e, "PR_PRESENT", "PR이 있으면 증착할 수 없습니다(v1).", "PRStrip을 먼저 수행하세요.");
         if (!c.State.IsUniform()) Pre(e, "NOT_PLANAR", "v1 증착은 평탄 표면에 수직 막 추가만 지원합니다(단차 피복 모델 없음).", "평탄한 상태에서 증착하세요.");
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(DepositionParameters r, Ctx c, List<Err> e)
     {
-        double T = r.N("temperature"), P = r.N("pressure");
-        switch (r.E("method"))
+        double T = Required(r.Temperature), P = Required(r.Pressure);
+        switch (r.Method)
         {
             case "CVD":
                 if (T > 800) Ilk(e, "CVD_TEMPERATURE_LIMIT", "temperature", T, "≤ 800 °C", "CvdEdu 온도 한계를 넘었습니다.");
                 if (P > 100) Ilk(e, "CVD_PRESSURE_LIMIT", "pressure", P, "≤ 100 Torr", "CvdEdu 압력 한계를 넘었습니다.");
                 break;
             case "PVD":
-                if (r.N("power") > 1500) Ilk(e, "PVD_POWER_LIMIT", "power", r.N("power"), "≤ 1500 W", "PvdEdu 전력 한계를 넘었습니다.");
+                if (Required(r.Power) > 1500) Ilk(e, "PVD_POWER_LIMIT", "power", Required(r.Power), "≤ 1500 W", "PvdEdu 전력 한계를 넘었습니다.");
                 break;
             default:
                 if (T > 350) Ilk(e, "ALD_TEMPERATURE_LIMIT", "temperature", T, "≤ 350 °C", "AldEdu 온도 한계를 넘었습니다.");
-                if (r.N("cycles") > 3000) Ilk(e, "ALD_CYCLE_LIMIT", "cycles", r.N("cycles"), "≤ 3000", "AldEdu 사이클 한계를 넘었습니다.");
+                if (Required(r.Cycles) > 3000) Ilk(e, "ALD_CYCLE_LIMIT", "cycles", Required(r.Cycles), "≤ 3000", "AldEdu 사이클 한계를 넘었습니다.");
                 break;
         }
     }
 
-    public override void Domain(Recipe r, Ctx c, List<Err> e)
+    public override void Domain(DepositionParameters r, Ctx c, List<Err> e)
     {
         double th = Thickness(r);
         if (th > 10000) Dom(e, "FILM_TOO_THICK", $"새 막 두께 {F(th)} nm가 모델 한계 10000 nm를 넘습니다.", "시간이나 사이클을 줄이세요.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(DepositionParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
         double th = Thickness(r);
-        string mat = r.E("material");
-        var id = s.NewLayer(mat, "deposition-" + r.E("method"));
+        string mat = r.Material;
+        var id = s.NewLayer(mat, "deposition-" + r.Method);
         foreach (var col in s.Columns) col.Segs.Add(new Seg { Material = mat, Thickness = th, LayerId = id });
         var per = s.Columns.Select(col => col.LayerThickness(id)).ToArray();
         double mean = per.Average();
         var o = new Output { Candidate = s };
         o.M("thickness", $"새 막 {id} 평균 두께", mean, "nm");
         o.M("nonuniformity", "불균일도(모델 가정상 0)", mean > 0 ? 100 * (per.Max() - per.Min()) / (2 * mean) : null, "%", mean > 0 ? null : "평균 두께 0");
-        if (r.E("method") == "ALD")
+        if (r.Method == "ALD")
         {
-            o.M("purgePenalty", "퍼지 페널티(교육용 지표)", Math.Max(0, (5 - r.N("purgeTime")) / 5) * 20, "%");
-            o.M("aldTotalTime", "ALD 총 시간", r.N("cycles") * 2 * (r.N("pulseTime") + r.N("purgeTime")), "s");
+            o.M("purgePenalty", "퍼지 페널티(교육용 지표)", Math.Max(0, (5 - Required(r.PurgeTime)) / 5) * 20, "%");
+            o.M("aldTotalTime", "ALD 총 시간", Required(r.Cycles) * 2 * (Required(r.PulseTime) + Required(r.PurgeTime)), "s");
         }
         o.Warnings.Add($"새 LayerId {id}를 만들었습니다. 각 열에 같은 두께를 더하므로 불균일도 0은 실제 장비 균일도를 뜻하지 않습니다.");
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o)
+    public override List<Criterion> Criteria(DepositionParameters r, Ctx c, Output o)
     {
-        var list = new List<Criterion> { new("thickness", CK.RelTarget, r.N("targetThickness"), r.N("thicknessTolerance")) };
-        if (r.E("method") == "ALD") list.Add(new("purgePenalty", CK.Max, r.N("maxPurgePenalty")));
-        else list.Add(new("nonuniformity", CK.Max, r.N("maxNonuniformity")));
+        var list = new List<Criterion> { new("thickness", CK.RelTarget, Required(r.TargetThickness), Required(r.ThicknessTolerance)) };
+        if (r.Method == "ALD") list.Add(new("purgePenalty", CK.Max, Required(r.MaxPurgePenalty)));
+        else list.Add(new("nonuniformity", CK.Max, Required(r.MaxNonuniformity)));
         return list;
     }
 }
 
-public sealed class CmpProcess : ProcessBase
+public sealed class CmpProcess : ProcessBase<CmpParameters>
 {
+    protected override CmpParameters Bind(Recipe recipe) => recipe;
+
     public override string Id => "cmp";
     public override string Group => "⑥ 금속 배선";
     public override string Name => "CMP(화학적 기계 연마)";
@@ -403,27 +411,27 @@ public sealed class CmpProcess : ProcessBase
         return t;
     }
 
-    public override void Preconditions(Recipe r, Ctx c, List<Err> e)
+    public override void Preconditions(CmpParameters r, Ctx c, List<Err> e)
     {
         var s = c.State;
-        string tgt = r.E("targetMaterial");
+        string tgt = r.TargetMaterial;
         if (s.HasPR) Pre(e, "PR_PRESENT", "PR이 있으면 CMP를 할 수 없습니다.", "PRStrip을 먼저 수행하세요.");
         if (s.Wires.Count > 0 || s.Contacts.Count > 0) Pre(e, "METAL_MODEL_UNSUPPORTED", "배선·컨택 형상을 바꾸는 CMP 모델은 v1에서 지원하지 않습니다.", "배선 전에 CMP를 수행하세요.");
         if (s.Columns.Any(col => col.TopMaterial != tgt)) Pre(e, "TOP_NOT_TARGET", $"v1은 모든 열의 최상층이 {tgt}인 상태만 지원합니다(혼합 표면 미지원).", "대상 재료를 확인하세요.");
     }
 
-    public override void Interlock(Recipe r, Ctx c, List<Err> e)
+    public override void Interlock(CmpParameters r, Ctx c, List<Err> e)
     {
-        if (r.N("polishPressure") > 50) Ilk(e, "CMP_PRESSURE_LIMIT", "polishPressure", r.N("polishPressure"), "≤ 50 kPa", "CmpEdu 연마 압력 한계를 넘었습니다.");
+        if (Required(r.PolishPressure) > 50) Ilk(e, "CMP_PRESSURE_LIMIT", "polishPressure", Required(r.PolishPressure), "≤ 50 kPa", "CmpEdu 연마 압력 한계를 넘었습니다.");
     }
 
-    public override Output Calculate(Recipe r, Ctx c, CancellationToken t)
+    public override Output Calculate(CmpParameters r, Ctx c, CancellationToken t)
     {
         var s = c.State.CloneAsChild();
-        string tgt = r.E("targetMaterial");
-        double k = r.E("slurry") == "Oxide" ? 0.001 : 0.002;
-        double speed = (r.N("padSpeed") + r.N("waferSpeed")) / 2;
-        double baseRemoval = k * r.N("polishPressure") * speed * r.N("duration");
+        string tgt = r.TargetMaterial;
+        double k = r.Slurry == "Oxide" ? 0.001 : 0.002;
+        double speed = (Required(r.PadSpeed) + Required(r.WaferSpeed)) / 2;
+        double baseRemoval = k * Required(r.PolishPressure) * speed * Required(r.Duration);
         double hmin = s.Columns.Min(col => col.Surface);
         var start = s.Columns.Select(col => col.Surface).ToArray();
         double sumRemoved = 0;
@@ -449,9 +457,9 @@ public sealed class CmpProcess : ProcessBase
         return o;
     }
 
-    public override List<Criterion> Criteria(Recipe r, Ctx c, Output o) => new()
+    public override List<Criterion> Criteria(CmpParameters r, Ctx c, Output o) => new()
     {
-        new("remainingThickness", CK.RelTarget, r.N("targetThickness"), r.N("thicknessTolerance")),
-        new("stepHeight", CK.Max, r.N("maxStepHeight")),
+        new("remainingThickness", CK.RelTarget, Required(r.TargetThickness), Required(r.ThicknessTolerance)),
+        new("stepHeight", CK.Max, Required(r.MaxStepHeight)),
     };
 }

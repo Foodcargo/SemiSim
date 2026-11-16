@@ -20,6 +20,9 @@ typedef char *(*se_run_fn)(se_handle h, const char *processId, const char *value
                            int commit, long long expectedRevision);
 typedef void (*se_cancel_fn)(se_handle h);
 typedef char *(*se_undo_fn)(se_handle h);
+/* Optional ABI 1 extension: undo the selected active run and every following commit.
+ * expectedUndoRevision is the se_state undoRevision (also advances for masks/inspections). */
+typedef char *(*se_undo_to_fn)(se_handle h, const char *runId, long long expectedUndoRevision);
 typedef char *(*se_state_fn)(se_handle h);
 typedef char *(*se_scene_meta_fn)(se_handle h, const char *optionsJson);
 /* Fills 11 floats per box (x0,x1,y0,y1,z0,z1,r,g,b,a,outline) when capacity >= count; returns the box count, -1 on error. */

@@ -488,8 +488,9 @@ public static class SelfTest
 
     static TestResult T04()
     {
-        // B at 15 keV: Rp+4σ = 99 nm stays below the 300 nm gate (spec X1 MASK_TOO_THIN would block B at 50 keV).
-        var r = Test(Path5(out var log, new Path5Options { Species = "B", Energy = "15", TargetDepth = "36" }));
+        // Spec T04 changes only the implanted species. Keep 50 keV even though X1 blocks it.
+        // Preserve the original NO_JUNCTION expectation so this specification conflict remains visible.
+        var r = Test(Path5(out var log, new Path5Options { Species = "B" }));
         var codes = r.Electrical?.FailureCodes ?? new List<string>();
         return T("T04", r.Status == "ProcessFailure" && codes.Contains("NO_JUNCTION"), "P+ in p-body → NO_JUNCTION", $"{r.Status} {Codes(r)} · {string.Join(" ", log)}");
     }

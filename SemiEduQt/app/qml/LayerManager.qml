@@ -40,7 +40,7 @@ Rectangle {
                 clip: true
                 model: root.app.layers
                 ScrollBar.vertical: ScrollBar {}
-                delegate: RowLayout {
+                delegate: Item {
                     id: row
                     required property string layerId
                     required property string materialKo
@@ -49,6 +49,18 @@ Rectangle {
                     required property string thicknessText
                     required property string coverage
                     width: ListView.view.width
+                    height: 28
+                    activeFocusOnTab: true
+                    Keys.onReturnPressed: root.app.selectLayer(row.layerId)
+                    Keys.onSpacePressed: root.app.selectLayer(row.layerId)
+                    Rectangle {
+                        anchors.fill: parent
+                        color: root.app.selectedLayerId === row.layerId ? Theme.accentSoft
+                             : layerMouse.containsMouse ? Theme.section : "transparent"
+                        border.color: row.activeFocus ? Theme.accent : "transparent"
+                    }
+                    RowLayout {
+                    anchors.fill: parent
                     spacing: 8
                     Rectangle {
                         implicitWidth: 12
@@ -61,6 +73,14 @@ Rectangle {
                     Label { text: row.materialKo; Layout.preferredWidth: 90; color: Theme.textDim; font.pixelSize: 12; elide: Text.ElideRight }
                     Label { text: row.thicknessText; Layout.preferredWidth: 90; color: Theme.text; font.pixelSize: 12 }
                     Label { text: row.coverage; Layout.fillWidth: true; color: Theme.textFaint; font.pixelSize: 12 }
+                    }
+                    MouseArea {
+                        id: layerMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: { row.forceActiveFocus(); root.app.selectLayer(row.layerId) }
+                        Accessible.name: "Select layer " + row.layerId
+                    }
                 }
             }
         }
