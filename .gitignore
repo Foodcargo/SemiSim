@@ -13,3 +13,15 @@ cmake-build-*/
 
 # Local-only project notes
 /docs/remaining-requirements.private.md
+
+# IDE caches and local edit history
+.vs/
+.lh/
+
+# .NET build and test output
+[Bb]in/
+[Oo]bj/
+TestResults/
+
+# Personal CMake configuration
+CMakeUserPresets.json
