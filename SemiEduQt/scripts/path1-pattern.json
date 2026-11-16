@@ -1,0 +1,13 @@
+{
+  "description": "학습 경로 1: BareSi 초기화 → 산화 → 마스크 → 포토 → Patterned 식각 → PRStrip → 검사(오염)",
+  "select": "inspection",
+  "steps": [
+    { "processId": "init", "values": { "startSurface": "BareSi" } },
+    { "processId": "oxidation", "values": {} },
+    { "processId": "mask", "values": {} },
+    { "processId": "photo", "values": { "maskId": "Generic-1" } },
+    { "processId": "etch", "values": { "scope": "Patterned", "duration": "100", "targetEtchDepth": "70.4159458" } },
+    { "processId": "clean", "values": { "purpose": "PRStrip" } },
+    { "processId": "inspection", "values": { "inspectionMode": "Contamination", "targetId": "WAFER" } }
+  ]
+}

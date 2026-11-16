@@ -1,0 +1,10 @@
+{
+  "description": "학습 경로 4: UniformSiO2 초기화 → CVD SiO2 → CMP → 두께 검사. CMP는 맨 위의 연속된 SiO2(초기 100 + CVD 100 nm)에서 72 nm를 제거하므로 잔여 목표를 128 nm로 지정합니다.",
+  "select": "inspection",
+  "steps": [
+    { "processId": "init", "values": { "startSurface": "UniformSiO2" } },
+    { "processId": "deposition", "values": { "method": "CVD", "material": "SiO2" } },
+    { "processId": "cmp", "values": { "targetThickness": "128" } },
+    { "processId": "inspection", "values": { "inspectionMode": "Thickness", "targetId": "L2-SiO2", "qualityProfile": "Custom", "targetThickness": "28" } }
+  ]
+}

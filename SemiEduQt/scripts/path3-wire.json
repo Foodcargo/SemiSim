@@ -1,0 +1,10 @@
+{
+  "description": "학습 경로 3: UniformSiO2 초기화 → 세정 → 이상적 Al 배선 → 저항 검사",
+  "select": "inspection",
+  "steps": [
+    { "processId": "init", "values": { "startSurface": "UniformSiO2" } },
+    { "processId": "clean", "values": { "purpose": "SurfaceClean" } },
+    { "processId": "metal", "values": { "metal": "Al" } },
+    { "processId": "inspection", "values": { "inspectionMode": "Electrical", "targetId": "W3" } }
+  ]
+}

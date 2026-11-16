@@ -1,0 +1,16 @@
+{
+  "description": "학습 경로 5: 마스크 ×3 → 초기화 → 게이트 산화 → W 게이트 → As 자기정렬 주입 → RTA → 컨택 → 트랜지스터 전기 검사 (명세 10.1)",
+  "select": "transistor",
+  "steps": [
+    { "processId": "init", "values": { "dopingType": "P-type", "backgroundDoping": "1e15", "startSurface": "BareSi", "domainWidth": "25.6" } },
+    { "processId": "mask", "values": { "maskLayer": "Gate", "designClearWidth": "1000", "offset": "9.5", "repeatCount": "1" } },
+    { "processId": "mask", "values": { "maskLayer": "Contact", "designClearWidth": "2000", "offset": "4", "repeatCount": "1" } },
+    { "processId": "mask", "values": { "maskLayer": "Contact", "designClearWidth": "2000", "offset": "14", "repeatCount": "1" } },
+    { "processId": "oxidation", "values": { "method": "Dry", "temperature": "900", "duration": "10", "pressure": "760", "targetThickness": "9.4" } },
+    { "processId": "metal", "values": { "metal": "W", "role": "Gate", "maskId": "Gate-1", "thickness": "300", "length": "10" } },
+    { "processId": "implant", "values": { "species": "As", "energy": "50", "implantDose": "1e14", "tilt": "0", "targetDepth": "50" } },
+    { "processId": "anneal", "values": { "method": "RTA", "temperature": "1000", "duration": "30" } },
+    { "processId": "contact", "values": { "metal": "W", "sourceMaskId": "Contact-2", "drainMaskId": "Contact-3", "plugAboveNm": "300" } },
+    { "processId": "transistor", "values": { "testMode": "AutoJudge", "vdd": "1.2" } }
+  ]
+}

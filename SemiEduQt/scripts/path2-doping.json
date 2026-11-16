@@ -1,0 +1,10 @@
+{
+  "description": "학습 경로 2: BareSi 초기화 → B 이온주입 → RTA → 도핑 프로파일 검사",
+  "select": "inspection",
+  "steps": [
+    { "processId": "init", "values": { "startSurface": "BareSi" } },
+    { "processId": "implant", "values": {} },
+    { "processId": "anneal", "values": {} },
+    { "processId": "inspection", "values": { "inspectionMode": "Profile", "targetId": "IMP-B" } }
+  ]
+}
