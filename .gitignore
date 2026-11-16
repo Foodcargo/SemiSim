@@ -25,3 +25,6 @@ TestResults/
 
 # Personal CMake configuration
 CMakeUserPresets.json
+
+# Local development specification
+/specification.md
