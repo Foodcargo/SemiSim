@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using SemiconductorEdu.Domain.Processes;
 using SemiconductorEdu.Domain.State;
@@ -14,19 +14,29 @@ public sealed record SessionLoadResult(SessionDocument? Document, IReadOnlyList<
 public sealed class SessionStore
 {
     private static readonly JsonSerializerOptions JsonOptions = CreateOptions();
+    public const long MaximumFileBytes = 20 * 1024 * 1024;
 
     public async Task SaveAsync(string path, SessionDocument document, CancellationToken cancellationToken = default)
     {
         ValidateForSave(document);
         var fullPath = Path.GetFullPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-        var temporaryPath = fullPath + ".tmp";
-        await using (var stream = new FileStream(temporaryPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, FileOptions.Asynchronous | FileOptions.WriteThrough))
+        var temporaryPath = fullPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
         {
-            await JsonSerializer.SerializeAsync(stream, document, JsonOptions, cancellationToken).ConfigureAwait(false);
-            await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            await using (var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, FileOptions.Asynchronous | FileOptions.WriteThrough))
+            {
+                await JsonSerializer.SerializeAsync(stream, document, JsonOptions, cancellationToken).ConfigureAwait(false);
+                if (stream.Length > MaximumFileBytes) throw new IOException("Session exceeds 20 MB.");
+                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
+            cancellationToken.ThrowIfCancellationRequested();
+            File.Move(temporaryPath, fullPath, true);
         }
-        File.Move(temporaryPath, fullPath, true);
+        finally
+        {
+            if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
+        }
     }
 
     public async Task<SessionLoadResult> LoadAsync(string path, CancellationToken cancellationToken = default)
@@ -34,6 +44,7 @@ public sealed class SessionStore
         try
         {
             await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            if (stream.Length > MaximumFileBytes) return Invalid("SESSION_TOO_LARGE", "Maximum session size is 20 MB.");
             var document = await JsonSerializer.DeserializeAsync<SessionDocument>(stream, JsonOptions, cancellationToken).ConfigureAwait(false);
             return document is null ? Invalid("SESSION_EMPTY", "세션 파일이 비어 있습니다.") : Validate(document);
         }
@@ -51,8 +62,15 @@ public sealed class SessionStore
         }
     }
 
-    private static SessionLoadResult Validate(SessionDocument document)
+    public static SessionLoadResult Validate(SessionDocument document)
     {
+        if (document.States is null || document.History is null ||
+            document.States.Any(s => s is null || s.Substrate is null || s.CrossSection is null ||
+                s.CrossSection.Columns is null || s.Layers is null || s.ImplantProfiles is null ||
+                s.Wires is null || s.QualityFlags is null || s.HistoryIds is null ||
+                s.CrossSection.Columns.Any(c => c is null || c.SegmentsBottomToTop is null || c.SegmentsBottomToTop.Any(m => m is null))) ||
+            document.History.Any(r => r is null || r.Metrics is null || r.Errors is null || r.Warnings is null))
+            return Invalid("SESSION_STRUCTURE_INVALID", "Required session data is missing.");
         var errors = new List<ValidationIssue>();
         if (document.SchemaVersion != 1)
             errors.Add(Issue("SESSION_SCHEMA_UNSUPPORTED", document.SchemaVersion.ToString(), "1", "지원하는 세션 스키마로 저장된 파일을 선택하세요."));
@@ -70,6 +88,19 @@ public sealed class SessionStore
                 errors.Add(Issue("SESSION_SEGMENT_INVALID", state.StateId.ToString(), "finite nonnegative segment thickness", "세션 상태의 재료 두께를 확인하세요."));
         }
 
+        var byId = document.States.GroupBy(s => s.StateId).ToDictionary(g => g.Key, g => g.First());
+        if (document.States.Any(s => s.ParentStateId is Guid parent &&
+            (!byId.TryGetValue(parent, out var ancestor) || ancestor.Revision >= s.Revision)))
+            errors.Add(Issue("SESSION_ANCESTRY_INVALID", null, "existing parent with lower revision", "Restore a complete session."));
+        if (document.History.Select(r => r.RunId).Distinct().Count() != document.History.Count)
+            errors.Add(Issue("SESSION_DUPLICATE_RUN", null, "unique run IDs", "Restore a valid history."));
+        if (document.History.Any(r => r.BeforeStateId != Guid.Empty && !stateIds.Contains(r.BeforeStateId)))
+            errors.Add(Issue("SESSION_BEFORE_STATE_MISSING", null, "existing before state", "Restore a complete session."));
+        if (document.States.Any(s => !double.IsFinite(s.ContaminationIndex) || s.ContaminationIndex is < 0 or > 100 ||
+            !double.IsFinite(s.CrossSection.Width.Meters) || s.CrossSection.Width.Meters <= 0 ||
+            s.CrossSection.Columns.Any(c => !double.IsFinite(c.X.Meters) || !double.IsFinite(c.SurfaceHeight.Meters) ||
+                c.SegmentsBottomToTop.Any(m => !Enum.IsDefined(m.Material)))))
+            errors.Add(Issue("SESSION_NUMERIC_STATE_INVALID", null, "finite supported physical state", "Restore a valid session."));
         if (document.CurrentStateId is Guid currentId && !stateIds.Contains(currentId))
             errors.Add(Issue("SESSION_CURRENT_STATE_MISSING", currentId.ToString(), "an ID in states", "현재 상태를 포함하는 세션을 다시 불러오세요."));
         if (document.History.Any(result => result.RunId == Guid.Empty || !Enum.IsDefined(result.ExecutionStatus) || !Enum.IsDefined(result.QualityStatus)))
@@ -83,8 +114,9 @@ public sealed class SessionStore
     private static void ValidateForSave(SessionDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
-        if (document.SchemaVersion != 1)
-            throw new ArgumentException("Only session schema version 1 can be saved.", nameof(document));
+        var validation = Validate(document);
+        if (!validation.IsValid)
+            throw new ArgumentException(string.Join(", ", validation.Errors.Select(e => e.Code)), nameof(document));
         if (document.CurrentStateId is Guid currentId && document.States.All(state => state.StateId != currentId))
             throw new ArgumentException("Current state must be included in the session state list.", nameof(document));
     }
@@ -102,7 +134,7 @@ public sealed class SessionStore
             PropertyNameCaseInsensitive = true,
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
         };
-        options.Converters.Add(new JsonStringEnumConverter());
+        options.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false));
         options.Converters.Add(new LengthJsonConverter());
         options.Converters.Add(new DurationJsonConverter());
         options.Converters.Add(new PressureJsonConverter());

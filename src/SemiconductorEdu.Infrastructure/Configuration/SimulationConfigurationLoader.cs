@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SemiconductorEdu.Domain.Validation;
 
 namespace SemiconductorEdu.Infrastructure.Configuration;
@@ -8,12 +8,15 @@ public sealed class SimulationConfigurationLoader
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
+        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow,
         ReadCommentHandling = JsonCommentHandling.Disallow,
         AllowTrailingCommas = false
     };
 
     public ConfigurationLoadResult Load(string json)
     {
+        if (System.Text.Encoding.UTF8.GetByteCount(json) > 20 * 1024 * 1024)
+            return Invalid("CONFIG_TOO_LARGE", "Maximum configuration size is 20 MB.");
         SimulationConfiguration? configuration;
         try
         {
@@ -27,6 +30,10 @@ public sealed class SimulationConfigurationLoader
         if (configuration is null)
             return Invalid("CONFIG_EMPTY", "설정 문서가 비어 있습니다.");
 
+        if (configuration.Equipment is { } equipment &&
+                (equipment.Limits is null || equipment.AllowedWaferDiametersMm is null || equipment.Limits.Values.Any(v => v is null)) ||
+            configuration.Quality is { } quality && (quality.Targets is null || quality.Targets.Any(t => t is null)))
+            return Invalid("CONFIG_STRUCTURE_INVALID", "Required configuration collections are missing.");
         var errors = new List<ValidationIssue>();
         if (configuration.SchemaVersion != 1)
             errors.Add(Issue("CONFIG_SCHEMA_UNSUPPORTED", "schemaVersion", configuration.SchemaVersion.ToString(), "1", "지원하는 설정 스키마 버전으로 저장하세요."));
@@ -111,7 +118,16 @@ public sealed class SimulationConfigurationLoader
             : new ConfigurationLoadResult(null, Array.AsReadOnly(errors.ToArray()));
     }
 
-    public ConfigurationLoadResult LoadFile(string path) => Load(File.ReadAllText(path));
+    public ConfigurationLoadResult LoadFile(string path)
+    {
+        try
+        {
+            if (new FileInfo(path).Length > 20 * 1024 * 1024) return Invalid("CONFIG_TOO_LARGE", "Maximum configuration size is 20 MB.");
+            return Load(File.ReadAllText(path));
+        }
+        catch (IOException e) { return Invalid("CONFIG_IO_ERROR", e.Message); }
+        catch (UnauthorizedAccessException e) { return Invalid("CONFIG_ACCESS_DENIED", e.Message); }
+    }
 
     private static void CheckPositive(ICollection<ValidationIssue> errors, string id, double value)
     {

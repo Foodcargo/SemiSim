@@ -5,7 +5,11 @@ using SemiconductorEdu.Domain.Validation;
 
 namespace SemiconductorEdu.Simulation.Processes;
 
-public sealed record ProcessModelOutput(WaferState? CandidateState, IReadOnlyList<ProcessMetric> Metrics, ValidationResult Validation);
+public sealed record ProcessModelOutput(WaferState? CandidateState, IReadOnlyList<ProcessMetric> Metrics, ValidationResult Validation)
+{
+    public QualityProfile? DefaultQuality { get; init; }
+    public IReadOnlyList<string> UnsupportedEffects { get; init; } = Array.Empty<string>();
+}
 
 public sealed class PatternProcessModels
 {

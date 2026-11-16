@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using SemiconductorEdu.Application.Execution;
 using SemiconductorEdu.Domain.Equipment;
@@ -20,7 +20,7 @@ public partial class App : System.Windows.Application
         var services = new ServiceCollection();
         services.AddSingleton<OxidationModel>();
         services.AddSingleton<WaferStateFactory>();
-        services.AddSingleton(new EquipmentSnapshot(true, false, true, new HashSet<int> { 150, 200, 300 }));
+        services.AddSingleton(new EquipmentSnapshot(true, false, true, new HashSet<int> { 100, 150, 200, 300 }));
         services.AddSingleton(new QualityProfile("educational-default", "1.0.0", new[]
         {
             new QualityTarget("oxideThickness", 70, 10, null, null, null, "nm", true)

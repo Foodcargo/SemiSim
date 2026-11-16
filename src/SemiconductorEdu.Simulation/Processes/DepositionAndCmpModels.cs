@@ -1,20 +1,20 @@
-using SemiconductorEdu.Domain.Processes;
+﻿using SemiconductorEdu.Domain.Processes;
 using SemiconductorEdu.Domain.State;
 using SemiconductorEdu.Domain.Units;
 using SemiconductorEdu.Domain.Validation;
 
 namespace SemiconductorEdu.Simulation.Processes;
 
-public sealed class DepositionAndCmpModels
+public sealed partial class DepositionAndCmpModels
 {
     public ProcessModelOutput ApplyDeposition(WaferState before, DepositionParameters parameters, Guid runId, DateTimeOffset nowUtc)
     {
         var errors = new List<ValidationIssue>();
         if (!Enum.IsDefined(parameters.Method))
             errors.Add(Issue("DEPOSITION_METHOD_INVALID", "method", parameters.Method.ToString(), "CVD, PVD or ALD", "지원하는 증착 방식을 선택하세요."));
-        if (parameters.Material is not WaferMaterial.SiliconDioxide and not WaferMaterial.SiliconNitride and not WaferMaterial.Aluminum and not WaferMaterial.Copper and not WaferMaterial.Tungsten)
+        if (parameters.Material is not WaferMaterial.SiliconDioxide and not WaferMaterial.SiliconNitride and not WaferMaterial.Aluminum and not WaferMaterial.Copper and not WaferMaterial.Tungsten and not WaferMaterial.TitaniumNitride)
             errors.Add(Issue("DEPOSITION_MATERIAL_UNSUPPORTED", "material", parameters.Material.ToString(), "SiO₂, Si₃N₄, Al, Cu or W", "교육용 예제에서 지원하는 막 재료를 선택하세요."));
-        if (!double.IsFinite(parameters.Thickness.Nanometers) || parameters.Thickness.Nanometers is < 1 or > 10000)
+        if (!double.IsFinite(parameters.Thickness.Nanometers) || parameters.Thickness.Nanometers is <= 0 or > 10000)
             errors.Add(Issue("DEPOSITION_THICKNESS_RANGE", "thickness", parameters.Thickness.Nanometers.ToString("G17"), "1–10000 nm", "증착 두께를 1–10000 nm 범위로 입력하세요."));
         if (before.CrossSection.Columns.Count < 2 || before.CrossSection.Resolution != before.CrossSection.Columns.Count)
             errors.Add(Issue("DEPOSITION_CROSS_SECTION_INVALID", null, null, "valid cross-section grid", "웨이퍼 단면을 다시 초기화하세요.", ExecutionStage.ModelDomain));

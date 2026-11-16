@@ -168,11 +168,12 @@ public partial class MainWindow : Window
 
     private void RenderScene()
     {
-        if (_nativeInstance == IntPtr.Zero || SceneImage.ActualWidth < 1 || SceneImage.ActualHeight < 1) return;
-        var width = Math.Max(1, (int)SceneImage.ActualWidth);
-        var height = Math.Max(1, (int)SceneImage.ActualHeight);
+        // Size from the host Grid: an Image without a Source measures to 0x0, so it can never bootstrap the first frame.
+        if (_nativeInstance == IntPtr.Zero || SceneHost.ActualWidth < 1 || SceneHost.ActualHeight < 1) return;
+        var width = Math.Max(1, (int)SceneHost.ActualWidth);
+        var height = Math.Max(1, (int)SceneHost.ActualHeight);
         var pixels = NativeApi.Render(_nativeInstance, width, height);
-        var frame = BitmapSource.Create(width, height, 96, 96, PixelFormats.Rgba32, null, pixels, width * 4);
+        var frame = BitmapSource.Create(width, height, 96, 96, PixelFormats.Pbgra32, null, pixels, width * 4);
         frame.Freeze();
         SceneImage.Source = frame;
     }

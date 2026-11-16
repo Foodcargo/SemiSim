@@ -1,4 +1,4 @@
-using SemiconductorEdu.Domain.Processes;
+﻿using SemiconductorEdu.Domain.Processes;
 using SemiconductorEdu.Domain.State;
 
 namespace SemiconductorEdu.Application.Execution;
@@ -30,6 +30,35 @@ public sealed class ProcessSession
     public IReadOnlyList<ProcessResult> History
     {
         get { lock (_gate) return Array.AsReadOnly(_history.ToArray()); }
+    }
+
+    public ProcessSessionSnapshot Capture()
+    {
+        lock (_gate) return new(_currentState?.StateId, Array.AsReadOnly(_states.Values.ToArray()),
+            Array.AsReadOnly(_history.ToArray()));
+    }
+
+    public void Restore(ProcessSessionSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var states = snapshot.States.ToDictionary(state => state.StateId);
+        if (snapshot.CurrentStateId is Guid id && !states.ContainsKey(id))
+            throw new ArgumentException("Current state is missing.", nameof(snapshot));
+        if (states.Values.Any(state => state.ParentStateId is Guid parent &&
+            (!states.TryGetValue(parent, out var ancestor) || ancestor.Revision >= state.Revision)))
+            throw new ArgumentException("Invalid state ancestry.", nameof(snapshot));
+        if (snapshot.History.Any(run => run.AfterStateId is Guid after && !states.ContainsKey(after)))
+            throw new ArgumentException("History references a missing state.", nameof(snapshot));
+        lock (_gate)
+        {
+            _generation++;
+            _states.Clear();
+            foreach (var pair in states) _states.Add(pair.Key, pair.Value);
+            _history.Clear();
+            _history.AddRange(snapshot.History);
+            _currentState = snapshot.CurrentStateId is Guid current ? states[current] : null;
+            _redo.Clear();
+        }
     }
 
     public bool CanUndo
@@ -84,6 +113,12 @@ public sealed class ProcessSession
             response = Rejected(request, ProcessExecutionStatus.Cancelled, "EXECUTION_CANCELLED");
         }
 
+        catch (Exception exception) when (exception is not OutOfMemoryException)
+        {
+            response = PatternProcessExecutor.Failed(request, Guid.NewGuid(), ProcessExecutionStatus.CalculationError,
+                new[] { PatternProcessExecutor.Issue("CALCULATION_EXCEPTION", ExecutionStage.Calculation) });
+        }
+
         lock (_gate)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -91,7 +126,7 @@ public sealed class ProcessSession
             else if (generation != _generation)
                 response = Rejected(request, ProcessExecutionStatus.PreconditionFailed, "STALE_SESSION_REVISION");
 
-            response = response with { Result = response.Result with { FinishedAtUtc = DateTimeOffset.UtcNow } };
+            response = response with { Result = response.Result with { FinishedAtUtc = DateTimeOffset.UtcNow, Recipe = recipe } };
             if (preview)
                 return response with { PreviewState = response.CommittedState, CommittedState = null,
                     Result = response.Result with { AfterStateId = null } };

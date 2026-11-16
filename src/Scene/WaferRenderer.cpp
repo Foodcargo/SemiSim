@@ -194,7 +194,8 @@ QImage renderWaferFrame(const Wafer &wafer, int width, int height, const CameraS
 		return {};
 	}
 
-	QImage image(width, height, QImage::Format_RGBA8888);
+	// Byte order B,G,R,A on little-endian: matches WPF PixelFormats.Pbgra32.
+	QImage image(width, height, QImage::Format_ARGB32_Premultiplied);
 	image.fill(QColor("#090d12"));
 	QPainter painter(&image);
 	painter.setRenderHint(QPainter::Antialiasing);

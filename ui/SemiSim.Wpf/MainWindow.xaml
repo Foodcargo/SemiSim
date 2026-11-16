@@ -39,10 +39,10 @@
 				</DockPanel>
 			</Border>
 			<Border Grid.Column="1" Background="#090D12" Margin="1">
-				<Grid>
+				<Grid x:Name="SceneHost" SizeChanged="Scene_SizeChanged">
 					<Image x:Name="SceneImage" Stretch="Fill" MouseLeftButtonDown="Scene_MouseLeftButtonDown"
 						   MouseLeftButtonUp="Scene_MouseLeftButtonUp" MouseMove="Scene_MouseMove"
-						   MouseWheel="Scene_MouseWheel" SizeChanged="Scene_SizeChanged" />
+						   MouseWheel="Scene_MouseWheel" />
 					<StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="18,12" IsHitTestVisible="False">
 						<TextBlock Text="교육용 예시 장면 · 공정 정확도 미검증" Foreground="#E5EDF7" />
 						<TextBlock x:Name="MaskSummary" Foreground="#94A3B8" />

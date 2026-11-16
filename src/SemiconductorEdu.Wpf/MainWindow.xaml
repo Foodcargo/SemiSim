@@ -1,4 +1,4 @@
-<Window x:Class="SemiconductorEdu.Wpf.MainWindow"
+﻿<Window x:Class="SemiconductorEdu.Wpf.MainWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:controls="clr-namespace:SemiconductorEdu.Wpf.Controls"
@@ -8,9 +8,14 @@
 		<Border DockPanel.Dock="Top" Background="#0B1219" Padding="18,12">
 			<DockPanel>
 				<StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="취소" Command="{Binding CancelExecutionCommand}" IsEnabled="{Binding IsBusy}" />
+                    <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsIdle}">
+                    <Button Content="세션 저장" Command="{Binding SaveSessionCommand}" />
+                    <Button Content="세션 열기" Command="{Binding LoadSessionCommand}" />
 					<Button Content="이력 CSV 저장" Command="{Binding ExportHistoryCommand}" Margin="0,0,8,0" />
 					<Button Content="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Margin="8,0" />
 					<Button Content="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" />
+                    </StackPanel>
 				</StackPanel>
 				<StackPanel>
 					<TextBlock Text="반도체 공정 학습 시뮬레이터" FontSize="22" FontWeight="Bold" />
@@ -18,7 +23,7 @@
 				</StackPanel>
 			</DockPanel>
 		</Border>
-		<Grid Margin="12">
+		<Grid Margin="12" IsEnabled="{Binding IsIdle}">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="250" />
 				<ColumnDefinition Width="*" />
@@ -97,8 +102,10 @@
 						<TextBlock Text="산화막 두께" FontWeight="SemiBold" />
 						<TextBlock Text="{Binding OxideThickness, StringFormat={}{0} nm}" FontSize="20" Foreground="#7DD3FC" />
 						<TextBlock Text="품질 목표 70 nm ±10%" Foreground="#94A3B8" />
-						<TextBlock Text="{Binding QualityResult}" FontSize="16" FontWeight="Bold" />
+						<TextBlock Text="{Binding ResultContext}" Foreground="#FBBF24" />
+                        <TextBlock Text="{Binding QualityResult}" FontSize="16" FontWeight="Bold" />
 						<TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Margin="0,8" />
+                        <TextBlock Text="{Binding MetricSummary}" TextWrapping="Wrap" />
 						<Separator Margin="0,14" />
 						<TextBlock Text="2단계 · 포토 / 식각 / PR 제거" FontSize="18" FontWeight="Bold" />
 						<TextBlock Text="포토 감광액 두께 (nm)" />
@@ -120,8 +127,23 @@
 						<ComboBox ItemsSource="{Binding DepositionMethods}" SelectedItem="{Binding DepositionMethod}" Margin="0,3,0,8" Padding="7,5" />
 						<TextBlock Text="막 재료" />
 						<ComboBox ItemsSource="{Binding DepositionMaterials}" SelectedItem="{Binding DepositionMaterial}" Margin="0,3,0,8" Padding="7,5" />
-						<TextBlock Text="막 두께 (nm)" />
-						<TextBox Text="{Binding DepositionThicknessNanometers, UpdateSourceTrigger=PropertyChanged}" />
+						<TextBlock Text="온도 °C · CVD 200-900 / PVD 20-400 / ALD 100-400" TextWrapping="Wrap" />
+                        <TextBox Text="{Binding DepositionTemperature, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="압력 Torr · CVD 0.1-760 / PVD 0.001-0.1 / ALD 0.1-10" TextWrapping="Wrap" />
+                        <TextBox Text="{Binding DepositionPressure, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="시간 min · 1-180 · 기본 10 (CVD/PVD)" />
+                        <TextBox Text="{Binding DepositionDuration, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasDepositionDuration}" />
+                        <TextBlock Text="CVD 유량 sccm · 1-2000 · 기본 100" />
+                        <TextBox Text="{Binding DepositionFlow, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsCvd}" />
+                        <TextBlock Text="PVD 전력 W · 50-2000 · 기본 500" />
+                        <TextBox Text="{Binding DepositionPower, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsPvd}" />
+                        <TextBlock Text="ALD 사이클 · 1-5000 정수 · 기본 100" />
+                        <TextBox Text="{Binding DepositionCycles, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsAld}" />
+                        <TextBlock Text="ALD 펄스 s · 0.1-10 · 기본 1" />
+                        <TextBox Text="{Binding DepositionPulse, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsAld}" />
+                        <TextBlock Text="ALD 퍼지 s · 0.1-30 · 기본 5" />
+                        <TextBox Text="{Binding DepositionPurge, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsAld}" />
+                        <TextBlock Text="CVD 기본 400°C/1 Torr, PVD 100°C/0.01 Torr, ALD 200°C/1 Torr. 방식 변경 후 조건을 확인하세요. 비활성 입력은 실행에서 제외합니다." TextWrapping="Wrap" />
 						<Button Content="균일 막 증착" Command="{Binding RunDepositionCommand}" Background="#475569" Foreground="White" />
 						<TextBlock Text="CMP 목표 높이 (nm)" />
 						<TextBox Text="{Binding CmpTargetHeightNanometers, UpdateSourceTrigger=PropertyChanged}" />

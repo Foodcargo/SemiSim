@@ -5,7 +5,7 @@ using SemiconductorEdu.Simulation.Processes;
 
 namespace SemiconductorEdu.Application.Execution;
 
-public sealed class PatternProcessExecutor(PatternProcessModels models) : IProcessExecutor
+public sealed class PatternProcessExecutor(PatternProcessModels models, SurfaceProcessModels? surfaceModels = null) : IProcessExecutor
 {
     public ProcessExecutionResponse Execute(ProcessExecutionRequest request)
     {
@@ -15,6 +15,9 @@ public sealed class PatternProcessExecutor(PatternProcessModels models) : IProce
 
         var output = request.Recipe.Parameters switch
         {
+            PhotoConditions photo when request.Recipe.ProcessType == ProcessType.Photolithography => (surfaceModels ?? new()).Photo(request.CurrentState, photo, runId, request.RequestedAtUtc, request.CancellationToken),
+            EtchConditions etch when request.Recipe.ProcessType == ProcessType.Etch => (surfaceModels ?? new()).Etch(request.CurrentState, etch, runId, request.RequestedAtUtc, request.CancellationToken),
+            CleanConditions clean when request.Recipe.ProcessType == ProcessType.Cleaning => (surfaceModels ?? new()).Clean(request.CurrentState, clean, runId, request.RequestedAtUtc, request.CancellationToken),
             PhotolithographyParameters photo when request.Recipe.ProcessType == ProcessType.Photolithography => models.ApplyPhotolithography(request.CurrentState, photo, runId, request.RequestedAtUtc),
             EtchParameters etch when request.Recipe.ProcessType == ProcessType.Etch => models.ApplyEtch(request.CurrentState, etch, runId, request.RequestedAtUtc),
             CleaningParameters cleaning when request.Recipe.ProcessType == ProcessType.Cleaning => models.ApplyPhotoresistStrip(request.CurrentState, cleaning, runId, request.RequestedAtUtc),
@@ -29,7 +32,11 @@ public sealed class PatternProcessExecutor(PatternProcessModels models) : IProce
             return Failed(request, runId, ProcessExecutionStatus.InvalidInput, new[] { Issue("PROCESS_TYPE_OR_PARAMETERS_UNSUPPORTED", ExecutionStage.InputValidation) });
         if (!output.Validation.IsValid || output.CandidateState is null)
         {
-            var status = output.Validation.Errors.Any(error => error.Stage == ExecutionStage.ModelDomain.ToString())
+            var status = output.Validation.Errors.Any(error => error.Stage is "Calculation" or "InvariantValidation")
+                ? ProcessExecutionStatus.CalculationError
+                : output.Validation.Errors.Any(error => error.Stage == ExecutionStage.EquipmentInterlock.ToString())
+                ? ProcessExecutionStatus.Interlock
+                : output.Validation.Errors.Any(error => error.Stage == ExecutionStage.ModelDomain.ToString())
                 ? ProcessExecutionStatus.ModelOutOfDomain
                 : output.Validation.Errors.Any(error => error.Stage == ExecutionStage.Preconditions.ToString())
                     ? ProcessExecutionStatus.PreconditionFailed
@@ -42,7 +49,7 @@ public sealed class PatternProcessExecutor(PatternProcessModels models) : IProce
             QualityStatus.NotEvaluated, state.StateId, output.CandidateState.StateId, output.Metrics,
             Array.Empty<ValidationIssue>(), output.Validation.Warnings, request.ConfigurationHash, "1.0.0",
             request.RequestedAtUtc, request.RequestedAtUtc, EducationalModelNotice.SourceNote);
-        return new ProcessExecutionResponse(result, output.CandidateState);
+        return QualityEvaluation.Apply(new ProcessExecutionResponse(result with {UnsupportedEffects=output.UnsupportedEffects}, output.CandidateState), request.Recipe.QualityOverride ?? output.DefaultQuality);
     }
 
     internal static ProcessExecutionResponse Failed(ProcessExecutionRequest request, Guid runId, ProcessExecutionStatus status, IReadOnlyList<ValidationIssue> errors) =>
@@ -97,7 +104,7 @@ public sealed class MetallizationProcessExecutor(MetallizationModels models) : I
     }
 }
 
-public sealed class DepositionAndCmpProcessExecutor(DepositionAndCmpModels models) : IProcessExecutor
+public sealed class DepositionAndCmpProcessExecutor(DepositionAndCmpModels models, SurfaceProcessModels? surfaceModels = null) : IProcessExecutor
 {
     public ProcessExecutionResponse Execute(ProcessExecutionRequest request)
     {
@@ -108,11 +115,32 @@ public sealed class DepositionAndCmpProcessExecutor(DepositionAndCmpModels model
 
         var output = request.Recipe.Parameters switch
         {
+            DepositionConditions depositionConditions when request.Recipe.ProcessType == ProcessType.Deposition => models.ApplyDeposition(request.CurrentState, depositionConditions, runId, request.RequestedAtUtc),
             DepositionParameters deposition when request.Recipe.ProcessType == ProcessType.Deposition => models.ApplyDeposition(request.CurrentState, deposition, runId, request.RequestedAtUtc),
+            CmpConditions cmpConditions when request.Recipe.ProcessType == ProcessType.Cmp => (surfaceModels ?? new()).Cmp(request.CurrentState, cmpConditions, runId, request.RequestedAtUtc, request.CancellationToken),
             CmpParameters cmp when request.Recipe.ProcessType == ProcessType.Cmp => models.ApplyCmp(request.CurrentState, cmp, runId, request.RequestedAtUtc),
             _ => null
         };
-        return PatternProcessExecutor.Complete(request, runId, output);
+        var response = PatternProcessExecutor.Complete(request, runId, output);
+        if (response.CommittedState is not null && request.Recipe.Parameters is DepositionConditions conditions)
+        {
+            var target = conditions.Method switch
+            {
+                DepositionMethod.Cvd => conditions.Material == WaferMaterial.SiliconDioxide ? 100.0 : 80.0,
+                DepositionMethod.Pvd => conditions.Material == WaferMaterial.Aluminum ? 200.0 : 100.0,
+                _ => conditions.Material == WaferMaterial.SiliconDioxide ? 10.0 : 5.0
+            };
+            var thickness = response.Result.Metrics.Single(m => m.Id == "depositedThickness").Value!.Value;
+            var purge = response.Result.Metrics.Single(m => m.Id == "purgePenaltyPct").Value!.Value;
+            var pass = Math.Abs(thickness - target) <= target * 0.1 + 1e-9 * Math.Max(1, Math.Max(thickness, target)) && purge <= 5 + 5e-9;
+            response = response with { Result = response.Result with
+            {
+                QualityStatus = pass ? QualityStatus.Pass : QualityStatus.Fail,
+                ExecutionStatus = pass ? ProcessExecutionStatus.ProcessSuccess : ProcessExecutionStatus.ProcessFailure,
+                Metrics = response.Result.Metrics.Append(new ProcessMetric("targetThickness", target, "nm")).ToArray()
+            } };
+        }
+        return response;
     }
 }
 

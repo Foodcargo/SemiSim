@@ -19,6 +19,11 @@ set(NATIVE_HEADERS
     include/Process/Implantation.h
     include/Process/CMP.h
     include/Scene/WaferRenderer.h
+    include/Animation/AnimationPlayer.h
+    include/Animation/Timeline.h
+    include/Resource/ModelLoader.h
+    include/Resource/TextureLoader.h
+    include/Utils/Config.h
 )
 
 set(NATIVE_SOURCES
@@ -37,15 +42,12 @@ set(NATIVE_SOURCES
     src/Resource/ModelLoader.cpp
     src/Resource/TextureLoader.cpp
     src/Utils/Config.cpp
+    src/Scene/WaferRenderer.cpp
 )
 
-if(Qt6_FOUND)
-    add_executable(SemiSim ${PROJECT_HEADERS} ${PROJECT_SOURCES})
-    target_include_directories(SemiSim PRIVATE include)
-    target_compile_definitions(SemiSim PRIVATE SEMISIM_WITH_QT=1)
-    target_link_libraries(SemiSim PRIVATE Qt6::Widgets)
-else()
-    add_executable(SemiSim main.cpp)
-    target_compile_definitions(SemiSim PRIVATE SEMISIM_WITH_QT=0)
-    message(WARNING "Qt6 was not found. Building a console fallback. Install Qt6 and set CMAKE_PREFIX_PATH to enable the GUI.")
-endif()
+add_library(SemiSimNative SHARED ${NATIVE_HEADERS} ${NATIVE_SOURCES})
+target_include_directories(SemiSimNative PRIVATE include)
+target_compile_definitions(SemiSimNative PRIVATE SEMISIM_WITH_QT=1)
+target_link_libraries(SemiSimNative PRIVATE Qt6::Core Qt6::Gui)
+# The WPF app loads "SemiSimNative.dll"; MinGW would otherwise add a "lib" prefix.
+set_target_properties(SemiSimNative PROPERTIES PREFIX "")

@@ -1,3 +1,22 @@
+﻿# SemiconductorEdu 명세 구현 실행 안내
+
+이 저장소에는 두 앱이 있습니다. 명세 기반 C# 교육용 앱은 **src/SemiconductorEdu.Wpf**입니다. 아래의 기존 SemiSim 설명은 별도 C++/Qt 시각화 앱입니다.
+
+~~~powershell
+dotnet restore SemiconductorEdu.sln
+dotnet build src/SemiconductorEdu.Wpf/SemiconductorEdu.Wpf.csproj
+dotnet test SemiconductorEdu.sln
+dotnet run --project src/SemiconductorEdu.Wpf/SemiconductorEdu.Wpf.csproj
+~~~
+
+Windows와 .NET SDK **10.0.403**이 필요하며 global.json에 고정했습니다. 패키지: CommunityToolkit.Mvvm 8.4.0, Microsoft.Extensions.DependencyInjection 10.0.0, Microsoft.NET.Test.Sdk 17.14.1, xunit 2.9.3, xunit.runner.visualstudio 3.1.1.
+
+실행 후 웨이퍼 초기화, 산화 실행, 세션 저장/열기, Undo/Redo, CSV 이력 저장을 사용할 수 있습니다. 증착은 방식과 재료에 맞는 온도·압력 및 활성 입력을 지정합니다. CVD SiO2 기본 400°C/1 Torr/100 sccm/10 min은 100 nm, ALD SiO2 200°C/1 Torr/100 cycles/1 s pulse/5 s purge는 10 nm입니다. 방식 변경 시 입력을 자동으로 덮어쓰지 않으므로 조건을 확인하세요.
+
+검증되지 않은 교육용 예시이며 전체 명세가 완성된 상태는 아닙니다. [완료율 산정·변경 내용·잔여 구현](docs/specification-audit-2026-11-16.md)을 확인하세요.
+
+---
+
 # SemiSim
 
 SemiSim은 C# WPF 데스크톱 UI와 C++ 네이티브 시뮬레이션/렌더링 DLL로 구성된 반도체 공정 시각화 프로토타입입니다. UI는 WPF에서 관리하고, 공정 상태 계산과 QPainter 기반 메시 렌더링은 `SemiSimNative` C++ 라이브러리에서 처리합니다. 두 계층은 C ABI와 P/Invoke로 연결됩니다.
