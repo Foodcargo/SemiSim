@@ -1,10 +1,10 @@
 # SemiSim
 
-### 공정 조건을 넣으면 웨이퍼가 바뀌고, 그 웨이퍼가 트랜지스터로 동작하는지까지 판정하는 3D 반도체 공정 시뮬레이터
+### 공정 조건을 바꿔 보며 반도체 공정을 단계별로 체험하는 교육용 시뮬레이터
 
-![SemiSim에서 NMOS 제작 경로를 끝까지 실행한 화면](images/NMOS_image.png)
+반도체 공정은 장비와 비용의 제약 때문에 학생이 직접 조건을 바꿔 보기 어렵습니다. SemiSim은 산화, 포토, 식각, 이온주입, CMP 등 공정을 순서대로 실행하고, 그 결과를 웨이퍼 단면으로 바로 확인할 수 있게 만든 교육용 시뮬레이터입니다.
 
-<sub>학습 경로 5(마스크 제작 → 초기화 → 게이트 산화 → W 게이트 → As 자기정렬 주입 → RTA → 컨택 → 전기 검사)를 끝까지 실행한 화면입니다. 가운데는 엔진이 계산한 웨이퍼 상태로 그린 NMOS 소자 보기입니다. 오른쪽 Inspector는 같은 상태를 Union-Find로 분석해 얻은 도체 네트와 영역별 전기적 분류(N+ / p형 / 금속 / 절연체)를 보여 줍니다.</sub>
+C# WPF와 MVVM Toolkit으로 개발했습니다. 화면과 공정 로직을 분리하기 위해 도메인, 애플리케이션, 시뮬레이션, 인프라, UI 계층으로 프로젝트를 나누고, 의존성 주입으로 각 계층을 연결했습니다.
 
 ---
 
@@ -12,148 +12,146 @@
 
 | | |
 | --- | --- |
-| **무엇을** | 산화 · 포토 · 식각 · 증착 · 이온주입 · 열처리 · CMP · 배선 · 컨택 등 **14개 공정 모델**과 트랜지스터 전기 검사 |
-| **어떻게** | 조건 입력 → 4단계 사전 차단 → 계산 → 품질 판정 → 커밋. 장비 소프트웨어의 레시피 실행 흐름을 그대로 따릅니다. |
-| **결과** | 3D 단면, 도핑 분포, 도체 네트 분석, Id–Vg / Id–Vd 곡선, Ion · Ioff · Vth 판정 |
-| **기술** | Qt 6 QML(MVVM) · C++17 · OpenGL 3.3 인스턴싱 · C# .NET 8 NativeAOT · C ABI · xUnit |
-| **검증** | 엔진 xUnit 63개 + 배포 DLL 자가 테스트 42개 + OpenGL 렌더링 테스트 + ViewModel 테스트 |
+| **무엇을** | 웨이퍼 초기화 · 산화 · 포토 · 식각 · PR 제거 · 증착 · CMP · 이온주입 · 어닐 · 금속 배선 · 검사 |
+| **어떻게** | 조건 입력 → 입력 검증 → 선행조건 → 장비 인터록 → 모델 적용 범위 → 계산 → 품질 판정 → 커밋 |
+| **결과** | 웨이퍼 2D 단면, 공정별 지표(산화막 두께 등), 품질 판정, 실행 이력 |
+| **기술** | C# · .NET 10 · WPF · CommunityToolkit.Mvvm · Microsoft.Extensions.DependencyInjection · System.Text.Json · xUnit |
+| **검증** | 단위 테스트 49개 + 통합 테스트 14개, **63개 모두 통과** (2026-11-17 실행) |
 
 ---
 
-## 장비 소프트웨어처럼 설계했습니다
-
-공정 장비는 결과를 잘 계산하는 것만큼, **돌리면 안 되는 레시피를 돌리지 않는 것**이 중요합니다. SemiSim은 모든 공정을 같은 실행 파이프라인([Pipeline.cs](SemiEduQt/engine/SemiEdu.Engine/Engine/Pipeline.cs))에 통과시킵니다.
-
-```text
-원문 입력
-   │
-   ▼
-① 입력 검증 ──▶ ② 웨이퍼 선행조건 ──▶ ③ 장비 인터록 ──▶ ④ 모델 적용 범위
-                                                              │
-                                                              ▼
-       커밋 ◀── 품질 판정 ◀── 결과 불변조건 검사 ◀── 후보 상태 계산
-```
-
-- **인터록:** 장비 문 열림, 비상정지, 공정별 장비 한계 19종이 있습니다. 예를 들어 주입 에너지는 200 keV, 어닐 온도는 1100 °C를 넘으면 계산 전에 막습니다.
-- **선행조건:** 웨이퍼 상태로 판단하는 39종이 있습니다. PR이 남은 상태의 열처리, 게이트 금속이 아닌 금속이 있는 상태의 고온 공정, 너무 두꺼운 스크린 산화막 등이 해당합니다.
-- **실패 원인 분리:** 어느 단계에서 막혔는지에 따라 결과를 `InvalidInput` / `PreconditionFailed` / `Interlock` / `ModelOutOfDomain` / `ProcessFailure`로 나눕니다. 차단된 단계 이후는 `NotRun`으로 남겨서 작업자가 원인을 바로 알 수 있습니다.
-- **상태 충돌 방지:** 실행 요청은 기대 Revision을 함께 보냅니다. 그사이 웨이퍼 상태가 바뀌었으면 `STALE_STATE`로 커밋을 거부합니다. 오래된 화면을 보고 내린 명령이 실제 상태를 덮어쓰지 않습니다.
-- **불량 이후 진행 통제:** 직전 공정이 품질 불량이면 다음 공정을 엔진이 막습니다. 계속하려면 ‘불량 상태로 계속 학습’을 명시적으로 켜야 합니다.
-- **미리보기와 커밋 분리:** 계산 결과와 3D 화면을 먼저 확인하고, 웨이퍼에 반영하는 건 그다음입니다.
-- **되돌리기:** 공정을 골라 그 지점까지 되돌릴 수 있습니다. 뒤에 진행한 공정까지 함께 사라지면 한 번 확인을 받습니다. 실행 이력은 지우지 않고, History에서 각 공정에 입력한 값을 다시 볼 수 있습니다.
-- **비동기 실행과 취소:** 계산은 `QtConcurrent` 워커에서 돌기 때문에 UI가 멈추지 않습니다. 취소 요청은 별도 경로로 엔진에 전달합니다.
-
----
-
-## 공정에서 소자까지 이어집니다
-
-공정 결과를 그림으로 보여 주는 데서 끝내지 않습니다. 직접 만든 구조가 **트랜지스터로 동작하는지** 엔진이 판정합니다.
-
-```text
-단면 · 활성 도핑 농도
-   → 영역별 전기적 분류 (N+ / P+ / n형 / p형 / 금속 / 절연체)
-   → Union-Find 연결 분석으로 도체 네트 구성
-   → Gate / Source / Drain 단자와 채널 구조 확인
-   → 단락 · 개방 · 접합 없음 · 게이트 누설 검사
-   → 장채널 MOSFET 모델로 Ion · Ioff · on/off 비 · Vth 계산
-```
-
-- **[Netlist.cs](SemiEduQt/engine/SemiEdu.Engine/Electrical/Netlist.cs):** 금속과 도핑 영역의 연결 관계를 분석합니다.
-- **[Transistor.cs](SemiEduQt/engine/SemiEdu.Engine/Electrical/Transistor.cs):** 구조 결함과 전기 특성을 판정합니다.
-
-마스크 정렬이 어긋나거나 주입 조건이 잘못되면 그 결과가 `OPEN_SOURCE`, `SD_SHORT`, `NO_JUNCTION` 같은 구조 판정과 전류값으로 바로 나타납니다.
-
----
-
-## 아키텍처
+## 계층 구조
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
-│ View · QML              공정 목록 / 입력 폼 / 결과 / 이력  │
+│ SemiconductorEdu.Wpf          View(XAML) · ViewModel      │
+│   MainWindow ↔ MainViewModel   [ObservableProperty]       │
+│   CrossSectionCanvas            [RelayCommand]            │
 └──────────────────────────────────────────────────────────┘
-        │ 명령                          ▲ 속성 바인딩
-        ▼                               │
+        │ 명령 실행 (async)               ▲ 데이터 바인딩
+        ▼                                 │
 ┌──────────────────────────────────────────────────────────┐
-│ ViewModel · C++ QObject  실행 · Undo · 동적 폼 · 씬 상태   │
+│ SemiconductorEdu.Application   ProcessSession             │
+│   공정별 Executor · 품질 판정 · Undo / Redo · 실행 이력    │
 └──────────────────────────────────────────────────────────┘
-        │ QtConcurrent 워커
-        ▼
+        │                                 │
+        ▼                                 ▼
+┌───────────────────────────┐   ┌──────────────────────────┐
+│ SemiconductorEdu.Simulation│   │ SemiconductorEdu.        │
+│   산화 · 패턴 · 증착/CMP   │   │ Infrastructure           │
+│   주입/어닐 · 배선 · 검사  │   │   설정 JSON 로드 · 검증  │
+│   웨이퍼 초기화            │   │   세션 저장 / 불러오기   │
+└───────────────────────────┘   └──────────────────────────┘
+        │                                 │
+        └────────────────┬────────────────┘
+                         ▼
 ┌──────────────────────────────────────────────────────────┐
-│ EngineClient · C++       DLL 로드 · ABI 버전 검사 · JSON   │
+│ SemiconductorEdu.Domain   웨이퍼 상태 · 공정 파라미터     │
+│   단위 타입(길이 · 시간 · 압력 · 온도) · 장비 상태 · 검증 │
 └──────────────────────────────────────────────────────────┘
-        │ C ABI (se_form / se_run / se_state / se_scene_*)
-        ▼
-┌──────────────────────────────────────────────────────────┐
-│ Engine · C# NativeAOT    검증 → 파이프라인 → 공정 모델     │
-│                          → 품질 판정 → Session            │
-│                          Netlist · MOSFET · SceneBuilder  │
-└──────────────────────────────────────────────────────────┘
-        │ 씬 박스 배열
-        ▼
-  C++ BoxRenderer (OpenGL 3.3)  ·  PlotItem (전류 곡선)
 ```
 
-- **화면과 계산의 분리:** QML에는 검증이나 계산 코드가 없습니다. 공정 수식, 검증, 판정은 모두 C# 엔진이 맡습니다. 그래서 UI를 바꿔도 공정 로직은 그대로입니다.
-- **언어 경계는 C ABI 하나:** C++ 앱과 C# 엔진은 버전이 매겨진 C ABI와 UTF-8 JSON으로만 통신합니다. 엔진은 NativeAOT로 네이티브 DLL이 되므로 .NET 런타임 없이 로드됩니다. 앱과 엔진이 서로 다른 컴파일러(MinGW / MSVC)로 빌드돼도 연결됩니다.
-- **엔진이 결정하는 입력 폼:** 표시할 필드, 선택지, 범위, 오류 메시지를 엔진이 정합니다. 숫자도 원문 문자열 그대로 전달해서, UI가 잘못된 입력을 임의로 고치지 않습니다.
-- **타입이 있는 레시피:** 검증을 통과한 입력은 공정별 불변 레코드로 바뀐 뒤 계산에 들어갑니다. 빠진 필수값이 0으로 바뀌어 계산되는 일이 없습니다.
-
-### 렌더링 성능
-
-[BoxRenderer.cpp](SemiEduQt/app/render/BoxRenderer.cpp)의 방식은 다음과 같습니다.
-- 모든 박스가 단위 큐브 메시 하나를 공유하고, 위치·크기·색상만 인스턴스 데이터로 보냅니다.
-- 프러스텀 컬링으로 화면 밖 박스를 제외합니다.
-- 장면이 바뀌지 않으면 GPU 업로드를 생략합니다.
-
-| 항목 | 결과 |
+| 프로젝트 | 역할 |
 | --- | --- |
-| draw call | 박스 수와 관계없이 최대 4회 (격자 · 불투명 · 외곽선 · 반투명) |
-| 박스당 동적 업로드 | 기존 정점 전개 방식 2,400 B → 80 B |
-| 부하 검증 | 1천 · 1만 · 5만 박스에서 버퍼 재사용과 반투명 정렬을 OpenGL 테스트로 확인 |
+| `Domain` | 웨이퍼 상태, 공정 파라미터, 단위 타입, 장비 상태, 검증 결과처럼 다른 계층이 공유하는 모델 |
+| `Simulation` | 공정별 계산 모델. UI와 저장소를 모름 |
+| `Application` | 공정 실행 흐름(`ProcessSession`), 공정별 Executor, 품질 판정 |
+| `Infrastructure` | 설정 JSON 로드와 검증, 세션 파일 저장과 복원 |
+| `Wpf` | 화면과 ViewModel. 계산 코드를 두지 않음 |
+
+[App.xaml.cs](src/SemiconductorEdu.Wpf/App.xaml.cs)에서 모델, Executor, `ProcessSession`, `MainViewModel`을 DI 컨테이너에 등록하고, `MainViewModel`을 `MainWindow`의 `DataContext`로 연결합니다.
+
+---
+
+## MVVM 구성
+
+- **속성 바인딩:** `MainViewModel`은 `ObservableObject`를 상속하고, 공정 조건과 결과를 `[ObservableProperty]`로 공개합니다. 입력값이 바뀌면 화면이 자동으로 갱신됩니다.
+- **명령:** 각 공정 실행, 초기화, Undo / Redo, 취소, 세션 저장 / 불러오기, 이력 내보내기를 `[RelayCommand]`로 노출합니다. 공정 실행 명령은 비동기(`Task`)로 동작합니다.
+- **단면 표시:** [CrossSectionCanvas](src/SemiconductorEdu.Wpf/Controls/CrossSectionCanvas.cs)는 `DependencyProperty`로 단면 열 목록을 바인딩받아, 값이 바뀌면 다시 그리는 사용자 정의 컨트롤입니다.
+- **결과 상태 표시:** 실행 후 입력을 바꾸면 화면에 "입력 변경됨 · 이전 레시피 결과"를 표시해, 지금 보이는 결과가 어떤 조건에서 나온 것인지 헷갈리지 않게 합니다.
+
+---
+
+## 공정 실행 흐름
+
+모든 공정은 [ProcessSession](src/SemiconductorEdu.Application/Execution/ProcessSession.cs)을 거쳐 같은 단계로 실행됩니다.
+
+```text
+설정 → 입력 검증 → 선행조건 → 장비 인터록 → 모델 적용 범위
+                                                    │
+                                                    ▼
+          커밋 ◀── 품질 판정 ◀── 결과 불변조건 검사 ◀── 계산
+```
+
+- **실패 원인 분리:** 결과를 `InvalidInput` / `PreconditionFailed` / `Interlock` / `ModelOutOfDomain` / `CalculationError` / `Cancelled` / `ProcessFailure` / `ProcessSuccess`로 나눕니다. 학습자는 어느 단계에서 막혔는지 바로 확인할 수 있습니다.
+- **장비 인터록:** 장비 상태(도어 닫힘, 비상정지, 사용 가능 여부, 허용 웨이퍼 직경)를 확인한 뒤에만 계산합니다.
+- **품질 판정:** 공정 지표를 목표값과 허용 오차(비율 또는 절대값)로 비교해 Pass / Fail을 정합니다.
+- **상태 충돌 방지:** 실행 중에 세션이 바뀌면 `STALE_SESSION_REVISION`으로 커밋을 거부합니다.
+- **비동기 실행과 취소:** 계산은 `Task.Run`으로 백그라운드에서 돌고, 취소 요청은 `CancellationToken`으로 전달합니다.
+
+---
+
+## 교육용 기능
+
+| 기능 | 설명 |
+| --- | --- |
+| 단계별 공정 실행 | 웨이퍼 초기화부터 검사까지 10개 공정을 원하는 순서로 실행 |
+| Undo / Redo | 이전 웨이퍼 상태로 돌아가 다른 조건으로 다시 진행 |
+| 실행 이력 | 공정 종류, 실행 상태, 품질 판정, 지표를 History에 기록 |
+| 이력 내보내기 | 실행 이력을 CSV로 저장해 수업 자료나 비교 분석에 활용 |
+| 세션 저장 / 불러오기 | 진행 중인 웨이퍼 상태와 이력을 JSON 파일로 저장하고 복원. 저장은 임시 파일에 쓴 뒤 교체해 파일 손상을 막음 |
+
+`Infrastructure`에는 공정 설정 JSON을 읽고 검증하는 로더(`SimulationConfigurationLoader`)도 있습니다. 통합 테스트로 검증했지만, 현재 앱은 아직 이 로더 대신 `App.xaml.cs`에 등록한 기본값을 사용합니다.
 
 ---
 
 ## 검증
 
-| 대상 | 방법 | 현재 결과 |
+```powershell
+dotnet test SemiconductorEdu.sln
+```
+
+| 대상 | 내용 | 결과 (2026-11-17) |
 | --- | --- | --- |
-| 공정 · 판정 엔진 | xUnit: 시나리오, 입력 타입, ABI 계약, 부분 Undo | 63개 중 58개 통과 |
-| 배포된 NativeAOT DLL | `SemiEduApp.exe --selftest`: 실제 DLL로 시나리오 42개 실행 | 42개 중 38개 통과 |
-| 렌더러 | 오프스크린 OpenGL: 컬링, 업로드량, 반투명 정렬, 5만 박스 | 통과 |
-| ViewModel | 부분 Undo, 확인 경고, 레이어 설명, 선택 해제 | 통과 |
-
-> **실패 5건은 의도적으로 남긴 기록입니다.** 금속은 직접 맞닿은 N+/P+ 표면 셀에만 연결된다는 명세 9장 원문 규칙을 우선 적용했습니다. 그러자 기본 NMOS 경로의 정상 동작 기대값과 충돌했습니다. 테스트 기대값을 바꿔 통과시키지 않고, 충돌 원인과 테스트별 결과를 [SemiEduQt/README.md](SemiEduQt/README.md#원문-우선-검증-2026-11-17)에 그대로 기록했습니다.
-
----
-
-## 학습 경로
-
-[scripts](SemiEduQt/scripts)의 JSON을 `--script`로 넘기면 처음부터 끝까지 그대로 재생됩니다.
-
-| 경로 | 흐름 | 확인할 결과 |
-| --- | --- | --- |
-| 1. 패턴 형성 | 초기화 → 산화 → 마스크 · 포토 → 식각 → PR 제거 → 검사 | 개구부 식각과 PR 제거 |
-| 2. 도핑 | 초기화 → 이온주입 → RTA → 검사 | 농도 프로파일과 활성화율 |
-| 3. 배선 | 산화막 → 세정 → Al 배선 → 검사 | 배선 저항 |
-| 4. 평탄화 | 산화막 → CVD → CMP → 검사 | 잔여 막 두께 |
-| 5. NMOS | 마스크 → 초기화 → 게이트 산화 · 전극 → 주입 → RTA → 컨택 → 전기 검사 | 구조 판정과 on/off 동작 |
+| 단위 테스트 | 산화 · 패턴 · 증착/CMP · 주입/어닐 · 배선 · 검사 모델, 초기화 검증, 세션 동작 | 49개 통과 |
+| 통합 테스트 | 설정 로드와 세션 저장, 세션 복구, 주입/어닐 · 배선/검사 세션 흐름 | 14개 통과 |
 
 ---
 
 ## 빌드와 실행 (Windows)
 
-**필요한 것:**
-- Qt 6.11.1 (MinGW 64-bit)
-- .NET SDK (엔진 대상 `net8.0`)
-- Visual Studio C++ 빌드 도구 (NativeAOT 링커)
+**필요한 것:** .NET SDK 10.0.403 ([global.json](global.json)으로 고정)
 
 ```powershell
-cd SemiEduQt
-./build.ps1                                                # 엔진 → xUnit → 앱 빌드 → 배포 → 자가 테스트
-build/SemiEduApp.exe --script scripts/path5-nmos.json      # NMOS 경로를 재생한 상태로 시작
+dotnet build SemiconductorEdu.sln
+dotnet run --project src/SemiconductorEdu.Wpf
 ```
 
-수동 빌드 절차, 확인한 환경, 명세와 다르게 구현한 부분은 [SemiEduQt/README.md](SemiEduQt/README.md)에 정리했습니다.
+---
+
+## 다른 구현
+
+같은 저장소에 SemiSim을 다른 구조로 구현한 버전이 두 개 더 있습니다.
+
+### WPF + C++ 네이티브 DLL 프로토타입 (`ui/SemiSim.Wpf`, 루트 `src/`의 C++ 코드)
+
+C# WPF 화면에서 C++ 네이티브 DLL(`SemiSimNative.dll`)을 P/Invoke로 호출하는 구조를 검증한 초기 프로토타입입니다.
+
+- C++ 쪽은 `extern "C"` 함수 8개(생성 · 초기화 · 공정 적용 · 상태 조회 · 카메라 회전/확대 · 렌더링)를 내보냅니다.
+- 공정 파라미터는 UTF-8 JSON 문자열로 전달합니다.
+- C++에서 웨이퍼를 3D 투영으로 그려 픽셀 버퍼로 넘기면, WPF가 이미지로 표시합니다.
+- 연동 검증이 목적이라 WPF 쪽은 MVVM이 아닌 코드 비하인드 방식입니다.
+
+### Qt 6 / C++ 3D 버전 (`SemiEduQt/`)
+
+![Qt 버전에서 NMOS 제작 경로를 실행한 화면](images/NMOS_image.png)
+
+C++17과 Qt 6(QML)로 다시 만든 3D 버전입니다. 공정 계산은 C# 엔진을 NativeAOT DLL로 빌드해 C ABI로 연결했습니다.
+
+- QML View와 C++ `QObject` ViewModel을 속성 바인딩으로 연결한 MVVM 구조
+- OpenGL 3.3 인스턴싱 렌더러로 웨이퍼 단면을 3D로 표시
+- 공정 결과로 만든 구조를 Union-Find로 연결 분석해 트랜지스터 단락 · 개방 · Vth 등을 판정
+- 현재 명세 원문 규칙을 우선 적용하면서 일부 테스트가 실패한 상태입니다(xUnit 63개 중 58개, 자가 테스트 42개 중 38개 통과). 자세한 내용은 [SemiEduQt/README.md](SemiEduQt/README.md)에 있습니다.
 
 ---
 
@@ -161,14 +159,16 @@ build/SemiEduApp.exe --script scripts/path5-nmos.json      # NMOS 경로를 재�
 
 ```text
 SemiSim/
-├─ SemiEduQt/                 현재 앱
-│  ├─ app/                    C++ · QML: ViewModel, EngineClient, OpenGL 렌더러
-│  ├─ engine/SemiEdu.Engine/  C# 엔진: Domain · Engine · Processes · Electrical · Scene
-│  ├─ engine.tests/           xUnit
-│  └─ scripts/                학습 경로 1–5
-├─ images/                    README 이미지
-├─ src/SemiconductorEdu.*/    이전 WPF 구현
-└─ docs/                      명세 검토 기록
+├─ src/SemiconductorEdu.Domain/          도메인 모델
+├─ src/SemiconductorEdu.Application/     공정 실행 흐름 · Executor · 품질 판정
+├─ src/SemiconductorEdu.Simulation/      공정 계산 모델
+├─ src/SemiconductorEdu.Infrastructure/  설정 · 세션 저장
+├─ src/SemiconductorEdu.Wpf/             WPF · MVVM 화면
+├─ tests/                                단위 · 통합 테스트
+├─ ui/SemiSim.Wpf/ + src/ · include/     WPF + C++ 네이티브 프로토타입
+├─ data/                                 프로토타입용 공정 기본값 JSON
+├─ SemiEduQt/                            Qt 6 / C++ 3D 버전
+└─ docs/                                 명세 검토 기록
 ```
 
-> 모든 계수, 장비 한계, 품질 기준은 교육용 예시 값입니다. 식의 형태는 Deal–Grove, Gaussian 주입 분포, square-law MOSFET 같은 문헌 모델을 따랐지만, 계수는 이 프로젝트가 정한 값입니다. 실제 레시피, 장비 운전 한계, 수율을 예측하는 데 쓸 수 없습니다.
+> 모든 계수, 장비 한계, 품질 기준은 교육용 예시 값입니다. 실제 제조 레시피, 장비 운전 한계, 수율을 예측하는 데 쓸 수 없습니다.
